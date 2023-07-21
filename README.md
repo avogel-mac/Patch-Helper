@@ -3,3 +3,6 @@
 
 
 Patch Helper
+Ein Skript, dass dazu dient den User über alle verfügbaren Updates für das betroffene Gerät in einem Dialog anzeigt. 
+
+What does it do?
