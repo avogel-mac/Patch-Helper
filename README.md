@@ -16,7 +16,7 @@ _-Anzahl über verfügbaren Verschiebungen_
 
 _-wie häufig der der Dialog immer wieder startet_
 
-
+/Users/andreas.vogel/Desktop/Patch_Helper_hell.png
 
 
 Der User wird darüber informiert welche Applikationen gerade aktuallisiert werden und auch über das Ergebnis. 
