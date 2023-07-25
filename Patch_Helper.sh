@@ -1,6 +1,6 @@
 #!/bin/bash
 #######################################################################
-# Shellscript		:	PATCH MANAGEMENT
+# Shellscript		:	Patch Helper
 # Edetiert durch	:	Andreas Vogel
 # Changelog			: 	0.1 -	initial skript
 #                   :   0.2 -   Termination of the LaunchDaemon via bootout
@@ -23,7 +23,7 @@ if [[ ! -f "${scriptLog}" ]]; then
     touch "${scriptLog}"
 fi
 
-debugMode="${4:-"true"}"                                  # Parameter 4: Debug Mode [ verbose (default) | true | false ]
+debugMode="${4:-"false"}"                                  # Parameter 4: Debug Mode [ true (default) | false ]
 
 BannerImage="${5}"                                        # Parameter 5: BannerImage on Top of swiftDialog
 if [[ -z "$BannerImage" ]]; then
@@ -54,30 +54,30 @@ if [[ -z "$TimePromtUser" ]]; then
     TimePromtUser="300"
 fi
 
-#jamfpro_url="${10}"
-#if [[ -z "$jamfpro_url" ]]; then
-#   echo "Jamf Pro URL missing"
-#   exit 1
-#fi
-#
-#encodedCredentials="${11}"
-#if [[ -z "$encodedCredentials" ]]; then
-#   echo "Credentials missing"
-#   exit 1
-#fi
+jamfpro_url="${10}"
+if [[ -z "$jamfpro_url" ]]; then
+   echo "Jamf Pro URL missing"
+   exit 1
+fi
+
+encodedCredentials="${11}"
+if [[ -z "$encodedCredentials" ]]; then
+   echo "Credentials missing"
+   exit 1
+fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # ****************************** Testing *********************************************************************#
 #jamfpro_url=""
 #if [[ -z "$jamfpro_url" ]]; then
-#   echo "Jamf Pro URL missing"
-#   exit 1
+#    echo "Jamf Pro URL missing"
+#    exit 1
 #fi
 #
 #encodedCredentials=""
 #if [[ -z "$encodedCredentials" ]]; then
-#   echo "Credentials missing"
-#   exit 1
+#    echo "Credentials missing"
+#    exit 1
 #fi
 
 # ****************************** End Testing *****************************************************************#
@@ -142,8 +142,8 @@ updateScriptLog "PRE-FLIGHT CHECK: Current Logged-in User ID: ${loggedInUserID}"
 # # # # # # # # # # # # # # # # # # Validate swiftDialog is install # # # # # # # # # # # # # # # #
 function dialogCheck() {
 
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "WARM-UP: # # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "WARM-UP: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     # Get the URL of the latest PKG From the Dialog GitHub repo
     dialogURL=$(curl --silent --fail "https://api.github.com/repos/bartreardon/swiftDialog/releases/latest" | awk -F '"' "/browser_download_url/ && /pkg\"/ { print \$4; exit }")
@@ -177,7 +177,7 @@ function dialogCheck() {
         else
 
             # Display a so-called "simple" dialog if Team ID fails to validate
-            osascript -e 'display dialog "Please advise your Support Representative of the following error:\r\r• Dialog Team ID verification failed\r\r" with title "PATCH MANAGEMENT: Error" buttons {"Close"} with icon caution'
+            osascript -e 'display dialog "Please advise your Support Representative of the following error:\r\r• Dialog Team ID verification failed\r\r" with title "Patch Helper: Error" buttons {"Close"} with icon caution'
             completionActionOption="Quit"
             exitCode="1"
             quitScript
@@ -236,7 +236,7 @@ setDeferral (){
 }
 
 DeferralPlist="/Library/Application Support/JAMF/de.next.update.deferrals.plist"
-BundleID="de.next.PatchManagement"
+BundleID="de.next.PatchHelper"
 DeferralType="count"
 
 CurrentDeferralValue="$(/usr/libexec/PlistBuddy -c "print :$BundleID:count" "$DeferralPlist" 2>/dev/null)"
@@ -257,16 +257,16 @@ updateScriptLog "WARM-UP: Complete"
 # Function ClearUp the LaunchDaemon 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function ClearUpLaunchDaemon() {
-    updateScriptLog "PATCH MANAGEMENT DIALOG: Stopping LaunchDaemon launchctl bootout system …"
+    updateScriptLog "Patch Helper DIALOG: Stopping LaunchDaemon launchctl bootout system …"
     launchctl bootout system/de.next.UpdateEnforce
     
     if [ $? -ne 0 ]; then
-        updateScriptLog "PATCH MANAGEMENT DIALOG: Error unloading LaunchDaemon"
+        updateScriptLog "Patch Helper DIALOG: Error unloading LaunchDaemon"
     else
-        updateScriptLog "PATCH MANAGEMENT DIALOG: LaunchDaemon unloaded successfully"
+        updateScriptLog "Patch Helper DIALOG: LaunchDaemon unloaded successfully"
     fi
     
-    updateScriptLog "PATCH MANAGEMENT DIALOG: delete the LaunchDaemon so that it is loaded again after a reboot... "
+    updateScriptLog "Patch Helper DIALOG: delete the LaunchDaemon so that it is loaded again after a reboot... "
     rm -rf /Library/LaunchDaemons/de.next.UpdateEnforce.plist
 }
 
@@ -274,7 +274,7 @@ function ClearUpLaunchDaemon() {
 # Function ClearUp deferral plist 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function ClearUpPlist() {
-    updateScriptLog "PATCH MANAGEMENT DIALOG: Deleting plist …"
+    updateScriptLog "Patch Helper DIALOG: Deleting plist …"
     rm -rf "/Library/Application Support/JAMF/de.next.update.deferrals.plist"
     
 }
@@ -286,9 +286,9 @@ function CheckDeferral() {
     # Check if the daemon exists and is loaded
     if launchctl list | grep -q "de.next.UpdateEnforce"
     then
-        updateScriptLog "PATCH MANAGEMENT DIALOG: The daemon exists and is loaded …"
+        updateScriptLog "Patch Helper DIALOG: The daemon exists and is loaded …"
     else
-        updateScriptLog "PATCH MANAGEMENT DIALOG: no deferral has been set up yet. Set up the daemon …"
+        updateScriptLog "Patch Helper DIALOG: no deferral has been set up yet. Set up the daemon …"
         createLaunchDaemon
         StartLaunchDaemon
     fi
@@ -301,11 +301,11 @@ function ClearUpDeferral() {
     # Check if the daemon exists and is loaded
     if launchctl list | grep -q "de.next.UpdateEnforce"
     then
-        updateScriptLog "PATCH MANAGEMENT DIALOG: Clean up the daemon, updates were successfully installed …"
+        updateScriptLog "Patch Helper DIALOG: Clean up the daemon, updates were successfully installed …"
         ClearUpLaunchDaemon
         ClearUpPlist
     else
-        updateScriptLog "PATCH MANAGEMENT DIALOG: Daemon was not set up, user had not yet moved …"
+        updateScriptLog "Patch Helper DIALOG: Daemon was not set up, user had not yet moved …"
         ClearUpPlist
     fi
     
@@ -315,7 +315,7 @@ function ClearUpDeferral() {
 CurrentUser=$(/usr/sbin/scutil <<< "show State:/Users/ConsoleUser" | /usr/bin/awk -F': ' '/[[:space:]]+Name[[:space:]]:/ { if ( $2 != "loginwindow" ) { print $2 }}')
 Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/${CurrentUser}/Library/Preferences/.GlobalPreferences.plist")
 
-if [[ $Language = de* ]]; then
+if [[ $Language != de* ]]; then
     UserLanguage="DE"
 else
     UserLanguage="EN"
@@ -555,9 +555,8 @@ dialogVersion=$( /usr/local/bin/dialog --version )
 # Reflect Debug Mode in `infotext` (i.e., bottom, left-hand corner of each dialog)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 case ${debugMode} in
-    "true"      ) scriptVersion="Patch Management | v${scriptVersion}" ;;
-    "verbose"   ) scriptVersion="VERBOSE DEBUG MODE | Dialog: v${dialogVersion} • PATCH MANAGEMENT: v${scriptVersion}" ;;
-    "false"   ) scriptVersion="Patch Management | v${scriptVersion}" ;;
+    "true"   ) scriptVersion="true DEBUG MODE | Dialog: v${dialogVersion} • Patch Helper: v${scriptVersion}" ;;
+    "false"   ) scriptVersion="Patch Helper | v${scriptVersion}" ;;
 esac
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -566,29 +565,29 @@ esac
 dialogApp="/Library/Application\ Support/Dialog/Dialog.app/Contents/MacOS/Dialog"
 dialogBinary="/usr/local/bin/dialog"
 CommandFile=$( mktemp /var/tmp/dialogWelcome.XXX )
-PatchManagementCommandFile=$( mktemp /var/tmp/dialogSetupYourMac.XXX )
+PatchHelperCommandFile=$( mktemp /var/tmp/dialogSetupYourMac.XXX )
 failureCommandFile=$( mktemp /var/tmp/dialogFailure.XXX )
 jamfBinary="/usr/local/bin/jamf"
 
-# # # # # # # # # # # # # # # # # # # "PATCH MANAGEMENT" Change Time Value # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # "Patch Helper" Change Time Value # # # # # # # # # # # # # # # #
 if [[ $StartInterval -eq 3600 ]]; then
-    echo "Das Update wird stündlich ausgeführt."
-    Time="stündlich"
+    echo "The update is executed every hour."
+    Time="hourly"
 elif [[ $StartInterval -lt 3600 ]]; then
     # Converted interval in minutes
     intervalMinutes=$((StartInterval / 60))
-    echo "Das Update wird alle $intervalMinutes Minuten ausgeführt."
-    Time="alle $intervalMinutes Minuten"
+    echo "The update is executed every $intervalMinutes minutes."
+    Time="all $intervalMinutes Min."
 else
     # Converted interval in hours and minutes
     intervalHours=$((StartInterval / 3600))
     intervalMinutes=$(( (StartInterval % 3600) / 60 ))
-    echo "Das Update wird alle $intervalHours Std. $intervalMinutes Min erzwungen."
-    Time="alle $intervalHours Std. $intervalMinutes Min"
+    echo "The update is forced every $intervalHours Std. $intervalMinutes Min."
+    Time="all $intervalHours Std. $intervalMinutes Min"
 fi
     
 
-# # # # # # # # # # # # # # # # # # # "PATCH MANAGEMENT" dialog Title, Messages # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # "Patch Helper" dialog Title, Messages # # # # # # # # # # # # # # # #
 UserInfoTitle_DE="Hey, ${loggedInUserFirstname} es $pluralQuantity_DE ${Update_Count} update${!Plural} verfügbar"
 UserInfoTitle_EN="Hello ${loggedInUserFirstname} it $pluralQuantity_EN ${Update_Count} update${!Plural} available."
     
@@ -619,12 +618,12 @@ failureTitle_DE="Fehler gefunden"
 failureTitle_EN="Error found"
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-final_sucess_titel_DE="Patch Management abgeschlossen"
-final_sucess_titel_EN="Patch management completed"
+final_sucess_titel_DE="Patch Helper abgeschlossen"
+final_sucess_titel_EN="Patch Helper completed"
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-progresstext_DE="Initialisiere Patch Management ..."
-progresstext_EN="Initialization Patch Management ..."
+progresstext_DE="Initialisiere Patch Helper ..."
+progresstext_EN="Initialization Patch Helper ..."
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
 button1text_DE="Bitte warten"
@@ -708,11 +707,11 @@ button1text=button1text_${UserLanguage}
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-# PATCH MANAGEMENT dialog
+# Patch Helper dialog
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# "PATCH MANAGEMENT" dialog Title, Message, Icon and Overlay Icon
+# "Patch Helper" dialog Title, Message, Icon and Overlay Icon
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 infobox="Analyzing input …"
 
@@ -724,7 +723,7 @@ else
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# "PATCH MANAGEMENT" dialog Settings and Features
+# "Patch Helper" dialog Settings and Features
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 runUpdates="$dialogBinary \
 --bannerimage \"$BannerImage\" \
@@ -747,7 +746,7 @@ runUpdates="$dialogBinary \
 --ontop \
 --overlayicon \"$overlayicon\" \
 --quitkey k \
---commandfile \"$PatchManagementCommandFile\" "
+--commandfile \"$PatchHelperCommandFile\" "
 
 IconServicePrefixUrl="https://ics.services.jamfcloud.com/icon/hash_"
 
@@ -755,8 +754,8 @@ IconServicePrefixUrl="https://ics.services.jamfcloud.com/icon/hash_"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function UpdateJSONConfiguration() {
     
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "PROMT USER DIALOG: # # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     
     updateScriptLog "PROMT USER DIALOG: PolicyJSON Configuration: $Updates"
             
@@ -955,7 +954,7 @@ function UpdateJSONConfiguration() {
             "progresstext": "Updating Inventory",
             "trigger_list": [
                 {
-                    "trigger": "1",
+                    "trigger": "recon",
                     "validation": "None"
                 }
             ]
@@ -1035,17 +1034,17 @@ function runAsUser() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Update the "Welcome" dialog
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-function dialogUpdateWelcome(){
+function dialogPatchHelper(){
     updateScriptLog "PROMT USER DIALOG: $1"
     echo "$1" >> "$CommandFile"
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Update the "PATCH MANAGEMENT" dialog
+# Update the "Patch Helper" dialog
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-function PatchManagement() {
-    updateScriptLog "PATCH MANAGEMENT DIALOG: $1"
-    echo "$1" >> "$PatchManagementCommandFile"
+function PatchHelper() {
+    updateScriptLog "Patch Helper DIALOG: $1"
+    echo "$1" >> "$PatchHelperCommandFile"
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1061,8 +1060,8 @@ function dialogUpdateFailure(){
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function finalise(){
     
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     
     if [[ "${jamfProPolicyTriggerFailure}" == "failed" ]]; then
         
@@ -1070,22 +1069,22 @@ function finalise(){
         killProcess "caffeinate"
         if [[ $Language = de* ]]
             then
-                PatchManagement "title: Entschuldige ${loggedInUserFirstname}, etwas ist schiefgelaufen"
-                PatchManagement "progresstext: Fehler erkannt. Bitte klicken Sie auf ok, um Informationen zur Fehlerbehebung zu erhalten."
+                PatchHelper "title: Entschuldige ${loggedInUserFirstname}, etwas ist schiefgelaufen"
+                PatchHelper "progresstext: Fehler erkannt. Bitte klicken Sie auf ok, um Informationen zur Fehlerbehebung zu erhalten."
             else
-                PatchManagement "title: Sorry ${loggedInUserFirstname}, something went wrong."
-                PatchManagement "progresstext: Error detected. Please click ok for troubleshooting information."
+                PatchHelper "title: Sorry ${loggedInUserFirstname}, something went wrong."
+                PatchHelper "progresstext: Error detected. Please click ok for troubleshooting information."
         fi
         
-        PatchManagement "icon: SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"
-        PatchManagement "button1text: OK"
-        PatchManagement "button1: enable"
-        PatchManagement "progress: reset"
+        PatchHelper "icon: SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"
+        PatchHelper "button1text: OK"
+        PatchHelper "button1: enable"
+        PatchHelper "progress: reset"
         
         # Wait for user-acknowledgment due to detected failure
         wait
         
-        PatchManagement "quit:"
+        PatchHelper "quit:"
         eval "${dialogFailureCMD}" & sleep 0.3
         
         updateScriptLog "\n\n# # #\n# FAILURE DIALOG\n# # #\n"
@@ -1111,13 +1110,13 @@ function finalise(){
         
     else
         
-        PatchManagement "title: ${!final_sucess_titel}"        
-        PatchManagement "progresstext: ${!final_sucess_progresstext}"
+        PatchHelper "title: ${!final_sucess_titel}"        
+        PatchHelper "progresstext: ${!final_sucess_progresstext}"
             
-        PatchManagement "icon: SF=checkmark.circle.fill,weight=bold,colour1=#00ff44,colour2=#075c1e"
-        PatchManagement "progress: complete"
-        PatchManagement "button1text: ${button1textCompletionActionOption}"
-        PatchManagement "button1: enable"
+        PatchHelper "icon: SF=checkmark.circle.fill,weight=bold,colour1=#00ff44,colour2=#075c1e"
+        PatchHelper "progress: complete"
+        PatchHelper "button1text: ${button1textCompletionActionOption}"
+        PatchHelper "button1: enable"
         
         # If either "wait" or "sleep" has been specified for `completionActionOption`, honor that behavior
         if [[ "${completionActionOption}" == "wait" ]] || [[ "${completionActionOption}" == "[Ss]leep"* ]]; then
@@ -1154,28 +1153,28 @@ function get_json_value_UserInformation() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function run_jamf_trigger() {
 
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     trigger="$1"
 
-    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]] ; then
+    if [[ "${debugMode}" == "true" ]]; then
 
-        updateScriptLog "PATCH MANAGEMENT DIALOG: DEBUG MODE: TRIGGER: $jamfBinary policy -id $trigger"
+        updateScriptLog "Patch Helper DIALOG: DEBUG MODE: TRIGGER: $jamfBinary policy -id $trigger"
         if [[ "$trigger" == "recon" ]]; then
-            updateScriptLog "PATCH MANAGEMENT DIALOG: DEBUG MODE: RECON: $jamfBinary recon ${reconOptions}"
+            updateScriptLog "Patch Helper DIALOG: DEBUG MODE: RECON: $jamfBinary recon ${reconOptions}"
         fi
         sleep 1
 
     elif [[ "$trigger" == "recon" ]]; then
 
-        PatchManagement "listitem: index: $i, status: wait, statustext: Updating …, "
-        updateScriptLog "PATCH MANAGEMENT DIALOG: Computer inventory, with the following reconOptions: \"${reconOptions}\", will be be executed in the 'confirmPolicyExecution' function …"
+        PatchHelper "listitem: index: $i, status: wait, statustext: Updating …, "
+        updateScriptLog "Patch Helper DIALOG: Computer inventory, with the following reconOptions: \"${reconOptions}\", will be be executed in the 'confirmPolicyExecution' function …"
         # eval "${jamfBinary} recon ${reconOptions}"
     else
-        updateScriptLog "PATCH MANAGEMENT DIALOG: RUNNING: $jamfBinary policy -id $trigger"
+        updateScriptLog "Patch Helper DIALOG: RUNNING: $jamfBinary policy -id $trigger"
         eval "${jamfBinary} policy -id ${trigger}"                                     # Add comment for policy testing
-        # eval "${jamfBinary} policy -id ${trigger} -verbose | tee -a ${scriptLog}"    # Remove comment for policy testing
+        # eval "${jamfBinary} policy -id ${trigger} -true | tee -a ${scriptLog}"    # Remove comment for policy testing
     fi
 
 }
@@ -1186,39 +1185,39 @@ function run_jamf_trigger() {
 
 function confirmPolicyExecution() {
 
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     trigger="${1}"
     validation="${2}"
-    updateScriptLog "PATCH MANAGEMENT DIALOG: Confirm Policy Execution: '${trigger}' '${validation}'"
+    updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: '${trigger}' '${validation}'"
 
     case ${validation} in
 
         */* ) # If the validation variable contains a forward slash (i.e., "/"), presume it's a path and check if that path exists on disk
-            if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]] ; then
-                updateScriptLog "PATCH MANAGEMENT DIALOG: Confirm Policy Execution: DEBUG MODE: Skipping 'run_jamf_trigger ${trigger}'"
+            if [[ "${debugMode}" == "true" ]]; then
+                updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: DEBUG MODE: Skipping 'run_jamf_trigger ${trigger}'"
                 sleep 1
             elif [[ -f "${validation}" ]]; then
-                updateScriptLog "PATCH MANAGEMENT DIALOG: Confirm Policy Execution: ${validation} exist; executing 'run_jamf_trigger ${trigger}'"
+                updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: ${validation} exist; executing 'run_jamf_trigger ${trigger}'"
                 
                 run_jamf_trigger "${trigger}"
                     if [[ -f "${validation}" ]] ; then
                         
-                        updateScriptLog "PATCH MANAGEMENT DIALOG: Confirm Policy Execution: ${validation} exist"
+                        updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: ${validation} exist"
                     
                     fi
                                 
             else
-                updateScriptLog "PATCH MANAGEMENT DIALOG: Confirm Policy Execution: ${validation} does NOT exist; executing 'run_jamf_trigger ${trigger}'"
+                updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: ${validation} does NOT exist; executing 'run_jamf_trigger ${trigger}'"
                 
                 run_jamf_trigger "${trigger}"
             fi
         ;;
 
         "None" )
-            updateScriptLog "PATCH MANAGEMENT DIALOG: Confirm Policy Execution: ${validation}"
-            if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]] ; then
+            updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: ${validation}"
+            if [[ "${debugMode}" == "true" ]]; then
                 sleep 5
             else
                 run_jamf_trigger "${trigger}"
@@ -1226,8 +1225,8 @@ function confirmPolicyExecution() {
             ;;
 
         * )
-            updateScriptLog "PATCH MANAGEMENT DIALOG: Confirm Policy Execution Catch-all: ${validation}"
-            if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]] 
+            updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution Catch-all: ${validation}"
+            if [[ "${debugMode}" == "true" ]] 
                 then
                     sleep 1
                 else
@@ -1243,12 +1242,12 @@ function confirmPolicyExecution() {
 
 function validatePolicyResult() {
     
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     
     trigger="${1}"
     validation="${2}"
-    updateScriptLog "PATCH MANAGEMENT DIALOG: Validate Policy Result: '${trigger}' '${validation}'"
+    updateScriptLog "Patch Helper DIALOG: Validate Policy Result: '${trigger}' '${validation}'"
     
     case ${validation} in
         
@@ -1258,12 +1257,12 @@ function validatePolicyResult() {
         ###
         
         */* ) 
-            updateScriptLog "PATCH MANAGEMENT DIALOG: Validate Policy Result: Testing for \"$validation\" …"
+            updateScriptLog "Patch Helper DIALOG: Validate Policy Result: Testing for \"$validation\" …"
             if [[ -f "${validation}" ]]
                 then
-                    PatchManagement "listitem: index: $i, status: success, statustext: Installed"
+                    PatchHelper "listitem: index: $i, status: success, statustext: Installed"
                 else
-                    PatchManagement "listitem: index: $i, status: fail, statustext: Failed"
+                    PatchHelper "listitem: index: $i, status: fail, statustext: Failed"
                     jamfProPolicyTriggerFailure="failed"
                     exitCode="1"
                     jamfProPolicyNameFailures+="• $listitem  \n"
@@ -1278,50 +1277,50 @@ function validatePolicyResult() {
         "Local" )
             case ${trigger} in
                 rosetta ) 
-                    updateScriptLog "PATCH MANAGEMENT DIALOG: Locally Validate Policy Result: Rosetta 2 … "
-                    PatchManagement "listitem: index: $i, status: wait, statustext: Checking …"
+                    updateScriptLog "Patch Helper DIALOG: Locally Validate Policy Result: Rosetta 2 … "
+                    PatchHelper "listitem: index: $i, status: wait, statustext: Checking …"
                     arch=$( /usr/bin/arch )
                     if [[ "${arch}" == "arm64" ]]; then
                         # Mac with Apple silicon; check for Rosetta
                         rosettaTest=$( arch -x86_64 /usr/bin/true 2> /dev/null ; echo $? )
                         if [[ "${rosettaTest}" -eq 0 ]]; then
                             # Installed
-                            updateScriptLog "PATCH MANAGEMENT DIALOG: Locally Validate Policy Result: Rosetta 2 is installed"
-                            PatchManagement "listitem: index: $i, status: success, statustext: Running"
+                            updateScriptLog "Patch Helper DIALOG: Locally Validate Policy Result: Rosetta 2 is installed"
+                            PatchHelper "listitem: index: $i, status: success, statustext: Running"
                         else
                             # Not Installed
-                            updateScriptLog "PATCH MANAGEMENT DIALOG: Locally Validate Policy Result: Rosetta 2 is NOT installed"
-                            PatchManagement "listitem: index: $i, status: fail, statustext: Failed"
+                            updateScriptLog "Patch Helper DIALOG: Locally Validate Policy Result: Rosetta 2 is NOT installed"
+                            PatchHelper "listitem: index: $i, status: fail, statustext: Failed"
                             jamfProPolicyTriggerFailure="failed"
                             exitCode="1"
                             jamfProPolicyNameFailures+="• $listitem  \n"
                         fi
                     else
                         # Inelligible
-                        updateScriptLog "PATCH MANAGEMENT DIALOG: Locally Validate Policy Result: Rosetta 2 is not applicable"
-                        PatchManagement "listitem: index: $i, status: success, statustext: not needed"
+                        updateScriptLog "Patch Helper DIALOG: Locally Validate Policy Result: Rosetta 2 is not applicable"
+                        PatchHelper "listitem: index: $i, status: success, statustext: not needed"
                     fi
                 ;;
                 * )
-                    updateScriptLog "PATCH MANAGEMENT DIALOG: Locally Validate Policy Results Local Catch-all: ${validation}"
+                    updateScriptLog "Patch Helper DIALOG: Locally Validate Policy Results Local Catch-all: ${validation}"
                 ;;
             esac
         ;;
                 
         "None" )
-            # Output Line Number in `verbose` Debug Mode
-            if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-            updateScriptLog "PATCH MANAGEMENT DIALOG: Confirm Policy Execution: ${validation}"
-            PatchManagement "listitem: index: $i, status: success, statustext: Installed"
+            # Output Line Number in `true` Debug Mode
+            if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+            updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: ${validation}"
+            PatchHelper "listitem: index: $i, status: success, statustext: Installed"
             if [[ "${trigger}" == "recon" ]]; then
-                PatchManagement "listitem: index: $i, status: wait, statustext: Updating …, "
-                updateScriptLog "PATCH MANAGEMENT DIALOG: Updating computer inventory with the following reconOptions: \"${reconOptions}\" …"
-                if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]] ; then
-                    updateScriptLog "PATCH MANAGEMENT DIALOG: DEBUG MODE: eval ${jamfBinary} recon ${reconOptions}"
+                PatchHelper "listitem: index: $i, status: wait, statustext: Updating …, "
+                updateScriptLog "Patch Helper DIALOG: Updating computer inventory with the following reconOptions: \"${reconOptions}\" …"
+                if [[ "${debugMode}" == "true" ]]; then
+                    updateScriptLog "Patch Helper DIALOG: DEBUG MODE: eval ${jamfBinary} recon ${reconOptions}"
                 else
                     eval "${jamfBinary} recon ${reconOptions}"
                 fi
-                PatchManagement "listitem: index: $i, status: success, statustext: Updated"
+                PatchHelper "listitem: index: $i, status: success, statustext: Updated"
             fi
         ;;
         
@@ -1330,10 +1329,10 @@ function validatePolicyResult() {
         ###
         
         * )
-            # Output Line Number in `verbose` Debug Mode
-            if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-            updateScriptLog "PATCH MANAGEMENT DIALOG: Validate Policy Results Catch-all: ${validation}"
-            PatchManagement "listitem: index: $i, status: error, statustext: Error"
+            # Output Line Number in `true` Debug Mode
+            if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+            updateScriptLog "Patch Helper DIALOG: Validate Policy Results Catch-all: ${validation}"
+            PatchHelper "listitem: index: $i, status: error, statustext: Error"
         ;;
     esac
 }
@@ -1360,13 +1359,13 @@ function killProcess() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function completionAction() {
 
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
-    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]] ; then
+    if [[ "${debugMode}" == "true" ]]; then
 
         # If Debug Mode is enabled, ignore specified `completionActionOption`, display simple dialog box and exit
-        runAsUser osascript -e 'display dialog "PATCH MANAGEMENT is operating in Debug Mode.\r\r• completionActionOption == '"'${completionActionOption}'"'\r\r" with title "PATCH MANAGEMENT: Debug Mode" buttons {"Close"} with icon note'
+        runAsUser osascript -e 'display dialog "Patch Helper is operating in Debug Mode.\r\r• completionActionOption == '"'${completionActionOption}'"'\r\r" with title "Patch Helper: Debug Mode" buttons {"Close"} with icon note'
         exitCode="0"
 
     else
@@ -1398,8 +1397,8 @@ function completionAction() {
 
 function quitScript() {
 
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     updateScriptLog "QUIT SCRIPT: Exiting …"
     updateScriptLog "Revoke API Token"
@@ -1420,10 +1419,10 @@ function quitScript() {
         rm "${CommandFile}"
     fi
 
-    # Remove PatchManagementCommandFile
-    if [[ -e ${PatchManagementCommandFile} ]]; then
-        updateScriptLog "QUIT SCRIPT: Removing ${PatchManagementCommandFile} …"
-        rm "${PatchManagementCommandFile}"
+    # Remove PatchHelperCommandFile
+    if [[ -e ${PatchHelperCommandFile} ]]; then
+        updateScriptLog "QUIT SCRIPT: Removing ${PatchHelperCommandFile} …"
+        rm "${PatchHelperCommandFile}"
     fi
 
     # Remove failureCommandFile
@@ -1508,12 +1507,12 @@ EOC
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function StartLaunchDaemon() {
     # set ownership on LastWarningDaemon launch daemon
-    updateScriptLog "PATCH MANAGEMENT DIALOG: Change permissions for the Daemon…"
+    updateScriptLog "Patch Helper DIALOG: Change permissions for the Daemon…"
     /usr/sbin/chown root:wheel /Library/LaunchDaemons/de.next.UpdateEnforce.plist
     /bin/chmod 644 /Library/LaunchDaemons/de.next.UpdateEnforce.plist
     
     #load launchd
-    updateScriptLog "PATCH MANAGEMENT DIALOG: Load the Daemon …"
+    updateScriptLog "Patch Helper DIALOG: Load the Daemon …"
     launchctl load /Library/LaunchDaemons/de.next.UpdateEnforce.plist
 }
 
@@ -1525,7 +1524,7 @@ function StartLaunchDaemon() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Debug Mode Logging Notification
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]] ; then
+if [[ "${debugMode}" == "true" ]] ; then
     updateScriptLog "\n\n###\n# ${scriptVersion}\n###\n"
 fi
 
@@ -1534,8 +1533,8 @@ fi
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 if [[ "${UserInformation}" == "promtUserInfo" ]]; then
 
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     # Write Welcome JSON to disk
     echo "$PromtUserJSON" > "$CommandFile"
@@ -1570,18 +1569,18 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
             updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
 
             ###
-            # Display "PATCH MANAGEMENT" dialog (and capture Process ID)
+            # Display "Patch Helper" dialog (and capture Process ID)
             ###
 
             eval "${runUpdates[*]}" & sleep 0.3
             dialogSetupYourMacProcessID=$!
             until pgrep -q -x "Dialog"; do
-                # Output Line Number in `verbose` Debug Mode
-                if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-                updateScriptLog "PROMT USER DIALOG: Waiting to display 'PATCH MANAGEMENT' dialog; pausing"
+                # Output Line Number in `true` Debug Mode
+                if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+                updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
                 sleep 0.5
             done
-            updateScriptLog "PROMT USER DIALOG: 'PATCH MANAGEMENT' dialog displayed; ensure it's the front-most app"
+            updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
             updateScriptLog "PROMT USER DIALOG: Check function ClearUpDeferral"
             ClearUpDeferral="true"
             runAsUser osascript -e 'tell application "Dialog" to activate'
@@ -1617,18 +1616,18 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
             updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
             
             ###
-            # Display "PATCH MANAGEMENT" dialog (and capture Process ID)
+            # Display "Patch Helper" dialog (and capture Process ID)
             ###
             
             eval "${runUpdates[*]}" & sleep 0.3
             dialogSetupYourMacProcessID=$!
             until pgrep -q -x "Dialog"; do
-                # Output Line Number in `verbose` Debug Mode
-                if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-                updateScriptLog "PROMT USER DIALOG: Waiting to display 'PATCH MANAGEMENT' dialog; pausing"
+                # Output Line Number in `true` Debug Mode
+                if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+                updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
                 sleep 0.5
             done
-            updateScriptLog "PROMT USER DIALOG: 'PATCH MANAGEMENT' dialog displayed; ensure it's the front-most app"
+            updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
             runAsUser osascript -e 'tell application "Dialog" to activate'
             updateScriptLog "PROMT USER DIALOG: Check function ClearUpDeferral"
             ClearUpDeferral="true"
@@ -1655,7 +1654,7 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
 
 else
 
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "PROMT USER DIALOG: # # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     Updates="Catch-all ('Welcome' dialog disabled)"
     UpdateJSONConfiguration
     
@@ -1663,12 +1662,12 @@ else
     eval "${runUpdates[*]}" & sleep 0.3
     dialogSetupYourMacProcessID=$!
     until pgrep -q -x "Dialog"; do
-        # Output Line Number in `verbose` Debug Mode
-        if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-        updateScriptLog "PROMT USER DIALOG: Waiting to display 'PATCH MANAGEMENT' dialog; pausing"
+        # Output Line Number in `true` Debug Mode
+        if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+        updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
         sleep 0.5
     done
-    updateScriptLog "PROMT USER DIALOG: 'PATCH MANAGEMENT' dialog displayed; ensure it's the front-most app"
+    updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
     runAsUser osascript -e 'tell application "Dialog" to activate'
 
 fi
@@ -1677,8 +1676,8 @@ fi
 # Iterate through policyJSON to construct the list for swiftDialog
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Output Line Number in `verbose` Debug Mode
-if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+# Output Line Number in `true` Debug Mode
+if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 dialog_step_length=$(get_json_value "${policyJSON}" "steps.length")
 for (( i=0; i<dialog_step_length; i++ )); do
@@ -1692,13 +1691,13 @@ done
 # Determine the "progress: increment" value based on the number of steps in policyJSON
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Output Line Number in `verbose` Debug Mode
-if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+# Output Line Number in `true` Debug Mode
+if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 totalProgressSteps=$(get_json_value "${policyJSON}" "steps.length")
 progressIncrementValue=$(( 100 / totalProgressSteps ))
-updateScriptLog "PATCH MANAGEMENT DIALOG: Total Number of Steps: ${totalProgressSteps}"
-updateScriptLog "PATCH MANAGEMENT DIALOG: Progress Increment Value: ${progressIncrementValue}"
+updateScriptLog "Patch Helper DIALOG: Total Number of Steps: ${totalProgressSteps}"
+updateScriptLog "Patch Helper DIALOG: Progress Increment Value: ${progressIncrementValue}"
   
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1706,41 +1705,41 @@ updateScriptLog "PATCH MANAGEMENT DIALOG: Progress Increment Value: ${progressIn
 # To add a character to the start, use "/#/" instead of the "/%/"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Output Line Number in `verbose` Debug Mode
-if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+# Output Line Number in `true` Debug Mode
+if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 list_item_string=${list_item_array[*]/%/,}
-PatchManagement "list: ${list_item_string%?}"
+PatchHelper "list: ${list_item_string%?}"
 for (( i=0; i<dialog_step_length; i++ )); do
-    PatchManagement "listitem: index: $i, icon: ${IconServicePrefixUrl}${icon_url_array[$i]}, status: pending, statustext: Pending …"
+    PatchHelper "listitem: index: $i, icon: ${IconServicePrefixUrl}${icon_url_array[$i]}, status: pending, statustext: Pending …"
 done
-PatchManagement "list: show"
+PatchHelper "list: show"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Set initial progress bar
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Output Line Number in `verbose` Debug Mode
-if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+# Output Line Number in `true` Debug Mode
+if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
-updateScriptLog "PATCH MANAGEMENT DIALOG: Initial progress bar"
-PatchManagement "progress: 1"
+updateScriptLog "Patch Helper DIALOG: Initial progress bar"
+PatchHelper "progress: 1"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Close PROMT USER DIALOG
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Output Line Number in `verbose` Debug Mode
-if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+# Output Line Number in `true` Debug Mode
+if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
-dialogUpdateWelcome "quit:"
+dialogPatchHelper "quit:"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Update PATCH MANAGEMENT's infobox
+# Update Patch Helper's infobox
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Output Line Number in `verbose` Debug Mode
-if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+# Output Line Number in `true` Debug Mode
+if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 if [[ "${Updates}" == *"Catch-all"* ]]; then
     infoboxUpdates=""
@@ -1757,15 +1756,15 @@ infobox=""
 if [[ -n ${computerName} ]]; then infobox+="**Computer Name:**  \n$computerName  \n\n" ; fi
 if [[ -n ${totalProgressSteps} ]]; then infobox+="**Updates:** :$totalProgressSteps  \n\n" ; fi
 
-PatchManagement "infobox: ${infobox}"
+PatchHelper "infobox: ${infobox}"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # This for loop will iterate over each distinct step in the policyJSON
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 for (( i=0; i<dialog_step_length; i++ )); do 
 
-    # Output Line Number in `verbose` Debug Mode
-    if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Output Line Number in `true` Debug Mode
+    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     # Initialize SECONDS
     SECONDS="0"
@@ -1778,11 +1777,11 @@ for (( i=0; i<dialog_step_length; i++ )); do
 
     # If there's a value in the variable, update running swiftDialog
     if [[ -n "$listitem" ]]; then
-        updateScriptLog "\n\n# # #\n# PATCH MANAGEMENT DIALOG: policyJSON > listitem: ${listitem}\n# # #\n"
-        PatchManagement "listitem: index: $i, status: wait, statustext: Installing …, "
+        updateScriptLog "\n\n# # #\n# Patch Helper DIALOG: policyJSON > listitem: ${listitem}\n# # #\n"
+        PatchHelper "listitem: index: $i, status: wait, statustext: Installing …, "
     fi
-    if [[ -n "$icon" ]]; then PatchManagement "icon: ${IconServicePrefixUrl}${icon}"; fi
-    if [[ -n "$progresstext" ]]; then PatchManagement "progresstext: $progresstext"; fi
+    if [[ -n "$icon" ]]; then PatchHelper "icon: ${IconServicePrefixUrl}${icon}"; fi
+    if [[ -n "$progresstext" ]]; then PatchHelper "progresstext: $progresstext"; fi
     if [[ -n "$trigger_list_length" ]]; then
 
         for (( j=0; j<trigger_list_length; j++ )); do
@@ -1792,7 +1791,7 @@ for (( i=0; i<dialog_step_length; i++ )); do
             validation=$(get_json_value "${policyJSON}" "steps[$i].trigger_list[$j].validation")
             case ${validation} in
                 "Local" | "Remote" )
-                    updateScriptLog "PATCH MANAGEMENT DIALOG: Skipping Policy Execution due to '${validation}' validation"
+                    updateScriptLog "Patch Helper DIALOG: Skipping Policy Execution due to '${validation}' validation"
                     ;;
                 * )
                     confirmPolicyExecution "${trigger}" "${validation}"
@@ -1806,10 +1805,10 @@ for (( i=0; i<dialog_step_length; i++ )); do
     validatePolicyResult "${trigger}" "${validation}"
 
     # Increment the progress bar
-    PatchManagement "progress: increment ${progressIncrementValue}"
+    PatchHelper "progress: increment ${progressIncrementValue}"
 
     # Record duration
-    updateScriptLog "PATCH MANAGEMENT DIALOG: Elapsed Time: $(printf '%dh:%dm:%ds\n' $((SECONDS/3600)) $((SECONDS%3600/60)) $((SECONDS%60)))"
+    updateScriptLog "Patch Helper DIALOG: Elapsed Time: $(printf '%dh:%dm:%ds\n' $((SECONDS/3600)) $((SECONDS%3600/60)) $((SECONDS%60)))"
 
 done
 
@@ -1817,7 +1816,7 @@ done
 # Complete processing and enable the "Done" button
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Output Line Number in `verbose` Debug Mode
-if [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # PATCH MANAGEMENT VERBOSE DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+# Output Line Number in `true` Debug Mode
+if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 finalise
