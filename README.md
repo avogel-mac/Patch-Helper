@@ -1,5 +1,5 @@
 
-![Patch_Helper_Banner](https://github.com/avogel-mac/Patch-Helper/assets/55537498/a72f4d0d-95a6-4906-b8fa-1dac0bd6ef39)
+![](https://github.com/avogel-mac/Patch-Helper/blob/main/Pictures/255599822-d9cfb58e-2c11-466d-8549-c5824b608f7a.PNG?raw=true)
 
 
 ## Patch Helper
@@ -16,14 +16,13 @@ _- Provides the count of available postponements_
 
 _- Specifies how frequently the dialogue restarts._
 
-![Bildschirmfoto 2023-07-26 um 16 43 02](https://github.com/avogel-mac/Patch-Helper/assets/55537498/d6995872-61c8-4079-9f09-cbc0580d4203)
-![Bildschirmfoto 2023-07-26 um 16 41 48](https://github.com/avogel-mac/Patch-Helper/assets/55537498/dc265a33-b074-4949-8186-cdcc0831cbd2)
+![](https://github.com/avogel-mac/Patch-Helper/blob/main/Pictures/256270676-d6995872-61c8-4079-9f09-cbc0580d4203.png?raw=true)
+![](https://github.com/avogel-mac/Patch-Helper/blob/main/Pictures/256270727-dc265a33-b074-4949-8186-cdcc0831cbd2.png?raw=true)
 
 
 
 The user will be informed about which applications are currently being updated and also about the results.
-
-![Bildschirmfoto 2023-07-26 um 16 41 58](https://github.com/avogel-mac/Patch-Helper/assets/55537498/e8d5cd47-e0ca-43cc-bdb6-99eb6ec2be2f)
+![](https://github.com/avogel-mac/Patch-Helper/blob/main/Pictures/256270766-e8d5cd47-e0ca-43cc-bdb6-99eb6ec2be2f.png?raw=true)
 
 
 
