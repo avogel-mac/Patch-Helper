@@ -555,7 +555,7 @@ dialogVersion=$( /usr/local/bin/dialog --version )
 # Reflect Debug Mode in `infotext` (i.e., bottom, left-hand corner of each dialog)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 case ${debugMode} in
-    "true"   ) scriptVersion="true DEBUG MODE | Dialog: v${dialogVersion} • Patch Helper: v${scriptVersion}" ;;
+    "true"   ) scriptVersion="DEBUG MODE | Dialog: v${dialogVersion} • Patch Helper: v${scriptVersion}" ;;
     "false"   ) scriptVersion="Patch Helper | v${scriptVersion}" ;;
 esac
 
