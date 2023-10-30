@@ -9,12 +9,13 @@
 #                   :   0.5 -   Adjustment of the JSON so that it always executes the policy for Update Inventory at the end..
 #                   :   0.6 -   Added function for "invalidateToken" so that the token is automatically discarded on exit.
 #                   :   0.7 -   Customization of the icon 
+#                   :   0.8 -   Safari Updates
 #
 #######################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Script Version and Jamf Pro Script Parameters
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-scriptVersion="0.7.0"
+scriptVersion="0.8.0"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 scriptLog="/var/log/it.next_patch_management.log"
 
@@ -23,7 +24,7 @@ if [[ ! -f "${scriptLog}" ]]; then
     touch "${scriptLog}"
 fi
 
-debugMode="${4:-"false"}"                                  # Parameter 4: Debug Mode [ true (default) | false ]
+debugMode="${4:-"false"}"                                 # Parameter 4: Debug Mode [ true (default) | false ]
 
 BannerImage="${5}"                                        # Parameter 5: BannerImage on Top of swiftDialog
 if [[ -z "$BannerImage" ]]; then
@@ -56,35 +57,31 @@ fi
 
 jamfpro_url="${10}"
 if [[ -z "$jamfpro_url" ]]; then
-   echo "Jamf Pro URL missing"
-   exit 1
+    echo "Jamf Pro URL missing"
+    exit 1
 fi
 
 encodedCredentials="${11}"
 if [[ -z "$encodedCredentials" ]]; then
-   echo "Credentials missing"
-   exit 1
+    echo "Credentials missing"
+    exit 1
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# ****************************** Testing *********************************************************************#
 #jamfpro_url=""
 #if [[ -z "$jamfpro_url" ]]; then
-#    echo "Jamf Pro URL missing"
-#    exit 1
+#   echo "Jamf Pro URL missing"
+#   exit 1
 #fi
 #
 #encodedCredentials=""
 #if [[ -z "$encodedCredentials" ]]; then
-#    echo "Credentials missing"
-#    exit 1
+#   echo "Credentials missing"
+#   exit 1
 #fi
 
 # ****************************** End Testing *****************************************************************#
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-
 UserInformation="promtUserInfo"                     # PROMT USER DIALOG [ promtUserInfo (default) | false ]
 completionActionOption="wait"                       # Completion Action [ wait | Close ]
 
@@ -146,8 +143,8 @@ function dialogCheck() {
     if [[ "${debugMode}" == "true" ]]; then updateScriptLog "WARM-UP: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     # Get the URL of the latest PKG From the Dialog GitHub repo
-   # dialogURL=$(curl --silent --fail --location "https://api.github.com/repos/bartreardon/swiftDialog/releases/latest" | awk -F '"' "/browser_download_url/ && /pkg\"/ { print \$4; exit }")
-    
+    # dialogURL=$(curl --silent --fail --location "https://api.github.com/repos/bartreardon/swiftDialog/releases/latest" | awk -F '"' "/browser_download_url/ && /pkg\"/ { print \$4; exit }")
+        
     dialogURL="https://github.com/swiftDialog/swiftDialog/releases/download/v2.2.1/dialog-2.2.1-4591.pkg"
     
     # Expected Team ID of the downloaded PKG
@@ -276,7 +273,7 @@ function ClearUpLaunchDaemon() {
 # Function ClearUp deferral plist 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function ClearUpPlist() {
-    updateScriptLog "Patch Helper DIALOG: Deleting plist …"
+    updateScriptLog "Patch Helper DIALOG: Deleting deferral Information …"
     rm -rf "/Library/Application Support/JAMF/de.next.update.deferrals.plist"
     
 }
@@ -288,9 +285,9 @@ function CheckDeferral() {
     # Check if the daemon exists and is loaded
     if launchctl list | grep -q "de.next.UpdateEnforce"
     then
-        updateScriptLog "Patch Helper DIALOG: The daemon exists and is loaded …"
+        updateScriptLog "Patch Helper DIALOG: The LaunchDaemon exists and is loaded …"
     else
-        updateScriptLog "Patch Helper DIALOG: no deferral has been set up yet. Set up the daemon …"
+        updateScriptLog "Patch Helper DIALOG: No deferral has been set up yet. Set up the LaunchDaemon …"
         createLaunchDaemon
         StartLaunchDaemon
     fi
@@ -303,11 +300,11 @@ function ClearUpDeferral() {
     # Check if the daemon exists and is loaded
     if launchctl list | grep -q "de.next.UpdateEnforce"
     then
-        updateScriptLog "Patch Helper DIALOG: Clean up the daemon, updates were successfully installed …"
+        updateScriptLog "Patch Helper DIALOG: Clean up the LaunchDaemon, updates were successfully installed …"
         ClearUpLaunchDaemon
         ClearUpPlist
     else
-        updateScriptLog "Patch Helper DIALOG: Daemon was not set up, user had not yet moved …"
+        updateScriptLog "Patch Helper DIALOG: LaunchDaemon was not set up, user had not yet moved …"
         ClearUpPlist
     fi
     
@@ -451,6 +448,91 @@ VLC_validation="/Applications/VLC.app/Contents/Info.plist"
 Zeplin="8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9"
 Zeplin_validation="/Applications/Zeplin.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Safari="4de54603be986c87a1e08401c3077f943388a0f2728c794253c8647e1a234b8f"
+Safari_validation="None"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Adobe_Acrobar_Reader="d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c"
+Adobe_Acrobar_Reader_validation="/Applications/Adobe Acrobat Reader.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Anydesk="753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d"
+Anydesk_validation="/Applications/AnyDesk.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Audacity="48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f"
+Audacity_validation="/Applications/Audacity.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+balenaEtcher="c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d"
+balenaEtcher_validation="/Applications/balenaEtcher.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Clipy="69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946"
+Clipy_validation="/Applications/Clipy.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Drawio="fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74"
+Drawio_validation="/Applications/draw.io.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Keeping_you_Awake="01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca"
+Keeping_you_Awake_validation="/Applications/KeepingYouAwake.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Monitor_Control="09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2"
+Monitor_Control_validation="/Applications/MonitorControl.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+OmniGraffle_7="af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94"
+OmniGraffle_7_validation="/Applications/OmniGraffle.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Rectangle="656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253"
+Rectangle_validation="/Applications/Rectangle.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Sourcetree="176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f"
+Sourcetree_validation="/Applications/Sourcetree.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Zulip="4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e"
+Zulip_validation="/Applications/Zulip.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Go_to_Meeting="03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a"
+Go_to_Meeting_validation="/Applications/GoToMeeting.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+GIMP="db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94"
+GIMP_validation="/Applications/GIMP.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Apache_Directory_Studio="5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe"
+Apache_Directory_Studio_validation="/Applications/ApacheDirectoryStudio.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Azure_Data_Studio="967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c"
+Azure_Data_Studio_validation="/Applications/Azure Data Studio.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Docker="34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af"
+Docker_validation="/Applications/Docker.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Meld="7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e"
+Meld_validation="/Applications/Meld.app/Contents/Info.plist"
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+PyCharm="3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a"
+PyCharm_validation="/Applications/PyCharm.app/Contents/Info.plist"
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+SquidMan="a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab"
+SquidMan_validation="/Applications/SquidMan.app/Contents/Info.plist"
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+TNEFs_Enough="302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602"
+TNEFs_Enough_validation="/Applications/TNEF's Enough.app/Contents/Info.plist"
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Wireshark="1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3"
+Wireshark_validation="/Applications/Wireshark.app/Contents/Info.plist"
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Jabra_Direct="7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2"
+Jabra_Direct_validation="/Applications/Jabra Direct.app/Contents/Info.plist"
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+SimpleMind_Pro="d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04"
+SimpleMind_Pro_validation="/Applications/SimpleMind Pro.app/Contents/Info.plist"
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Tunnelblick="0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd"
+Tunnelblick_validation="/Applications/Tunnelblick.app/Contents/Info.plist"
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+UTM="d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc"
+UTM_validation="/Applications/UTM.app/Contents/Info.plist"
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Bitwarden="4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18"
+Bitwarden_validation="/Applications/Bitwarden.app/Contents/Info.plist"
+
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
 placeholder_icon="ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
 placeholder_validation="None"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
@@ -487,6 +569,17 @@ fi
 Update_Count=$(grep -c "patch_app_updates" "$xmlFile")
 sed '/patch_app_updates/!d' $xmlFile > $xmlupdates
 IDs=($(awk '{ print $1 }' $xmlupdates))
+
+
+# Prüfen, ob ein Update für Safari bereitsteht
+Safari_update=$(defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist RecommendedUpdates | grep -o 'Safari')
+
+if [[ -n "$Safari_update" ]]; then
+    SafariUpdate="true"
+    ((Update_Count++))
+else
+    SafariUpdate="false"
+fi
 
 
 function GetPolicyName() {
@@ -662,50 +755,50 @@ button1text=button1text_${UserLanguage}
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # "Promt User for Updates" JSON
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    if [[ "$CurrentDeferralValue" -gt 0 ]]
-    then
-        # Reduce the timer by 1. The script will run again the next day
-        let CurrTimer=$CurrentDeferralValue-1
-        setDeferral "$BundleID" "$DeferralType" "$CurrTimer" "$DeferralPlist"
-        
-        PromtUserJSON='
-        {
-            "bannerimage" : "'${BannerImage}'",
-            "title" : "'${!UserInfoTitle}'",
-            "message" : "'${!UserInfoMessage}'",
-            "icon" : "'${InfoboxIcon}'",
-            "iconsize" : "198.0",
-            "button1text" : "Update",
-            "button2text" : "Later",
-            "timer" : "'${TimePromtUser}'",
-            "infotext" : "'${scriptVersion}'",
-            "blurscreen" : "false",
-            "ontop" : "true",
-            "titlefont" : "shadow=true, size=28",
-            "messagefont" : "size=16",
-            "width" : "700",
-            "height" : "625"
-        }
-        '
-    else
-        PromtUserJSON='
-        {
-            "bannerimage" : "'${BannerImage}'",
-            "title" : "'${!UserInfoTitle}'",
-            "message" : "'${!UserEnforceMessage}'",
-            "icon" : "'${InfoboxIcon}'",
-            "iconsize" : "198.0",
-            "button1text" : "Update",
-            "infotext" : "'${scriptVersion}'",
-            "blurscreen" : "false",
-            "ontop" : "true",
-            "titlefont" : "shadow=true, size=28",
-            "messagefont" : "size=16",
-            "width" : "700",
-            "height" : "625"
-        }
-        '
-    fi
+if [[ "$CurrentDeferralValue" -gt 0 ]]
+then
+    # Reduce the timer by 1. The script will run again the next day
+    let CurrTimer=$CurrentDeferralValue-1
+    setDeferral "$BundleID" "$DeferralType" "$CurrTimer" "$DeferralPlist"
+    
+    PromtUserJSON='
+    {
+        "bannerimage" : "'${BannerImage}'",
+        "title" : "'${!UserInfoTitle}'",
+        "message" : "'${!UserInfoMessage}'",
+        "icon" : "'${InfoboxIcon}'",
+        "iconsize" : "198.0",
+        "button1text" : "Update",
+        "button2text" : "Later",
+        "timer" : "'${TimePromtUser}'",
+        "infotext" : "'${scriptVersion}'",
+        "blurscreen" : "false",
+        "ontop" : "true",
+        "titlefont" : "shadow=true, size=28",
+        "messagefont" : "size=16",
+        "width" : "700",
+        "height" : "625"
+    }
+    '
+else
+    PromtUserJSON='
+    {
+        "bannerimage" : "'${BannerImage}'",
+        "title" : "'${!UserInfoTitle}'",
+        "message" : "'${!UserEnforceMessage}'",
+        "icon" : "'${InfoboxIcon}'",
+        "iconsize" : "198.0",
+        "button1text" : "Update",
+        "infotext" : "'${scriptVersion}'",
+        "blurscreen" : "false",
+        "ontop" : "true",
+        "titlefont" : "shadow=true, size=28",
+        "messagefont" : "size=16",
+        "width" : "700",
+        "height" : "625"
+    }
+    '
+fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -745,7 +838,6 @@ runUpdates="$dialogBinary \
 --height '625' \
 --position 'centre' \
 --moveable \
---ontop \
 --overlayicon \"$overlayicon\" \
 --quitkey k \
 --commandfile \"$PatchHelperCommandFile\" "
@@ -790,7 +882,7 @@ function UpdateJSONConfiguration() {
                         icon=$Mozilla_Firefox
                         validation=$Mozilla_Firefox_validation
                     ;;
-                    *GitHub_Desktop* | *GitHub\ Desktop*)
+                    *GitHub_Desktop* | *GitHub\ Desktop*)
                         icon=$GitHub_Desktop
                         validation=$GitHub_Desktop_validation
                     ;;
@@ -832,7 +924,7 @@ function UpdateJSONConfiguration() {
                     ;;
                     *Support_App* | *Support\ App*)
                         icon=$Support_App
-                        validation=$Support_Ap_validation
+                        validation=$Support_App_validation
                     ;;
                     *TeamViewer* | *Teamviewer*)
                         icon=$TeamViewer
@@ -891,7 +983,7 @@ function UpdateJSONConfiguration() {
                         validation=$Figma_validation
                     ;;
                     *EasyFind*)
-                        icon=$EasyFinda
+                        icon=$EasyFind
                         validation=$EasyFind_validation
                     ;;
                     *DisplayLink_Manager* | *DisplayLink\ Manager*)
@@ -921,6 +1013,118 @@ function UpdateJSONConfiguration() {
                     *1Password_8* | *1Password\ 8* | *1Password*)
                         icon=$Password
                         validation=$Password_validation
+                    ;;
+                    *Adobe_Acrobar_Reader* | *Adobe\ Acrobar\ Reader*)
+                        icon=$Adobe_Acrobar_Reader
+                        validation=$Adobe_Acrobar_Reader_validation
+                    ;;
+                    *Anydesk*)
+                        icon=$Anydesk
+                        validation=$Anydesk_validation
+                    ;;
+                    *Audacity*)
+                        icon=$Audacity
+                        validation=$Audacity_validation
+                    ;;
+                    *balenaEtcher* | *balena\ Etcher*)
+                        icon=$balenaEtcher
+                        validation=$balenaEtcher_validation
+                    ;;
+                    *Clipy*)
+                        icon=$Clipy
+                        validation=$Clipy_validation
+                    ;;
+                    *Drawio* | *Draw.io*)
+                        icon=$Drawio
+                        validation=$Drawio_validation
+                    ;;
+                    *Keeping_you_Awake* | *Keeping\ you\ Awake*)
+                        icon=$Keeping_you_Awake
+                        validation=$Keeping_you_Awake_validation
+                    ;;
+                    *Monitor_Control* | *Monitor\ Control*)
+                        icon=$Monitor_Control
+                        validation=$Monitor_Control_validation
+                    ;;
+                    *OmniGraffle_7* | *OmniGraffle\ 7* | *Omni\ Graffle\ 7* | *Omni\ Graffle*)
+                        icon=$OmniGraffle_7
+                        validation=$OmniGraffle_7_validation
+                    ;;
+                    *Rectangle*)
+                        icon=$Rectangle
+                        validation=$Rectangle_validation
+                    ;;
+                    *Sourcetree*)
+                        icon=$Sourcetree
+                        validation=$Sourcetree_validation
+                    ;;
+                    *Zulip*)
+                        icon=$Zulip
+                        validation=$Zulip_validation
+                    ;;
+                    *Go_to_Meeting* | *Go\ to\ Meeting*)
+                        icon=$Go_to_Meeting
+                        validation=$Go_to_Meeting_validation
+                    ;;
+                    *GIMP*)
+                        icon=$GIMP
+                        validation=$GIMP_validation
+                    ;;
+                    *Apache_Directory_Studio* | *Apache\ Directory\ Studio*)
+                        icon=$Apache_Directory_Studio
+                        validation=$Apache_Directory_Studio_validation
+                    ;;
+                    *Azure_Data_Studio* | *Azure\ Data\ Studio*)
+                        icon=$Azure_Data_Studio
+                        validation=$Azure_Data_Studio_validation
+                    ;;
+                    *Docker*)
+                        icon=$Docker
+                        validation=$Docker_validation
+                    ;;
+                    *Meld*)
+                        icon=$Meld
+                        validation=$Meld_validation
+                    ;;
+                    *PyCharm*)
+                        icon=$PyCharm
+                        validation=$PyCharm_validation
+                    ;;
+                    *SquidMan* | *Squid\ Man*)
+                        icon=$SquidMan
+                        validation=$SquidMan_validation
+                    ;;
+                    *TNEFs_Enough* | *TNEFs\ Enough*)
+                        icon=$TNEFs_Enough
+                        validation=$TNEFs_Enough_validation
+                    ;;
+                    *Wireshark*)
+                        icon=$Wireshark
+                        validation=$Wireshark_validation
+                    ;;
+                    *Jabra_Direct* | *Jabra\ Direct*)
+                        icon=$Jabra_Direct
+                        validation=$Jabra_Direct_validation
+                    ;;
+                    *SimpleMind_Pro* | *SimpleMind\ Pro* | *Simple\ Mind\ Pro*)
+                        icon=$SimpleMind_Pro
+                        validation=$SimpleMind_Pro_validation
+                    ;;
+                    *Tunnelblick*)
+                        icon=$Tunnelblick
+                        validation=$Tunnelblick_validation
+                    ;;
+                    *UTM*)
+                        icon=$UTM
+                        validation=$UTM_validation
+                    ;;
+                    *Bitwarden*)
+                        icon=$Bitwarden
+                        validation=$Bitwarden_validation
+                    ;;
+                    *Safari*)
+                        icon=$Safari
+                        validation=$Safari_validation
                     ;;
                     
                     *)
@@ -1123,7 +1327,7 @@ function finalise(){
         # If either "wait" or "sleep" has been specified for `completionActionOption`, honor that behavior
         if [[ "${completionActionOption}" == "wait" ]] || [[ "${completionActionOption}" == "[Ss]leep"* ]]; then
             updateScriptLog "Honoring ${completionActionOption} behavior …"
-            eval "${completionActionOption}" "${dialogSetupYourMacProcessID}"
+            eval "${completionActionOption}" "${PatchHelperProcessID}"
         fi
         
         quitScript "0"
@@ -1575,7 +1779,7 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
             ###
 
             eval "${runUpdates[*]}" & sleep 0.3
-            dialogSetupYourMacProcessID=$!
+            PatchHelperProcessID=$!
             until pgrep -q -x "Dialog"; do
                 # Output Line Number in `true` Debug Mode
                 if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
@@ -1622,7 +1826,7 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
             ###
             
             eval "${runUpdates[*]}" & sleep 0.3
-            dialogSetupYourMacProcessID=$!
+            PatchHelperProcessID=$!
             until pgrep -q -x "Dialog"; do
                 # Output Line Number in `true` Debug Mode
                 if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
@@ -1662,7 +1866,7 @@ else
     
     
     eval "${runUpdates[*]}" & sleep 0.3
-    dialogSetupYourMacProcessID=$!
+    PatchHelperProcessID=$!
     until pgrep -q -x "Dialog"; do
         # Output Line Number in `true` Debug Mode
         if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
