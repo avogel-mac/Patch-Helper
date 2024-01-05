@@ -9,13 +9,23 @@
 #                   :   0.5 -   Adjustment of the JSON so that it always executes the policy for Update Inventory at the end..
 #                   :   0.6 -   Added function for "invalidateToken" so that the token is automatically discarded on exit.
 #                   :   0.7 -   Customization of the icon 
-#                   :   0.8 -   Safari Updates
+#                   :   0.8 -   Safari 
+#					:	0.9 -	Translation, Redigatur
+#                   :   0.9.1 -   Counter is changed as $Update_Count so that only the number of updates is displayed and
+#                               no longer the number of all steps (incl. the update inventory)
+#
 #
 #######################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Internal IT contacts
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+Support_Telefon="+49 12 3456 789"
+Support_Email="support@nextenterprise.it"
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Script Version and Jamf Pro Script Parameters
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-scriptVersion="0.8.0"
+scriptVersion="1.0.0"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 scriptLog="/var/log/it.next_patch_management.log"
 
@@ -24,7 +34,7 @@ if [[ ! -f "${scriptLog}" ]]; then
     touch "${scriptLog}"
 fi
 
-debugMode="${4:-"false"}"                                 # Parameter 4: Debug Mode [ true (default) | false ]
+debugMode="${4:-"false"}"                                  # Parameter 4: Debug Mode [ true (default) | false ]
 
 BannerImage="${5}"                                        # Parameter 5: BannerImage on Top of swiftDialog
 if [[ -z "$BannerImage" ]]; then
@@ -55,7 +65,8 @@ if [[ -z "$TimePromtUser" ]]; then
     TimePromtUser="300"
 fi
 
-jamfpro_url="${10}"
+profilesSTATUS=$(profiles status -type enrollment 2>&1)
+jamfpro_url="https://$(echo "$profilesSTATUS" | grep 'MDM server' | awk -F '/' '{print $3}')"
 if [[ -z "$jamfpro_url" ]]; then
     echo "Jamf Pro URL missing"
     exit 1
@@ -68,12 +79,8 @@ if [[ -z "$encodedCredentials" ]]; then
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#jamfpro_url=""
-#if [[ -z "$jamfpro_url" ]]; then
-#   echo "Jamf Pro URL missing"
-#   exit 1
-#fi
-#
+# ****************************** Testing *********************************************************************#
+
 #encodedCredentials=""
 #if [[ -z "$encodedCredentials" ]]; then
 #   echo "Credentials missing"
@@ -82,6 +89,7 @@ fi
 
 # ****************************** End Testing *****************************************************************#
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 UserInformation="promtUserInfo"                     # PROMT USER DIALOG [ promtUserInfo (default) | false ]
 completionActionOption="wait"                       # Completion Action [ wait | Close ]
 
@@ -234,8 +242,8 @@ setDeferral (){
     fi
 }
 
-DeferralPlist="/Library/Application Support/JAMF/de.next.update.deferrals.plist"
-BundleID="de.next.PatchHelper"
+DeferralPlist="/Library/Application Support/JAMF/it.next.update.deferrals.plist"
+BundleID="it.next.PatchHelper"
 DeferralType="count"
 
 CurrentDeferralValue="$(/usr/libexec/PlistBuddy -c "print :$BundleID:count" "$DeferralPlist" 2>/dev/null)"
@@ -257,7 +265,7 @@ updateScriptLog "WARM-UP: Complete"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function ClearUpLaunchDaemon() {
     updateScriptLog "Patch Helper DIALOG: Stopping LaunchDaemon launchctl bootout system …"
-    launchctl bootout system/de.next.UpdateEnforce
+    launchctl bootout system/it.next.UpdateEnforce
     
     if [ $? -ne 0 ]; then
         updateScriptLog "Patch Helper DIALOG: Error unloading LaunchDaemon"
@@ -266,15 +274,15 @@ function ClearUpLaunchDaemon() {
     fi
     
     updateScriptLog "Patch Helper DIALOG: delete the LaunchDaemon so that it is loaded again after a reboot... "
-    rm -rf /Library/LaunchDaemons/de.next.UpdateEnforce.plist
+    rm -rf /Library/LaunchDaemons/it.next.UpdateEnforce.plist
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Function ClearUp deferral plist 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function ClearUpPlist() {
-    updateScriptLog "Patch Helper DIALOG: Deleting deferral Information …"
-    rm -rf "/Library/Application Support/JAMF/de.next.update.deferrals.plist"
+    updateScriptLog "Patch Helper DIALOG: Deleting plist …"
+    rm -rf "/Library/Application Support/JAMF/it.next.update.deferrals.plist"
     
 }
 
@@ -283,11 +291,11 @@ function ClearUpPlist() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function CheckDeferral() {
     # Check if the daemon exists and is loaded
-    if launchctl list | grep -q "de.next.UpdateEnforce"
+    if launchctl list | grep -q "it.next.UpdateEnforce"
     then
-        updateScriptLog "Patch Helper DIALOG: The LaunchDaemon exists and is loaded …"
+        updateScriptLog "Patch Helper DIALOG: The daemon exists and is loaded …"
     else
-        updateScriptLog "Patch Helper DIALOG: No deferral has been set up yet. Set up the LaunchDaemon …"
+        updateScriptLog "Patch Helper DIALOG: no deferral has been set up yet. Set up the daemon …"
         createLaunchDaemon
         StartLaunchDaemon
     fi
@@ -298,13 +306,13 @@ function CheckDeferral() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function ClearUpDeferral() {
     # Check if the daemon exists and is loaded
-    if launchctl list | grep -q "de.next.UpdateEnforce"
+    if launchctl list | grep -q "it.next.UpdateEnforce"
     then
-        updateScriptLog "Patch Helper DIALOG: Clean up the LaunchDaemon, updates were successfully installed …"
+        updateScriptLog "Patch Helper DIALOG: Clean up the daemon, updates were successfully installed …"
         ClearUpLaunchDaemon
         ClearUpPlist
     else
-        updateScriptLog "Patch Helper DIALOG: LaunchDaemon was not set up, user had not yet moved …"
+        updateScriptLog "Patch Helper DIALOG: Daemon was not set up, user had not yet moved …"
         ClearUpPlist
     fi
     
@@ -312,12 +320,12 @@ function ClearUpDeferral() {
 
 
 CurrentUser=$(/usr/sbin/scutil <<< "show State:/Users/ConsoleUser" | /usr/bin/awk -F': ' '/[[:space:]]+Name[[:space:]]:/ { if ( $2 != "loginwindow" ) { print $2 }}')
-Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/${CurrentUser}/Library/Preferences/.GlobalPreferences.plist")
+Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/$3/Library/Preferences/.GlobalPreferences.plist")
 
 if [[ $Language != de* ]]; then
-    UserLanguage="DE"
-else
     UserLanguage="EN"
+else
+    UserLanguage="DE"
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -607,13 +615,13 @@ appnames_display=$(cat $xmlupdates | sed 's/[0-9]*//g' | sed 's/ patch_app_updat
 Names_display=($(printf "%s\n" "${appnames_display[@]}"))
 
 if [[ "$Update_Count" -eq 1 ]]; then
-    Plural_EN=" "
-    Plural_DE=" "
+    Plural_EN=""
+    Plural_DE=""
     pluralQuantity_DE="ist"
     
 elif [[ "$Update_Count" -gt 1 ]]; then
-    Plural_EN="s " 
-    Plural_DE="s "
+    Plural_EN="s" 
+    Plural_DE="s"
     pluralQuantity_DE="sind"
 else
     echo "no patches found, exiting"
@@ -666,54 +674,59 @@ jamfBinary="/usr/local/bin/jamf"
 
 # # # # # # # # # # # # # # # # # # # "Patch Helper" Change Time Value # # # # # # # # # # # # # # # #
 if [[ $StartInterval -eq 3600 ]]; then
-    echo "The update is executed every hour."
-    Time="hourly"
+        echo "Das Update wird stündlich ausgeführt."
+        Time_EN="hourly"
+        Time_DE="stündlich"
 elif [[ $StartInterval -lt 3600 ]]; then
-    # Converted interval in minutes
-    intervalMinutes=$((StartInterval / 60))
-    echo "The update is executed every $intervalMinutes minutes."
-    Time="all $intervalMinutes Min."
+        # Converted interval in minutes
+        intervalMinutes=$((StartInterval / 60))
+        echo "Das Update wird alle $intervalMinutes Minuten ausgeführt."
+        Time_EN="all $intervalMinutes minutes"
+        Time_DE="alle $intervalMinutes Minuten"
 else
-    # Converted interval in hours and minutes
-    intervalHours=$((StartInterval / 3600))
-    intervalMinutes=$(( (StartInterval % 3600) / 60 ))
-    echo "The update is forced every $intervalHours Std. $intervalMinutes Min."
-    Time="all $intervalHours Std. $intervalMinutes Min"
+        # Converted interval in hours and minutes
+        intervalHours=$((StartInterval / 3600))
+        intervalMinutes=$(( (StartInterval % 3600) / 60 ))
+        echo "Das Update wird alle $intervalHours Std. $intervalMinutes Min erzwungen."
+        Time_EN="all $intervalHours Hours $intervalMinutes minutes"
+        Time_DE="jede $intervalHours Stunde und $intervalMinutes Minuten"
 fi
-    
+
+Time=Time_${UserLanguage}
+
 
 # # # # # # # # # # # # # # # # # # # "Patch Helper" dialog Title, Messages # # # # # # # # # # # # # # # #
-UserInfoTitle_DE="Hey, ${loggedInUserFirstname} es $pluralQuantity_DE ${Update_Count} update${!Plural} verfügbar"
-UserInfoTitle_EN="Hello ${loggedInUserFirstname} it $pluralQuantity_EN ${Update_Count} update${!Plural} available."
+UserInfoTitle_DE="Hey ${loggedInUserFirstname}, es $pluralQuantity_DE ${Update_Count} Update${!Plural} verfügbar."
+UserInfoTitle_EN="Hello ${loggedInUserFirstname}, there $pluralQuantity_EN ${Update_Count} update${!Plural} available."
     
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-UserInfoMessage_DE="Die folgenden Applikationen, werden aktuallisiert: \n\n${Names_display[*]} \n\n--- \nWähren der Installation, werden die betroffenen Applikationen geschlossen. Bitte klicke auf **Update**, um mit der Aktualisierung zu beginnen. \n\n#### Verbelibende Anzahl an Verschiebungen: $CurrentDeferralValue \n\nSolange Du nicht die Updates einspielst, wird dieser Dialog **$Time** Dich daran errinern, bis die Anzahl  **0** erreicht hat."
+UserInfoMessage_DE="Die folgenden Programme werden aktualisiert: \n\n${Names_display[*]} \n\n--- \nWährend der Installation werden sie geschlossen. Bitte klicke auf **Update**, um mit der Aktualisierung zu beginnen. \n\n#### Verbleibende Anzahl an Verschiebungen: $CurrentDeferralValue \n\nDieser Dialog wird Dich **${!Time}** erinnern, bis die maximale Verschiebung der Updates erreicht ist."
 
-UserInfoMessage_EN="The following applications are updated: \n\n${Names_display[*]} \n\n--- \nDuring the installation, the affected applications will be closed. Please click **Update** to start the update. \n\n#### Remaining number of moves: $CurrentDeferralValue \n\nUnless you apply the updates, this dialog **$Time** will remind you until the number reaches **0**."
+UserInfoMessage_EN="The following applications are updated: \n\n${Names_display[*]} \n\n--- \nDuring the installation the affected applications will be closed. Please click **Update** to start the update. \n\n#### Remaining number of moves: $CurrentDeferralValue \n\nUnless you apply the updates, this dialog **${!Time}** will remind you until the number reaches **0**."
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-UserEnforceMessage_DE="**Hello ${loggedInUserFirstname} du hast so oft wie nur möglich verschoben.** \n Die folgenden Applikationen, werden nun aktuallisiert: \n\n${Names_display[*]} \n\n--- \nWähren der Installation, werden die betroffenen Applikationen geschlossen. Bitte klicke auf nun **Update**."
+UserEnforceMessage_DE="**Hallo ${loggedInUserFirstname}, Deine Updates können nun nicht mehr verschoben werden.** \n Die folgenden Programme werden nun aktualisiert: \n\n${Names_display[*]} \n\n--- \nWährend der Installation werden die betroffenen Programme geschlossen. Bitte klicke nun auf **Update**."
 
-UserEnforceMessage_EN="**Hello ${loggedInUserFirstname} you have moved as many times as possible.** \n The following applications, are now aktuallisiert: \n\n${Names_display[*]} \n\n--- \nDuring the installation, the affected applications will be closed. Please click on **Update** now."
+UserEnforceMessage_EN="**Hello ${loggedInUserFirstname} you have moved as many times as possible.** \n The following applications will now be updated: \n\n${Names_display[*]} \n\n--- \nDuring the installation the affected applications will be closed. Please click on **Update** now."
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
 title_DE="Aktualisierung läuft....."
 title_EN="Update in progress....."
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-message_DE="Bitte warte, während die folgenden Anwendungen aktualisiert werden ..."
-message_EN="Please wait while the following applications are installed ..."
+message_DE="Bitte warte, während die folgenden Anwendungen aktualisiert werden…"
+message_EN="Please wait while the following applications are installed…"
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-helpmessage_DE="Wenn Du Hilfe benötigst, wenden Dich bitte an den Service:  \n- **Telephone:** +49 555 3212  \n- **Email:** support@mclain.com \n\n**Computer Information:** \n\n- **Operating System:**  ${macOSproductVersion} ($macOSbuildVersion)  \n- **Serial Number:** ${serialNumber}  \n- **Dialog:** ${dialogVersion}  \n- **Started:** ${timestamp}"
+helpmessage_DE="Wenn Du Hilfe benötigst, wende Dich bitte an die Support Services:  \n- **Telefon:** ${Support_Telefon}  \n- **Email:** ${Support_Email} \n\n**Computer Information:** \n\n- **Betriebssystem:**  ${macOSproductVersion} ($macOSbuildVersion)  \n- **Seriennummer:** ${serialNumber}  \n- **Dialog:** ${dialogVersion}  \n- **Started:** ${timestamp}"
 
-helpmessage_EN="If you need help, please contact Service:  \n- **Telephone:** +49 555 3212  \n- **Email:** support@mclain.com \n\n**Computer Information:** \n\n- **Operating System:**  ${macOSproductVersion} ($macOSbuildVersion)  \n- **Serial Number:** ${serialNumber}  \n- **Dialog:** ${dialogVersion}  \n- **Started:** ${timestamp}"
+helpmessage_EN="If you need help, please contact Support Services:  \n- **Telephone:** ${Support_Telefon}  \n- **Email:** ${Support_Email} \n\n**Computer Information:** \n\n- **Operating System:**  ${macOSproductVersion} ($macOSbuildVersion)  \n- **Serial Number:** ${serialNumber}  \n- **Dialog:** ${dialogVersion}  \n- **Started:** ${timestamp}"
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
 failureTitle_DE="Fehler gefunden"
 failureTitle_EN="Error found"
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-final_sucess_titel_DE="Patch Helper abgeschlossen"
+final_sucess_titel_DE="Update Helper abgeschlossen"
 final_sucess_titel_EN="Patch Helper completed"
 
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
@@ -749,7 +762,7 @@ button1text=button1text_${UserLanguage}
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-# PROMT DIALOG
+# PROMPT DIALOG
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1275,8 +1288,8 @@ function finalise(){
         killProcess "caffeinate"
         if [[ $Language = de* ]]
             then
-                PatchHelper "title: Entschuldige ${loggedInUserFirstname}, etwas ist schiefgelaufen"
-                PatchHelper "progresstext: Fehler erkannt. Bitte klicken Sie auf ok, um Informationen zur Fehlerbehebung zu erhalten."
+                PatchHelper "title: Entschuldige ${loggedInUserFirstname}, etwas ist schiefgelaufen."
+                PatchHelper "progresstext: Fehler erkannt. Bitte klicke auf Ok, um Informationen zur Fehlerbehebung zu erhalten."
             else
                 PatchHelper "title: Sorry ${loggedInUserFirstname}, something went wrong."
                 PatchHelper "progresstext: Error detected. Please click ok for troubleshooting information."
@@ -1299,9 +1312,9 @@ function finalise(){
         
         if [[ $Language = de* ]]
         then
-            dialogUpdateFailure "message: Es wurden Fehler festgestellt, ${loggedInUserFirstname}.  \n\nBei der aktuallisierung der Applikationen, ist etwas scheifgelaufen.  \n\nFolgendes Applikationen konnten nicht akuallisiert werden:  \n${jamfProPolicyNameFailures}  \n\n\n\nWenn Du Hilfe benötigen, wenden Dich bitte an den Helpdesk,  \nmsp@nextenterprise.it \n\nDu kannst auch die Applikationen jederzeit aus dem Self Service wieder installieren."
+            dialogUpdateFailure "message: Es wurden Fehler festgestellt, ${loggedInUserFirstname}.  \n\nBei der Aktualisierung der Applikationen ist etwas schiefgelaufen.  \n\nFolgende Applikationen konnten nicht akualisiert werden:  \n${jamfProPolicyNameFailures}  \n\n\n\nWenn Du Hilfe benötigst, wenden Dich bitte an die Support Services unter \n${Support_Email} \n\nDu kannst  die Applikationen jederzeit aus dem Self Service wieder installieren."
         else
-            dialogUpdateFailure "message: Errors were detected ${loggedInUserFirstname}.  \n\nPlease perform the following steps:\n1. Restart your Mac and log in again.  \n2. Start the Self Service \n3. Run all the failed policies listed below again \n\nThe following failed:  \n${jamfProPolicyNameFailures}  \n\n\nIf you need help, please contact the helpdesk, \nmsp@nextenterprise.it"
+            dialogUpdateFailure "message: Errors were detected ${loggedInUserFirstname}.  \n\nPlease perform the following steps:\n1. Restart your Mac and log in again.  \n2. Start the Self Service \n3. Run all the failed policies listed below again \n\nThe following failed:  \n${jamfProPolicyNameFailures}  \n\n\nIf you need help, please contact the helpdesk, \n${Support_Email}"
         fi
             
         
@@ -1681,14 +1694,14 @@ function quitScript() {
     
 function createLaunchDaemon() {
 
-/bin/cat <<EOC > /Library/LaunchDaemons/de.next.UpdateEnforce.plist
+/bin/cat <<EOC > /Library/LaunchDaemons/it.next.UpdateEnforce.plist
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
 "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>de.next.UpdateEnforce</string>
+    <string>it.next.UpdateEnforce</string>
     <key>ProgramArguments</key>
     <array>
             <string>/usr/local/jamf/bin/jamf</string>
@@ -1714,12 +1727,12 @@ EOC
 function StartLaunchDaemon() {
     # set ownership on LastWarningDaemon launch daemon
     updateScriptLog "Patch Helper DIALOG: Change permissions for the Daemon…"
-    /usr/sbin/chown root:wheel /Library/LaunchDaemons/de.next.UpdateEnforce.plist
-    /bin/chmod 644 /Library/LaunchDaemons/de.next.UpdateEnforce.plist
+    /usr/sbin/chown root:wheel /Library/LaunchDaemons/it.next.UpdateEnforce.plist
+    /bin/chmod 644 /Library/LaunchDaemons/it.next.UpdateEnforce.plist
     
     #load launchd
     updateScriptLog "Patch Helper DIALOG: Load the Daemon …"
-    launchctl load /Library/LaunchDaemons/de.next.UpdateEnforce.plist
+    launchctl load /Library/LaunchDaemons/it.next.UpdateEnforce.plist
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1960,7 +1973,7 @@ computerName=$(scutil --get ComputerName)
 infobox=""
 
 if [[ -n ${computerName} ]]; then infobox+="**Computer Name:**  \n$computerName  \n\n" ; fi
-if [[ -n ${totalProgressSteps} ]]; then infobox+="**Updates:** :$totalProgressSteps  \n\n" ; fi
+if [[ -n ${Update_Count} ]]; then infobox+="**Updates:** :$Update_Count  \n\n" ; fi
 
 PatchHelper "infobox: ${infobox}"
 
