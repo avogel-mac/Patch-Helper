@@ -25,7 +25,7 @@ Support_Email="support@nextenterprise.it"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Script Version and Jamf Pro Script Parameters
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-scriptVersion="1.0.0"
+scriptVersion="0.9.1"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 scriptLog="/var/log/it.next_patch_management.log"
 
