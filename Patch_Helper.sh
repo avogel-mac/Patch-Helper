@@ -320,7 +320,7 @@ function ClearUpDeferral() {
 
 
 CurrentUser=$(/usr/sbin/scutil <<< "show State:/Users/ConsoleUser" | /usr/bin/awk -F': ' '/[[:space:]]+Name[[:space:]]:/ { if ( $2 != "loginwindow" ) { print $2 }}')
-Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/$3/Library/Preferences/.GlobalPreferences.plist")
+Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/$CurrentUser/Library/Preferences/.GlobalPreferences.plist")
 
 if [[ $Language != de* ]]; then
     UserLanguage="EN"
