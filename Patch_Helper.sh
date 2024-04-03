@@ -25,7 +25,7 @@ Support_Email="support@nextenterprise.it"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Script Version and Jamf Pro Script Parameters
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-scriptVersion="0.9.1"
+scriptVersion="1.0.0"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 scriptLog="/var/log/it.next_patch_management.log"
 
@@ -320,7 +320,7 @@ function ClearUpDeferral() {
 
 
 CurrentUser=$(/usr/sbin/scutil <<< "show State:/Users/ConsoleUser" | /usr/bin/awk -F': ' '/[[:space:]]+Name[[:space:]]:/ { if ( $2 != "loginwindow" ) { print $2 }}')
-Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/$CurrentUser/Library/Preferences/.GlobalPreferences.plist")
+Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/$3/Library/Preferences/.GlobalPreferences.plist")
 
 if [[ $Language != de* ]]; then
     UserLanguage="EN"
@@ -342,206 +342,208 @@ xmlupdates="/tmp/updates.xml"
 
 # Setzen der Icon-Variablen
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Google_Chrome="94f8d7f60fe82fb234065e05cccf385b1a4f9763ea1b4a3d9737e6a980fd0eae"
+Google_Chrome="https://ics.services.jamfcloud.com/icon/hash_94f8d7f60fe82fb234065e05cccf385b1a4f9763ea1b4a3d9737e6a980fd0eae"
 Google_Chrome_validation="/Applications/Google Chrome.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Outlook="b96ae8bdcb09597bff8b2e82ec3b64d0a2d17f33414dbd7d9a48e5186de7fd93"
+Microsoft_Outlook="https://ics.services.jamfcloud.com/icon/hash_b96ae8bdcb09597bff8b2e82ec3b64d0a2d17f33414dbd7d9a48e5186de7fd93"
 Microsoft_Outlook_validation="/Applications/Microsoft Outlook.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Slack="a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026"
+Slack="https://ics.services.jamfcloud.com/icon/hash_a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026"
 Slack_validation="/Applications/Slack.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Company_Portal="2af383e90f870e948ec2d03a5910af1b27fe2b32d7c757848db0fdecfea2ef71"
+Company_Portal="https://ics.services.jamfcloud.com/icon/hash_2af383e90f870e948ec2d03a5910af1b27fe2b32d7c757848db0fdecfea2ef71"
 Company_Portal_validation="/Applications/Company Portal.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Mozilla_Firefox="b50bdee2e72b3f98cd7cfe8da06a3d5f405507ca0dca2f5f408978f4f24fee0c"
+Mozilla_Firefox="https://ics.services.jamfcloud.com/icon/hash_b50bdee2e72b3f98cd7cfe8da06a3d5f405507ca0dca2f5f408978f4f24fee0c"
 Mozilla_Firefox_validation="/Applications/Firefox.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-GitHub_Desktop="e7790b367556baee89ffb70d7d545b4cf78698e84cf646777a7d9058762bf69d"
+GitHub_Desktop="https://ics.services.jamfcloud.com/icon/hash_e7790b367556baee89ffb70d7d545b4cf78698e84cf646777a7d9058762bf69d"
 GitHub_Desktop_validation="/Applications/GitHub Desktop.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-iTerm2="85951b4b7b290fa90d8b3a4d7b652316acb5dac44ebce95e7a00a38879710cc6"
+iTerm2="https://ics.services.jamfcloud.com/icon/hash_85951b4b7b290fa90d8b3a4d7b652316acb5dac44ebce95e7a00a38879710cc6"
 iTerm2_validation="/Applications/iterm.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Edge="f1fa00c7d8b4cb4d3c58d98c0b0bdbe719a56be39f8b6445ed3df9c8219a126d"
+Microsoft_Edge="https://ics.services.jamfcloud.com/icon/hash_f1fa00c7d8b4cb4d3c58d98c0b0bdbe719a56be39f8b6445ed3df9c8219a126d"
 Microsoft_Edge_validation="/Applications/Microsoft Edge.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Excel="721a7bf38cec7552ecd6ffaee9a0ed2ab21b2318639c23082250be12517fca1c"
+Microsoft_Excel="https://ics.services.jamfcloud.com/icon/hash_721a7bf38cec7552ecd6ffaee9a0ed2ab21b2318639c23082250be12517fca1c"
 Microsoft_Excel_validation="/Applications/Microsoft Excel.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_OneNote="a10ac257accff5479d467cf0c8f148559b92eb0ccb7c78f80464901532c95bdb"
+Microsoft_OneNote="https://ics.services.jamfcloud.com/icon/hash_a10ac257accff5479d467cf0c8f148559b92eb0ccb7c78f80464901532c95bdb"
 Microsoft_OneNote_validation="/Applications/Microsoft OneNote.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_PowerPoint="9f13ca0d3ab7939d3147fbdea116fbdd94f6716a27292505231a8e93f6307fd6"
+Microsoft_PowerPoint="https://ics.services.jamfcloud.com/icon/hash_9f13ca0d3ab7939d3147fbdea116fbdd94f6716a27292505231a8e93f6307fd6"
 Microsoft_PowerPoint_validation="/Applications/Microsoft PowerPoint.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Remote_Desktop="accfb8273af78d6e2f456a9e3ea882267f82e99c13f9e515d374ffd749aba082"
+Microsoft_Remote_Desktop="https://ics.services.jamfcloud.com/icon/hash_accfb8273af78d6e2f456a9e3ea882267f82e99c13f9e515d374ffd749aba082"
 Microsoft_Remote_Desktop_validation="/Applications/Microsoft Remote Desktop.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Teams="623505d45ca9c2a1bd26f733306e30cd3fcc1cc0fd59ffc89ee0bfcbfbd0b37e"
+Microsoft_Teams="https://ics.services.jamfcloud.com/icon/hash_623505d45ca9c2a1bd26f733306e30cd3fcc1cc0fd59ffc89ee0bfcbfbd0b37e"
 Microsoft_Teams_validation="/Applications/Microsoft Teams.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Word="a4686ab0e2efa2b3c30c42289e3958e5925b60b227ecd688f986d199443cc7a7"
+Microsoft_Word="https://ics.services.jamfcloud.com/icon/hash_a4686ab0e2efa2b3c30c42289e3958e5925b60b227ecd688f986d199443cc7a7"
 Microsoft_Word_validation="/Applications/Microsoft Word.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Postman="019df97f436478ca2b98e3f858eb95d4a527a353029df0384f5b8f18dbd0c61d"
+Postman="https://ics.services.jamfcloud.com/icon/hash_019df97f436478ca2b98e3f858eb95d4a527a353029df0384f5b8f18dbd0c61d"
 Postman_validation="/Applications/postman.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Support_App="6a2b5ed3a7762b7641b837fd5cc0a5541462f27ec43126db2d4e8dbdcc298f6d"
+Support_App="https://ics.services.jamfcloud.com/icon/hash_6a2b5ed3a7762b7641b837fd5cc0a5541462f27ec43126db2d4e8dbdcc298f6d"
 Support_App_validation="/Applications/Support.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-TeamViewer="ccbb12778c38f0e2c245a712e78d417930c5d599f44832be9bbee1705f69d3e4"
+TeamViewer="https://ics.services.jamfcloud.com/icon/hash_ccbb12778c38f0e2c245a712e78d417930c5d599f44832be9bbee1705f69d3e4"
 TeamViewer_validation="/Applications/TeamViewer.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Visual_Studio_Code="011955c4065d9215a82905984bd200f224c8b3736e3fb947ba64b6fa28b0c02a"
+Visual_Studio_Code="https://ics.services.jamfcloud.com/icon/hash_011955c4065d9215a82905984bd200f224c8b3736e3fb947ba64b6fa28b0c02a"
 Visual_Studio_Code_validation="/Applications/Visual Studio Code.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Zoom="92b8d3c448e7d773457532f0478a428a0662f694fbbfc6cb69e1fab5ff106d97"
+Zoom="https://ics.services.jamfcloud.com/icon/hash_92b8d3c448e7d773457532f0478a428a0662f694fbbfc6cb69e1fab5ff106d97"
 Zoom_validation="/Applications/zoom.us.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Password="274cae31e3447da5b641ecd0dcd3ae6d27e7aa24e4aff112f54e9047f9711aa7"
+Password="https://ics.services.jamfcloud.com/icon/hash_274cae31e3447da5b641ecd0dcd3ae6d27e7aa24e4aff112f54e9047f9711aa7"
 Password_validation="/Applications/1Password.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Adobe_Creative_Cloud_Desktop="2035ad1a48acb00d5a808cc6daa61c99d03eb2316c39864ba9cdd988fdd73140"
+Adobe_Creative_Cloud_Desktop="https://ics.services.jamfcloud.com/icon/hash_2035ad1a48acb00d5a808cc6daa61c99d03eb2316c39864ba9cdd988fdd73140"
 Adobe_Creative_Cloud_Desktop_validation="/Applications/Utilities/Adobe Creative Cloud/ACC/Creative Cloud.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-AppCleaner="c304da7fe44e5ab4241d909a1051ae44e9af7d7694ed8dbc53f4d53e6dd0c1f6"
+AppCleaner="https://euc1.ics.services.jamfcloud.com/icon/hash_c304da7fe44e5ab4241d909a1051ae44e9af7d7694ed8dbc53f4d53e6dd0c1f6"
 AppCleaner_validation="/Applications/AppCleaner.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Balsamiq_Wireframes="2aacaa75080df809d095065d9fd5ac25066d1bfe90eec277f1834e82d44a555a"
+Balsamiq_Wireframes="https://euc1.ics.services.jamfcloud.com/icon/hash_2aacaa75080df809d095065d9fd5ac25066d1bfe90eec277f1834e82d44a555a"
 Balsamiq_Wireframes_validation="/Applications/Balsamiq Wireframes.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Blender="d1420bec7e93fc1197c999f499ff1743764ac17789bee60f5466569e83fc7fab"
+Blender="https://ics.services.jamfcloud.com/icon/hash_d1420bec7e93fc1197c999f499ff1743764ac17789bee60f5466569e83fc7fab"
 Blender_validation="/Applications/blender.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Cyberduck="d807ad9581dffc5e7317c5b301104a43b37ceca866b36799053412ef327264b8"
+Cyberduck="https://euc1.ics.services.jamfcloud.com/icon/hash_d807ad9581dffc5e7317c5b301104a43b37ceca866b36799053412ef327264b8"
 Cyberduck_validation="/Applications/Cyberduck.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-DisplayLink_Manager="ed6f88bfb07d71e245f6b3d69574467f7089ef39d9a98f5d5d770b314706b460"
+DisplayLink_Manager="https://ics.services.jamfcloud.com/icon/hash_ed6f88bfb07d71e245f6b3d69574467f7089ef39d9a98f5d5d770b314706b460"
 DisplayLink_Manager_validation="/Applications/DisplayLink Manager.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-DropBox="e6361d9d6f2867bf1f939fb9fbe5b7f785413b17dd9d36331e02c3f42f1a3a07"
+DropBox="https://euc1.ics.services.jamfcloud.com/icon/hash_e6361d9d6f2867bf1f939fb9fbe5b7f785413b17dd9d36331e02c3f42f1a3a07"
 DropBox_validation="/Applications/Dropbox.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-EasyFind="a7ad6e3e43ee50fcb73d3e26fd29146906681a6f048a3d305b4857f3165298f5"
+EasyFind="https://ics.services.jamfcloud.com/icon/hash_a7ad6e3e43ee50fcb73d3e26fd29146906681a6f048a3d305b4857f3165298f5"
 EasyFind_validation="/Applications/EasyFind.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Figma="ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de"
+Figma="https://ics.services.jamfcloud.com/icon/hash_ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de"
 Figma_validation="/Applications/Figma.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Filezilla="b2aa33567e5b48be41e5165c6f02eac485710e041367a685be5bbc97b265229b"
+Filezilla="https://euc1.ics.services.jamfcloud.com/icon/hash_b2aa33567e5b48be41e5165c6f02eac485710e041367a685be5bbc97b265229b"
 Filezilla_validation="/Applications/FileZilla.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-ImageOptim="5dcd3a597ee4fd5b52e63ee0e5f86d97352d281398ee4e91d45abc75e292e086"
+ImageOptim="https://euc1.ics.services.jamfcloud.com/icon/hash_5dcd3a597ee4fd5b52e63ee0e5f86d97352d281398ee4e91d45abc75e292e086"
 ImageOptim_validation="/Applications/imageoptim.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Keka="b2f82bb89f6e69834dec02b0f12ce6180fbdc1352494adf10d7e7a7aa65c85e6"
+Keka="https://ics.services.jamfcloud.com/icon/hash_b2f82bb89f6e69834dec02b0f12ce6180fbdc1352494adf10d7e7a7aa65c85e6"
 Keka_validation="/Applications/Keka.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Skype_for_Business="a0bb8ab7d90a958892febf03aea84f3b090c2dc0ea9305f7d17f27d622bfbb9e"
+Microsoft_Skype_for_Business="https://ics.services.jamfcloud.com/icon/hash_a0bb8ab7d90a958892febf03aea84f3b090c2dc0ea9305f7d17f27d622bfbb9e"
 Microsoft_Skype_for_Business_validation="/Applications/Skype for Business.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Miro="89d42f52cebdbb0862c2229254074da1b31dc334c984031a6ccfc5f46141a569"
+Miro="https://euc1.ics.services.jamfcloud.com/icon/hash_89d42f52cebdbb0862c2229254074da1b31dc334c984031a6ccfc5f46141a569"
 Miro_validation="/Applications/Miro.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Sketch="32f378b2490f45b03042fc8a388dbc433e7e2e4c2c68b697e3c9647fcd217e44"
+Sketch="https://euc1.ics.services.jamfcloud.com/icon/hash_32f378b2490f45b03042fc8a388dbc433e7e2e4c2c68b697e3c9647fcd217e44"
 Sketch_validation="/Applications/Sketch.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-The_Unarchiver="5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2"
+The_Unarchiver="https://ics.services.jamfcloud.com/icon/hash_5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2"
 The_Unarchiver_validation="/Applications/The Unarchiver.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-VLC="2b428c169b78204f03cff3b040b2b5c428eac9288108e11d43aca994d5bd39f0"
+VLC="https://ics.services.jamfcloud.com/icon/hash_2b428c169b78204f03cff3b040b2b5c428eac9288108e11d43aca994d5bd39f0"
 VLC_validation="/Applications/VLC.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Zeplin="8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9"
+Zeplin="https://euc1.ics.services.jamfcloud.com/icon/hash_8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9"
 Zeplin_validation="/Applications/Zeplin.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Safari="4de54603be986c87a1e08401c3077f943388a0f2728c794253c8647e1a234b8f"
+Safari="https://ics.services.jamfcloud.com/icon/hash_4de54603be986c87a1e08401c3077f943388a0f2728c794253c8647e1a234b8f"
 Safari_validation="None"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Adobe_Acrobar_Reader="d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c"
+Adobe_Acrobar_Reader="https://ics.services.jamfcloud.com/icon/hash_d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c"
 Adobe_Acrobar_Reader_validation="/Applications/Adobe Acrobat Reader.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Anydesk="753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d"
+Anydesk="https://ics.services.jamfcloud.com/icon/hash_753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d"
 Anydesk_validation="/Applications/AnyDesk.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Audacity="48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f"
+Audacity="https://ics.services.jamfcloud.com/icon/hash_48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f"
 Audacity_validation="/Applications/Audacity.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-balenaEtcher="c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d"
+balenaEtcher="https://ics.services.jamfcloud.com/icon/hash_c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d"
 balenaEtcher_validation="/Applications/balenaEtcher.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Clipy="69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946"
+Clipy="https://ics.services.jamfcloud.com/icon/hash_69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946"
 Clipy_validation="/Applications/Clipy.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Drawio="fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74"
+Drawio="https://ics.services.jamfcloud.com/icon/hash_fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74"
 Drawio_validation="/Applications/draw.io.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Keeping_you_Awake="01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca"
+Keeping_you_Awake="https://ics.services.jamfcloud.com/icon/hash_01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca"
 Keeping_you_Awake_validation="/Applications/KeepingYouAwake.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Monitor_Control="09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2"
+Monitor_Control="https://ics.services.jamfcloud.com/icon/hash_09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2"
 Monitor_Control_validation="/Applications/MonitorControl.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-OmniGraffle_7="af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94"
+OmniGraffle_7="https://ics.services.jamfcloud.com/icon/hash_af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94"
 OmniGraffle_7_validation="/Applications/OmniGraffle.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Rectangle="656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253"
+Rectangle="https://ics.services.jamfcloud.com/icon/hash_656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253"
 Rectangle_validation="/Applications/Rectangle.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Sourcetree="176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f"
+Sourcetree="https://ics.services.jamfcloud.com/icon/hash_176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f"
 Sourcetree_validation="/Applications/Sourcetree.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Zulip="4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e"
+Zulip="https://ics.services.jamfcloud.com/icon/hash_4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e"
 Zulip_validation="/Applications/Zulip.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Go_to_Meeting="03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a"
+Go_to_Meeting="https://ics.services.jamfcloud.com/icon/hash_03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a"
 Go_to_Meeting_validation="/Applications/GoToMeeting.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-GIMP="db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94"
+GIMP="https://ics.services.jamfcloud.com/icon/hash_db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94"
 GIMP_validation="/Applications/GIMP.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Apache_Directory_Studio="5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe"
+Apache_Directory_Studio="https://ics.services.jamfcloud.com/icon/hash_5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe"
 Apache_Directory_Studio_validation="/Applications/ApacheDirectoryStudio.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Azure_Data_Studio="967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c"
+Azure_Data_Studio="https://ics.services.jamfcloud.com/icon/hash_967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c"
 Azure_Data_Studio_validation="/Applications/Azure Data Studio.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Docker="34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af"
+Docker="https://ics.services.jamfcloud.com/icon/hash_34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af"
 Docker_validation="/Applications/Docker.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Meld="7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e"
+Meld="https://ics.services.jamfcloud.com/icon/hash_7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e"
 Meld_validation="/Applications/Meld.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-PyCharm="3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a"
+PyCharm="https://ics.services.jamfcloud.com/icon/hash_3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a"
 PyCharm_validation="/Applications/PyCharm.app/Contents/Info.plist"
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-SquidMan="a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab"
+SquidMan="https://ics.services.jamfcloud.com/icon/hash_a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab"
 SquidMan_validation="/Applications/SquidMan.app/Contents/Info.plist"
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-TNEFs_Enough="302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602"
+TNEFs_Enough="https://ics.services.jamfcloud.com/icon/hash_302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602"
 TNEFs_Enough_validation="/Applications/TNEF's Enough.app/Contents/Info.plist"
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Wireshark="1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3"
+Wireshark="https://ics.services.jamfcloud.com/icon/hash_1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3"
 Wireshark_validation="/Applications/Wireshark.app/Contents/Info.plist"
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Jabra_Direct="7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2"
+Jabra_Direct="https://ics.services.jamfcloud.com/icon/hash_7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2"
 Jabra_Direct_validation="/Applications/Jabra Direct.app/Contents/Info.plist"
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-SimpleMind_Pro="d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04"
+SimpleMind_Pro="https://ics.services.jamfcloud.com/icon/hash_d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04"
 SimpleMind_Pro_validation="/Applications/SimpleMind Pro.app/Contents/Info.plist"
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Tunnelblick="0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd"
+Tunnelblick="https://ics.services.jamfcloud.com/icon/hash_0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd"
 Tunnelblick_validation="/Applications/Tunnelblick.app/Contents/Info.plist"
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-UTM="d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc"
+UTM="https://ics.services.jamfcloud.com/icon/hash_d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc"
 UTM_validation="/Applications/UTM.app/Contents/Info.plist"
 #* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Bitwarden="4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18"
+Bitwarden="https://ics.services.jamfcloud.com/icon/hash_4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18"
 Bitwarden_validation="/Applications/Bitwarden.app/Contents/Info.plist"
-
+#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+Brave="https://euc1.ics.services.jamfcloud.com/icon/hash_d07ef04ebf5d9a509070858a26c39fd99feef114422de934973b6b19cb565a6c"
+Brave_validation="/Applications/Brave Browser.app/Contents/Info.plist"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-placeholder_icon="ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
+placeholder_icon="https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
 placeholder_validation="None"
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
 
@@ -1138,6 +1140,10 @@ function UpdateJSONConfiguration() {
                     *Safari*)
                         icon=$Safari
                         validation=$Safari_validation
+                    ;;
+                    *Brave*)
+                        icon=$Brave
+                        validation=$Brave_validation
                     ;;
                     
                     *)
@@ -1930,7 +1936,7 @@ if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true
 list_item_string=${list_item_array[*]/%/,}
 PatchHelper "list: ${list_item_string%?}"
 for (( i=0; i<dialog_step_length; i++ )); do
-    PatchHelper "listitem: index: $i, icon: ${IconServicePrefixUrl}${icon_url_array[$i]}, status: pending, statustext: Pending …"
+    PatchHelper "listitem: index: $i, icon: ${icon_url_array[$i]}, status: pending, statustext: Pending …"
 done
 PatchHelper "list: show"
 
@@ -1999,7 +2005,7 @@ for (( i=0; i<dialog_step_length; i++ )); do
         updateScriptLog "\n\n# # #\n# Patch Helper DIALOG: policyJSON > listitem: ${listitem}\n# # #\n"
         PatchHelper "listitem: index: $i, status: wait, statustext: Installing …, "
     fi
-    if [[ -n "$icon" ]]; then PatchHelper "icon: ${IconServicePrefixUrl}${icon}"; fi
+    if [[ -n "$icon" ]]; then PatchHelper "icon: ${icon}"; fi
     if [[ -n "$progresstext" ]]; then PatchHelper "progresstext: $progresstext"; fi
     if [[ -n "$trigger_list_length" ]]; then
 
