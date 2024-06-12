@@ -34,7 +34,7 @@ if [[ ! -f "${scriptLog}" ]]; then
     touch "${scriptLog}"
 fi
 
-debugMode="${4:-"false"}"                                  # Parameter 4: Debug Mode [ true (default) | false ]
+debugMode="${4:-"true"}"                                  # Parameter 4: Debug Mode [ true (default) | false ]
 
 BannerImage="${5}"                                        # Parameter 5: BannerImage on Top of swiftDialog
 if [[ -z "$BannerImage" ]]; then
