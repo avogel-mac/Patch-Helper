@@ -1,19 +1,23 @@
 #!/bin/bash
 #######################################################################
-# Shellscript		:	Patch Helper
-# Edetiert durch	:	Andreas Vogel
-# Changelog			: 	0.1 -	initial skript
-#                   :   0.2 -   Termination of the LaunchDaemon via bootout
-#                   :   0.3 -   Retrieve customization of PolicyNames via API
-#                   :   0.4 -   Adjustment of the icons so that they use the correct icon in the "case" function
-#                   :   0.5 -   Adjustment of the JSON so that it always executes the policy for Update Inventory at the end..
-#                   :   0.6 -   Added function for "invalidateToken" so that the token is automatically discarded on exit.
-#                   :   0.7 -   Customization of the icon 
-#                   :   0.8 -   Safari 
-#					:	0.9 -	Translation, Redigatur
-#                   :   0.9.1 -   Counter is changed as $Update_Count so that only the number of updates is displayed and
-#                               no longer the number of all steps (incl. the update inventory)
-#
+# Shellscript     :   Patch Helper
+# Edetiert durch  :   Andreas Vogel
+# Changelog			: 	0.1    -	initial skript
+#                   :   0.2     -   Termination of the LaunchDaemon via bootout
+#                   :   0.3     -   Retrieve customization of PolicyNames via API
+#                   :   0.4     -   Adjustment of the icons so that they use the correct icon in the "case" function
+#                   :   0.5     -   Adjustment of the JSON so that it always executes the policy for Update Inventory at the end..
+#                   :   0.6     -   Added function for "invalidateToken" so that the token is automatically discarded on exit.
+#                   :   0.7     -   Customization of the icon 
+#                   :   0.8     -   Safari (has been removed again)
+#					:	0.9     -	Translation, Redigatur
+#                   :   0.9.1   -   Counter is changed as $Update_Count so that only the number of updates is displayed and
+#                                   no longer the number of all steps (incl. the update inventory)
+#                   :   0.9.2   -   Adding the new variable $BundelID, this now checks whether the affected application is running or not.
+#                                   is executed or not. If the application is not executed, it will be executed immediately via the 
+#                                   jamf policy -id will be executed immediately. If it is executed or the $BundelID variable is empty,
+#                                   is empty, this is included in the json and the user is informed. If all applications to be patched are not 
+#                                   are executed, all policies are executed in the background and the user is not aware of this. 
 #
 #######################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -25,7 +29,7 @@ Support_Email="support@nextenterprise.it"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Script Version and Jamf Pro Script Parameters
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-scriptVersion="1.0.0"
+scriptVersion="0.9.3"
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 scriptLog="/var/log/it.next_patch_management.log"
 
@@ -34,20 +38,17 @@ if [[ ! -f "${scriptLog}" ]]; then
     touch "${scriptLog}"
 fi
 
-debugMode="${4:-"true"}"                                  # Parameter 4: Debug Mode [ true (default) | false ]
+debugMode="${4:-"false"}"                                 # Parameter 4: Debug Mode [ true (default) | false ]
 
 BannerImage="${5}"                                        # Parameter 5: BannerImage on Top of swiftDialog
 if [[ -z "$BannerImage" ]]; then
-    #BannerImage="https://ics.services.jamfcloud.com/icon/hash_bf163c243eda9edd20bd269277da921353f1927b3f1d5f12df92c2879d827336"
     BannerImage="https://ics.services.jamfcloud.com/icon/hash_cfbe99281c08b7ef85da92dcb56be11a6ff8562e37d24bb20ecf230495d617df"
 fi
 
 InfoboxIcon="${6}"                                        # Parameter 6: InfoboxIcon Icon on left Site of swiftDialog
 if [[ -z "$InfoboxIcon" ]]; then
-    #InfoboxIcon="https://ics.services.jamfcloud.com/icon/hash_512ac7293a7ac36ed21e4f4a10f1508b431cff5183d713df610312e17eeda3d7"
     InfoboxIcon="https://ics.services.jamfcloud.com/icon/hash_0b3ab277243d56f8bbe486f3453ba6c4fa9ea53f50245597f7852b62624d2bc6"
 fi
-
 
 StartInterval="${7}"
 if [[ -z "$StartInterval" ]]; then
@@ -114,7 +115,7 @@ function updateScriptLog() {
 # # # # # # # # # # # # # # # Current Logged-in User Function  # # # # # # # # # # # # # # # # # # #
 function currentLoggedInUser() {
     loggedInUser=$( echo "show State:/Users/ConsoleUser" | scutil | awk '/Name :/ { print $3 }' )
-    updateScriptLog "WARM-UP: Current Logged-in User: ${loggedInUser}"
+    updateScriptLog "PRE-FLIGHT CHECK: Current Logged-in User: ${loggedInUser}"
 }
 # # # # # # # # # # # # # # # Confirm script is running as root # # # # # # # # # # # # # # # # # #
 if [[ $(id -u) -ne 0 ]]; then
@@ -161,7 +162,7 @@ function dialogCheck() {
     # Check for Dialog and install if not found
     if [ ! -e "/Library/Application Support/Dialog/Dialog.app" ]; then
 
-        updateScriptLog "WARM-UP: Dialog not found. Installing..."
+        updateScriptLog "PRE-FLIGHT CHECK: Dialog not found. Installing..."
 
         # Create temporary working directory
         workDirectory=$( /usr/bin/basename "$0" )
@@ -179,7 +180,7 @@ function dialogCheck() {
             /usr/sbin/installer -pkg "$tempDirectory/Dialog.pkg" -target /
             sleep 2
             dialogVersion=$( /usr/local/bin/dialog --version )
-            updateScriptLog "WARM-UP: swiftDialog version ${dialogVersion} installed; proceeding..."
+            updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version ${dialogVersion} installed; proceeding..."
 
         else
 
@@ -196,7 +197,7 @@ function dialogCheck() {
 
     else
 
-        updateScriptLog "WARM-UP: swiftDialog version $(/usr/local/bin/dialog --version) found; proceeding..."
+        updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version $(/usr/local/bin/dialog --version) found; proceeding..."
 
     fi
 
@@ -205,9 +206,11 @@ function dialogCheck() {
 if [[ ! -e "/Library/Application Support/Dialog/Dialog.app" ]]; then
     dialogCheck
 else
-    updateScriptLog "WARM-UP: swiftDialog version $(/usr/local/bin/dialog --version) found; proceeding..."
+    updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version $(/usr/local/bin/dialog --version) found; proceeding..."
 fi
-
+########################################################################
+## Deferral Handling
+########################################################################
 
 setDeferral (){
     BundleID="${1}"
@@ -242,7 +245,7 @@ setDeferral (){
     fi
 }
 
-DeferralPlist="/Library/Application Support/JAMF/it.next.update.deferrals.plist"
+DeferralPlist="/Library/Application Support/JAMF/it.next.PatchHelper.update.deferrals.plist"
 BundleID="it.next.PatchHelper"
 DeferralType="count"
 
@@ -253,393 +256,225 @@ if [[ -z "$CurrentDeferralValue" ]] || [[ "$CurrentDeferralValue" =~ "File Doesn
     CurrentDeferralValue="$(/usr/libexec/PlistBuddy -c "print :$BundleID:count" "$DeferralPlist" 2>/dev/null)"
 fi
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# WARM-UP: Complete
+# PRE-FLIGHT CHECK: Complete
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-updateScriptLog "WARM-UP: Complete"
-
-# # # # # # # # # # # # # # # # # # # # User Language # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+updateScriptLog "PRE-FLIGHT CHECK: Complete"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Function ClearUp the LaunchDaemon 
+# LaunchDaemon Check 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+LaunchDaemonLabel="it.next.UpdateEnforce"
+LaunchDaemonPlist="/Library/LaunchDaemons/$LaunchDaemonLabel.plist"
+LaunchDaemonisReady=0
+
+# Prüfe, ob LaunchDaemon-Datei existiert und ob sie geladen ist
+if [[ -f "$LaunchDaemonPlist" ]]
+    then
+        if launchctl list | grep -q "$LaunchDaemonLabel"
+            then
+                updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon '$LaunchDaemonLabel' is already loaded."
+                LaunchDaemonisReady=1
+            else
+                updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon-Plist available, but not loaded."
+                LaunchDaemonisReady=1
+        fi
+    else
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon '$LaunchDaemonLabel' does not exist."
+        LaunchDaemonisReady=0
+fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Language
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+CurrentUser=$(/usr/sbin/scutil <<< "show State:/Users/ConsoleUser" | /usr/bin/awk -F': ' '/[[:space:]]+Name[[:space:]]:/ { if ( $2 != "loginwindow" ) { print $2 }}')
+Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/$CurrentUser/Library/Preferences/.GlobalPreferences.plist")
+
+if [[ $Language != de* ]]
+    then
+        UserLanguage="EN"
+    else
+        UserLanguage="DE"
+fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Helper-Funktionen: Cleanup etc.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function ClearUpLaunchDaemon() {
-    updateScriptLog "Patch Helper DIALOG: Stopping LaunchDaemon launchctl bootout system …"
-    launchctl bootout system/it.next.UpdateEnforce
-    
-    if [ $? -ne 0 ]; then
-        updateScriptLog "Patch Helper DIALOG: Error unloading LaunchDaemon"
-    else
-        updateScriptLog "Patch Helper DIALOG: LaunchDaemon unloaded successfully"
+    updateScriptLog "QUIT SCRIPT: Stopping LaunchDaemon via launchctl bootout system …"
+    launchctl bootout system/$LaunchDaemonLabel 2>/dev/null
+    if [ $? -ne 0 ]
+        then
+            updateScriptLog "QUIT SCRIPT: Error unloading LaunchDaemon"
+        else
+            updateScriptLog "QUIT SCRIPT: LaunchDaemon unloaded successfully"
     fi
     
-    updateScriptLog "Patch Helper DIALOG: delete the LaunchDaemon so that it is loaded again after a reboot... "
-    rm -rf /Library/LaunchDaemons/it.next.UpdateEnforce.plist
+    updateScriptLog "QUIT SCRIPT: delete the LaunchDaemon"
+    rm -rf $LaunchDaemonPlist
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Function ClearUp deferral plist 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function ClearUpPlist() {
-    updateScriptLog "Patch Helper DIALOG: Deleting plist …"
-    rm -rf "/Library/Application Support/JAMF/it.next.update.deferrals.plist"
-    
+    updateScriptLog "QUIT SCRIPT: Set Deferral Count back to Default."
+     rm -rf "/Library/Application Support/JAMF/it.next.update.deferrals.plist"
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Function check if deferel are allredy createt  
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-function CheckDeferral() {
-    # Check if the daemon exists and is loaded
-    if launchctl list | grep -q "it.next.UpdateEnforce"
-    then
-        updateScriptLog "Patch Helper DIALOG: The daemon exists and is loaded …"
-    else
-        updateScriptLog "Patch Helper DIALOG: no deferral has been set up yet. Set up the daemon …"
-        createLaunchDaemon
-        StartLaunchDaemon
-    fi
-}
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Function check if deferel are allredy createt  
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function ClearUpDeferral() {
-    # Check if the daemon exists and is loaded
-    if launchctl list | grep -q "it.next.UpdateEnforce"
-    then
-        updateScriptLog "Patch Helper DIALOG: Clean up the daemon, updates were successfully installed …"
-        ClearUpLaunchDaemon
-        ClearUpPlist
-    else
-        updateScriptLog "Patch Helper DIALOG: Daemon was not set up, user had not yet moved …"
-        ClearUpPlist
+    if [[ "$LaunchDaemonisReady" -eq 1 ]]
+        then
+            updateScriptLog "QUIT SCRIPT: Clean up the daemon, updates were successfully installed …"
+            ClearUpPlist
+            ClearUpLaunchDaemon
+        else
+            updateScriptLog "QUIT SCRIPT: Daemon was not set up, user had not yet moved …"
+            ClearUpPlist
     fi
-    
 }
 
-
-CurrentUser=$(/usr/sbin/scutil <<< "show State:/Users/ConsoleUser" | /usr/bin/awk -F': ' '/[[:space:]]+Name[[:space:]]:/ { if ( $2 != "loginwindow" ) { print $2 }}')
-Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/$3/Library/Preferences/.GlobalPreferences.plist")
-
-if [[ $Language != de* ]]; then
-    UserLanguage="EN"
-else
-    UserLanguage="DE"
-fi
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-# Create Update List
-#
+# LaunchDaemon anlegen und starten
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+function createLaunchDaemon() {
+    /bin/cat <<EOC > "$LaunchDaemonPlist"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>Label</key>
+<string>${LaunchDaemonLabel}</string>
+<key>ProgramArguments</key>
+<array>
+    <string>/usr/local/jamf/bin/jamf</string>
+    <string>policy</string>
+    <string>-event</string>
+    <string>update</string>
+</array>
+<key>RunAtLoad</key>
+<false/>
+<key>StartInterval</key>
+<integer>${StartIntervalDaemon}</integer>
+<key>UserName</key>
+<string>root</string>
+</dict>
+</plist>
+EOC
+}
+
+function StartLaunchDaemon() {
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Start the process to change the LaunchDaemon settings."
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Change owner (root:wheel) for $LaunchDaemonPlist."
+    if /usr/sbin/chown root:wheel "$LaunchDaemonPlist"
+        then
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: chown executed successfully."
+        else
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: chown failed."
+    fi
+    
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Set access rights (644) for $LaunchDaemonPlist."
+    if /bin/chmod 644 "$LaunchDaemonPlist"
+        then
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: chmod executed successfully."
+        else
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: chmod failed."
+    fi
+    
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Try to load LaunchDaemon."
+    if launchctl load "${LaunchDaemonPlist}" 2>/dev/null
+        then
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon has been loaded successfully."
+        else
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: LaunchDaemon could not be loaded."
+    fi
+    
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Process completed."
+
+}
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-udid=$(system_profiler SPHardwareDataType | grep UUID | awk '" " { print $NF }')
-
-xsltFile="/tmp/xsltTemplate.xsl"
-xmlFile="/tmp/fileName.xml"
-xmlupdates="/tmp/updates.xml"
-
-# Setzen der Icon-Variablen
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Google_Chrome="https://ics.services.jamfcloud.com/icon/hash_94f8d7f60fe82fb234065e05cccf385b1a4f9763ea1b4a3d9737e6a980fd0eae"
-Google_Chrome_validation="/Applications/Google Chrome.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Outlook="https://ics.services.jamfcloud.com/icon/hash_b96ae8bdcb09597bff8b2e82ec3b64d0a2d17f33414dbd7d9a48e5186de7fd93"
-Microsoft_Outlook_validation="/Applications/Microsoft Outlook.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Slack="https://ics.services.jamfcloud.com/icon/hash_a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026"
-Slack_validation="/Applications/Slack.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Company_Portal="https://ics.services.jamfcloud.com/icon/hash_2af383e90f870e948ec2d03a5910af1b27fe2b32d7c757848db0fdecfea2ef71"
-Company_Portal_validation="/Applications/Company Portal.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Mozilla_Firefox="https://ics.services.jamfcloud.com/icon/hash_b50bdee2e72b3f98cd7cfe8da06a3d5f405507ca0dca2f5f408978f4f24fee0c"
-Mozilla_Firefox_validation="/Applications/Firefox.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-GitHub_Desktop="https://ics.services.jamfcloud.com/icon/hash_e7790b367556baee89ffb70d7d545b4cf78698e84cf646777a7d9058762bf69d"
-GitHub_Desktop_validation="/Applications/GitHub Desktop.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-iTerm2="https://ics.services.jamfcloud.com/icon/hash_85951b4b7b290fa90d8b3a4d7b652316acb5dac44ebce95e7a00a38879710cc6"
-iTerm2_validation="/Applications/iterm.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Edge="https://ics.services.jamfcloud.com/icon/hash_f1fa00c7d8b4cb4d3c58d98c0b0bdbe719a56be39f8b6445ed3df9c8219a126d"
-Microsoft_Edge_validation="/Applications/Microsoft Edge.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Excel="https://ics.services.jamfcloud.com/icon/hash_721a7bf38cec7552ecd6ffaee9a0ed2ab21b2318639c23082250be12517fca1c"
-Microsoft_Excel_validation="/Applications/Microsoft Excel.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_OneNote="https://ics.services.jamfcloud.com/icon/hash_a10ac257accff5479d467cf0c8f148559b92eb0ccb7c78f80464901532c95bdb"
-Microsoft_OneNote_validation="/Applications/Microsoft OneNote.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_PowerPoint="https://ics.services.jamfcloud.com/icon/hash_9f13ca0d3ab7939d3147fbdea116fbdd94f6716a27292505231a8e93f6307fd6"
-Microsoft_PowerPoint_validation="/Applications/Microsoft PowerPoint.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Remote_Desktop="https://ics.services.jamfcloud.com/icon/hash_accfb8273af78d6e2f456a9e3ea882267f82e99c13f9e515d374ffd749aba082"
-Microsoft_Remote_Desktop_validation="/Applications/Microsoft Remote Desktop.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Teams="https://ics.services.jamfcloud.com/icon/hash_623505d45ca9c2a1bd26f733306e30cd3fcc1cc0fd59ffc89ee0bfcbfbd0b37e"
-Microsoft_Teams_validation="/Applications/Microsoft Teams.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Word="https://ics.services.jamfcloud.com/icon/hash_a4686ab0e2efa2b3c30c42289e3958e5925b60b227ecd688f986d199443cc7a7"
-Microsoft_Word_validation="/Applications/Microsoft Word.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Postman="https://ics.services.jamfcloud.com/icon/hash_019df97f436478ca2b98e3f858eb95d4a527a353029df0384f5b8f18dbd0c61d"
-Postman_validation="/Applications/postman.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Support_App="https://ics.services.jamfcloud.com/icon/hash_6a2b5ed3a7762b7641b837fd5cc0a5541462f27ec43126db2d4e8dbdcc298f6d"
-Support_App_validation="/Applications/Support.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-TeamViewer="https://ics.services.jamfcloud.com/icon/hash_ccbb12778c38f0e2c245a712e78d417930c5d599f44832be9bbee1705f69d3e4"
-TeamViewer_validation="/Applications/TeamViewer.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Visual_Studio_Code="https://ics.services.jamfcloud.com/icon/hash_011955c4065d9215a82905984bd200f224c8b3736e3fb947ba64b6fa28b0c02a"
-Visual_Studio_Code_validation="/Applications/Visual Studio Code.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Zoom="https://ics.services.jamfcloud.com/icon/hash_92b8d3c448e7d773457532f0478a428a0662f694fbbfc6cb69e1fab5ff106d97"
-Zoom_validation="/Applications/zoom.us.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Password="https://ics.services.jamfcloud.com/icon/hash_274cae31e3447da5b641ecd0dcd3ae6d27e7aa24e4aff112f54e9047f9711aa7"
-Password_validation="/Applications/1Password.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Adobe_Creative_Cloud_Desktop="https://ics.services.jamfcloud.com/icon/hash_2035ad1a48acb00d5a808cc6daa61c99d03eb2316c39864ba9cdd988fdd73140"
-Adobe_Creative_Cloud_Desktop_validation="/Applications/Utilities/Adobe Creative Cloud/ACC/Creative Cloud.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-AppCleaner="https://euc1.ics.services.jamfcloud.com/icon/hash_c304da7fe44e5ab4241d909a1051ae44e9af7d7694ed8dbc53f4d53e6dd0c1f6"
-AppCleaner_validation="/Applications/AppCleaner.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Balsamiq_Wireframes="https://euc1.ics.services.jamfcloud.com/icon/hash_2aacaa75080df809d095065d9fd5ac25066d1bfe90eec277f1834e82d44a555a"
-Balsamiq_Wireframes_validation="/Applications/Balsamiq Wireframes.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Blender="https://ics.services.jamfcloud.com/icon/hash_d1420bec7e93fc1197c999f499ff1743764ac17789bee60f5466569e83fc7fab"
-Blender_validation="/Applications/blender.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Cyberduck="https://euc1.ics.services.jamfcloud.com/icon/hash_d807ad9581dffc5e7317c5b301104a43b37ceca866b36799053412ef327264b8"
-Cyberduck_validation="/Applications/Cyberduck.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-DisplayLink_Manager="https://ics.services.jamfcloud.com/icon/hash_ed6f88bfb07d71e245f6b3d69574467f7089ef39d9a98f5d5d770b314706b460"
-DisplayLink_Manager_validation="/Applications/DisplayLink Manager.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-DropBox="https://euc1.ics.services.jamfcloud.com/icon/hash_e6361d9d6f2867bf1f939fb9fbe5b7f785413b17dd9d36331e02c3f42f1a3a07"
-DropBox_validation="/Applications/Dropbox.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-EasyFind="https://ics.services.jamfcloud.com/icon/hash_a7ad6e3e43ee50fcb73d3e26fd29146906681a6f048a3d305b4857f3165298f5"
-EasyFind_validation="/Applications/EasyFind.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Figma="https://ics.services.jamfcloud.com/icon/hash_ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de"
-Figma_validation="/Applications/Figma.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Filezilla="https://euc1.ics.services.jamfcloud.com/icon/hash_b2aa33567e5b48be41e5165c6f02eac485710e041367a685be5bbc97b265229b"
-Filezilla_validation="/Applications/FileZilla.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-ImageOptim="https://euc1.ics.services.jamfcloud.com/icon/hash_5dcd3a597ee4fd5b52e63ee0e5f86d97352d281398ee4e91d45abc75e292e086"
-ImageOptim_validation="/Applications/imageoptim.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Keka="https://ics.services.jamfcloud.com/icon/hash_b2f82bb89f6e69834dec02b0f12ce6180fbdc1352494adf10d7e7a7aa65c85e6"
-Keka_validation="/Applications/Keka.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Microsoft_Skype_for_Business="https://ics.services.jamfcloud.com/icon/hash_a0bb8ab7d90a958892febf03aea84f3b090c2dc0ea9305f7d17f27d622bfbb9e"
-Microsoft_Skype_for_Business_validation="/Applications/Skype for Business.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Miro="https://euc1.ics.services.jamfcloud.com/icon/hash_89d42f52cebdbb0862c2229254074da1b31dc334c984031a6ccfc5f46141a569"
-Miro_validation="/Applications/Miro.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Sketch="https://euc1.ics.services.jamfcloud.com/icon/hash_32f378b2490f45b03042fc8a388dbc433e7e2e4c2c68b697e3c9647fcd217e44"
-Sketch_validation="/Applications/Sketch.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-The_Unarchiver="https://ics.services.jamfcloud.com/icon/hash_5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2"
-The_Unarchiver_validation="/Applications/The Unarchiver.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-VLC="https://ics.services.jamfcloud.com/icon/hash_2b428c169b78204f03cff3b040b2b5c428eac9288108e11d43aca994d5bd39f0"
-VLC_validation="/Applications/VLC.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Zeplin="https://euc1.ics.services.jamfcloud.com/icon/hash_8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9"
-Zeplin_validation="/Applications/Zeplin.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Safari="https://ics.services.jamfcloud.com/icon/hash_4de54603be986c87a1e08401c3077f943388a0f2728c794253c8647e1a234b8f"
-Safari_validation="None"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Adobe_Acrobar_Reader="https://ics.services.jamfcloud.com/icon/hash_d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c"
-Adobe_Acrobar_Reader_validation="/Applications/Adobe Acrobat Reader.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Anydesk="https://ics.services.jamfcloud.com/icon/hash_753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d"
-Anydesk_validation="/Applications/AnyDesk.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Audacity="https://ics.services.jamfcloud.com/icon/hash_48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f"
-Audacity_validation="/Applications/Audacity.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-balenaEtcher="https://ics.services.jamfcloud.com/icon/hash_c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d"
-balenaEtcher_validation="/Applications/balenaEtcher.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Clipy="https://ics.services.jamfcloud.com/icon/hash_69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946"
-Clipy_validation="/Applications/Clipy.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Drawio="https://ics.services.jamfcloud.com/icon/hash_fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74"
-Drawio_validation="/Applications/draw.io.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Keeping_you_Awake="https://ics.services.jamfcloud.com/icon/hash_01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca"
-Keeping_you_Awake_validation="/Applications/KeepingYouAwake.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Monitor_Control="https://ics.services.jamfcloud.com/icon/hash_09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2"
-Monitor_Control_validation="/Applications/MonitorControl.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-OmniGraffle_7="https://ics.services.jamfcloud.com/icon/hash_af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94"
-OmniGraffle_7_validation="/Applications/OmniGraffle.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Rectangle="https://ics.services.jamfcloud.com/icon/hash_656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253"
-Rectangle_validation="/Applications/Rectangle.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Sourcetree="https://ics.services.jamfcloud.com/icon/hash_176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f"
-Sourcetree_validation="/Applications/Sourcetree.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Zulip="https://ics.services.jamfcloud.com/icon/hash_4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e"
-Zulip_validation="/Applications/Zulip.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Go_to_Meeting="https://ics.services.jamfcloud.com/icon/hash_03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a"
-Go_to_Meeting_validation="/Applications/GoToMeeting.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-GIMP="https://ics.services.jamfcloud.com/icon/hash_db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94"
-GIMP_validation="/Applications/GIMP.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Apache_Directory_Studio="https://ics.services.jamfcloud.com/icon/hash_5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe"
-Apache_Directory_Studio_validation="/Applications/ApacheDirectoryStudio.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Azure_Data_Studio="https://ics.services.jamfcloud.com/icon/hash_967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c"
-Azure_Data_Studio_validation="/Applications/Azure Data Studio.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Docker="https://ics.services.jamfcloud.com/icon/hash_34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af"
-Docker_validation="/Applications/Docker.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Meld="https://ics.services.jamfcloud.com/icon/hash_7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e"
-Meld_validation="/Applications/Meld.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-PyCharm="https://ics.services.jamfcloud.com/icon/hash_3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a"
-PyCharm_validation="/Applications/PyCharm.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-SquidMan="https://ics.services.jamfcloud.com/icon/hash_a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab"
-SquidMan_validation="/Applications/SquidMan.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-TNEFs_Enough="https://ics.services.jamfcloud.com/icon/hash_302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602"
-TNEFs_Enough_validation="/Applications/TNEF's Enough.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Wireshark="https://ics.services.jamfcloud.com/icon/hash_1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3"
-Wireshark_validation="/Applications/Wireshark.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Jabra_Direct="https://ics.services.jamfcloud.com/icon/hash_7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2"
-Jabra_Direct_validation="/Applications/Jabra Direct.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-SimpleMind_Pro="https://ics.services.jamfcloud.com/icon/hash_d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04"
-SimpleMind_Pro_validation="/Applications/SimpleMind Pro.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Tunnelblick="https://ics.services.jamfcloud.com/icon/hash_0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd"
-Tunnelblick_validation="/Applications/Tunnelblick.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-UTM="https://ics.services.jamfcloud.com/icon/hash_d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc"
-UTM_validation="/Applications/UTM.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Bitwarden="https://ics.services.jamfcloud.com/icon/hash_4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18"
-Bitwarden_validation="/Applications/Bitwarden.app/Contents/Info.plist"
-#* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-Brave="https://euc1.ics.services.jamfcloud.com/icon/hash_d07ef04ebf5d9a509070858a26c39fd99feef114422de934973b6b19cb565a6c"
-Brave_validation="/Applications/Brave Browser.app/Contents/Info.plist"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-placeholder_icon="https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
-placeholder_validation="None"
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-
-/bin/cat <<EOF > "$xsltFile"
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="text"/>
-<xsl:template match="/">
-<xsl:for-each select="computer_management/policies/policy">
-<xsl:value-of select="id"/>
-<xsl:text> </xsl:text>
-<xsl:value-of select="name"/>
-<xsl:text> </xsl:text>
-<xsl:value-of select="triggers"/>
-<xsl:text> </xsl:text>
-<xsl:text>&#xa;</xsl:text>
-</xsl:for-each>
-</xsl:template>
-</xsl:stylesheet>
-EOF
-
-authToken=$(/usr/bin/curl "${jamfpro_url}/api/v1/auth/token" --silent --request POST --header "Authorization: Basic ${encodedCredentials}")
+# Auth / Policies
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+authToken=$(/usr/bin/curl "${jamfpro_url}/api/v1/auth/token" --silent \
+--request POST \
+--header "Authorization: Basic ${encodedCredentials}")
 
 if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]
-then
-api_token=$(/usr/bin/awk -F \" 'NR==2{print $4}' <<< "$authToken" | /usr/bin/xargs)
-else
-api_token=$(/usr/bin/plutil -extract token raw -o - - <<< "$authToken")
-fi
-    
-/usr/bin/curl -X GET "$jamfpro_url/JSSResource/computermanagement/udid/$udid/subset/policies" -H "accept: application/xml" -H "Authorization: Bearer ${api_token}" | xsltproc "$xsltFile" - > $xmlFile
-
-Update_Count=$(grep -c "patch_app_updates" "$xmlFile")
-sed '/patch_app_updates/!d' $xmlFile > $xmlupdates
-IDs=($(awk '{ print $1 }' $xmlupdates))
-
-
-# Prüfen, ob ein Update für Safari bereitsteht
-Safari_update=$(defaults read /Library/Preferences/com.apple.SoftwareUpdate.plist RecommendedUpdates | grep -o 'Safari')
-
-if [[ -n "$Safari_update" ]]; then
-    SafariUpdate="true"
-    ((Update_Count++))
-else
-    SafariUpdate="false"
+    then
+        api_token=$(/usr/bin/awk -F \" 'NR==2{print $4}' <<< "$authToken" | /usr/bin/xargs)
+    else
+        api_token=$(/usr/bin/plutil -extract token raw -o - - <<< "$authToken")
 fi
 
+response=$(/usr/bin/curl -X GET \
+"$jamfpro_url/JSSResource/computermanagement/udid/$(system_profiler SPHardwareDataType | grep UUID | awk '" " { print $NF }')/subset/policies" \
+-H "accept: application/xml" \
+-H "Authorization: Bearer ${api_token}")
 
-function GetPolicyName() {
-    PolicyName=$(/usr/bin/curl --tlsv1.2 -H "Accept: application/xml" -H "Authorization: Bearer ${api_token}" "${jamfpro_url}/JSSResource/policies/id/$1" | xmllint --xpath '/policy/general/name/text()' - 2>/dev/null)
-    echo "$PolicyName"
-}
+xmlupdates="/tmp/policies.xml"
+echo "$response" > "$xmlupdates"
+
+plistOutput="/tmp/AppUpdates.plist"
+
+# Plist-Header
+cat <<EOF > "$plistOutput"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>Applications</key>
+<array>
+EOF
+
+count=0
+while read -r line; do
+    id=$(echo "$line" | xmllint --xpath "string(//id)" - 2>/dev/null)
+    name=$(echo "$line" | xmllint --xpath "string(//name)" - 2>/dev/null)
+    if [[ -n "$id" && -n "$name" ]]; then
+        cat <<EOF >> "$plistOutput"
+<dict>
+    <key>ID</key>
+    <string>$id</string>
+    <key>Name</key>
+    <string>$name</string>
+</dict>
+EOF
+        count=$((count + 1))
+    fi
+done < <(echo "$response" | xmllint --xpath "//policy[triggers='patch_app_updates']" -)
+
+cat <<EOF >> "$plistOutput"
+</array>
+<key>ApplicationCount</key>
+<integer>$count</integer>
+</dict>
+</plist>
+EOF
 
 function invalidateToken() {
-    responseCode=$(curl -w "%{http_code}" -H "Authorization: Bearer ${api_token}" $jamfpro_url/api/v1/auth/invalidate-token -X POST -s -o /dev/null)
-    if [[ ${responseCode} == 204 ]]
-        then
-            updateScriptLog "QUIT SCRIPT: Token successfully invalidated"
-        
-    elif [[ ${responseCode} == 401 ]]
-        then
-            updateScriptLog "QUIT SCRIPT: Token already invalid"
-            
-        else
-            updateScriptLog "An unknown error occurred invalidating the token"
-    
+    responseCode=$(
+    curl -w "%{http_code}" -H "Authorization: Bearer ${api_token}" \
+    "$jamfpro_url/api/v1/auth/invalidate-token" -X POST -s -o /dev/null
+)
+    if [[ ${responseCode} == 204 ]]; then
+        updateScriptLog "QUIT SCRIPT: Token successfully invalidated"
+    elif [[ ${responseCode} == 401 ]]; then
+        updateScriptLog "QUIT SCRIPT: Token already invalid"
+    else
+        updateScriptLog "An unknown error occurred invalidating the token"
     fi
 }
 
-appnames_display=$(cat $xmlupdates | sed 's/[0-9]*//g' | sed 's/ patch_app_updates/,/g')
-Names_display=($(printf "%s\n" "${appnames_display[@]}"))
+initial_Update_Count=$(/usr/libexec/PlistBuddy -c "Print :ApplicationCount" "$plistOutput" 2>/dev/null)
+updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The total number of updates is: $initial_Update_Count"
 
-if [[ "$Update_Count" -eq 1 ]]; then
-    Plural_EN=""
-    Plural_DE=""
-    pluralQuantity_DE="ist"
-    
-elif [[ "$Update_Count" -gt 1 ]]; then
-    Plural_EN="s" 
-    Plural_DE="s"
-    pluralQuantity_DE="sind"
-else
-    echo "no patches found, exiting"
-    ClearUpDeferral
+if [[ "$initial_Update_Count" -eq 0 ]]; then
+    updateScriptLog "CHECK-FOR-UPDATES FUNCTION: no patches found, exiting"
+    if [[ "$LaunchDaemonisReady" -eq 1 ]]; then
+        updateScriptLog "Entferne existierenden LaunchDaemon (da Updates erfolgreich)."
+        ClearUpPlist
+        ClearUpLaunchDaemon
+    fi
     exit 0
-fi
-Plural=Plural_${UserLanguage}
-
-if [[ "$Update_Count" -eq 1 ]]
-then
-    final_sucess_progresstext_EN="The update has been installed. Thanks for the patience ${loggedInUserFirstname}."
-    final_sucess_progresstext_DE="Das Update wurde installiert. Danke für die Geduld ${loggedInUserFirstname}."
-
-else
-    final_sucess_progresstext_EN="All updates have been installed. Thanks for the patience ${loggedInUserFirstname}."
-    final_sucess_progresstext_DE="Alle Updates wurden installiert. Danke für die Geduld ${loggedInUserFirstname}."
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -675,36 +510,586 @@ failureCommandFile=$( mktemp /var/tmp/dialogFailure.XXX )
 jamfBinary="/usr/local/bin/jamf"
 
 # # # # # # # # # # # # # # # # # # # "Patch Helper" Change Time Value # # # # # # # # # # # # # # # #
+updateScriptLog "CHECK-FOR-UPDATES FUNCTION: Read the values for the LaunchDaemon."
+
 if [[ $StartInterval -eq 3600 ]]; then
-        echo "Das Update wird stündlich ausgeführt."
+        updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The update is carried out every hour."
         Time_EN="hourly"
         Time_DE="stündlich"
 elif [[ $StartInterval -lt 3600 ]]; then
         # Converted interval in minutes
         intervalMinutes=$((StartInterval / 60))
-        echo "Das Update wird alle $intervalMinutes Minuten ausgeführt."
+        
+        updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The update is executed every $intervalMinutes minutes."
+        
         Time_EN="all $intervalMinutes minutes"
         Time_DE="alle $intervalMinutes Minuten"
 else
         # Converted interval in hours and minutes
         intervalHours=$((StartInterval / 3600))
         intervalMinutes=$(( (StartInterval % 3600) / 60 ))
-        echo "Das Update wird alle $intervalHours Std. $intervalMinutes Min erzwungen."
+        
+        updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The update is forced every $intervalHours hr. $intervalMinutes min."
+        
         Time_EN="all $intervalHours Hours $intervalMinutes minutes"
         Time_DE="jede $intervalHours Stunde und $intervalMinutes Minuten"
 fi
 
 Time=Time_${UserLanguage}
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Baue JSON aus den plist-Einträgen
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+function get_Names_display() {
+    /usr/libexec/PlistBuddy -c "Print :Applications" "$plistOutput" | \
+    awk -F "Name = " '/Name =/ {
+    name=$2
+    sub(/^ */, "", name)
+    print name
+}' | tr '\n' ',' | sed 's/,/, /g' | sed 's/, $//'
+}
+Names_display=$(get_Names_display)
+
+function get_PolicyIDs() {
+    /usr/libexec/PlistBuddy -c "Print :Applications" "$plistOutput" 2>/dev/null | \
+    awk '/ID =/ {print $3}'
+}
+
+function GetPolicyName() {
+    local policyID="$1"
+    /usr/libexec/PlistBuddy -c "Print :Applications" "$plistOutput" 2>/dev/null | \
+    awk -v searchID="$policyID" '
+    BEGIN { found=0 }
+    /ID = / {
+        if ($3 == searchID) {
+            found=1
+        } else {
+            found=0
+        }
+    }
+    /Name =/ {
+        if (found == 1) {
+            sub(/^.*Name = */, "", $0)
+            sub(/^ */, "", $0)
+            print $0
+            exit
+        }
+    }
+'
+}
+    
+function UpdateJSONConfiguration() {
+    # counts background updates, saves the names of the apps updated in the background
+    Update_Count_in_background=0
+    updatedApps=()
+    PolicyNameUserPromt=()
+    
+    # Read the value for Update_Count from the plist file
+    Update_Count=$(/usr/libexec/PlistBuddy -c "Print :ApplicationCount" "$plistOutput" 2>/dev/null)
+    
+    # Determine IDs
+    IDs=($(get_PolicyIDs))
+    
+    # JSON basic framework
+    policyJSON='{"steps": ['
+    
+    for (( i = 0; i < ${#IDs[@]}; i++ )); do
+        
+        # Policy-ID and -Name
+        PolicyID="${IDs[i]}"
+        PolicyName="$(GetPolicyName "${PolicyID}")"
+        
+        # Case-Block für Icon / Validation / BundleID
+        local icon validation BundelID
+        case "$PolicyName" in
+            *Google_Chrome* | *Chrome*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_94f8d7f60fe82fb234065e05cccf385b1a4f9763ea1b4a3d9737e6a980fd0eae"
+                validation="/Applications/Google Chrome.app/Contents/Info.plist"
+                BundelID="com.google.Chrome"
+            ;;
+            *Microsoft_Outlook* | *Outlook*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_b96ae8bdcb09597bff8b2e82ec3b64d0a2d17f33414dbd7d9a48e5186de7fd93"
+                validation="/Applications/Microsoft Outlook.app/Contents/Info.plist"
+                BundelID="com.microsoft.Outlook"
+            ;;
+            *Slack*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026"
+                validation="/Applications/Slack.app/Contents/Info.plist"
+                BundelID="com.tinyspeck.slackmacgap"
+            ;;
+            *Company_Portal* | *Company\ Portal*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_2af383e90f870e948ec2d03a5910af1b27fe2b32d7c757848db0fdecfea2ef71"
+                validation="/Applications/Company Portal.app/Contents/Info.plist"
+                BundelID="com.microsoft.intune.companyportal"
+            ;;
+            *Mozilla_Firefox* | *Firefox*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_b50bdee2e72b3f98cd7cfe8da06a3d5f405507ca0dca2f5f408978f4f24fee0c"
+                validation="/Applications/Firefox.app/Contents/Info.plist"
+                BundelID="org.mozilla.firefox"
+            ;;
+            *GitHub_Desktop* | *GitHub\ Desktop*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_e7790b367556baee89ffb70d7d545b4cf78698e84cf646777a7d9058762bf69d"
+                validation="/Applications/GitHub Desktop.app/Contents/Info.plist"
+                BundelID="com.github.GitHubClient"
+            ;;
+            *iTerm2*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_85951b4b7b290fa90d8b3a4d7b652316acb5dac44ebce95e7a00a38879710cc6"
+                validation="/Applications/iTerm.app/Contents/Info.plist"
+                BundelID="com.googlecode.iterm2"
+            ;;
+            *Microsoft_Edge* | *Microsoft\ Edge* | *Edge*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_f1fa00c7d8b4cb4d3c58d98c0b0bdbe719a56be39f8b6445ed3df9c8219a126d"
+                validation="/Applications/Microsoft Edge.app/Contents/Info.plist"
+                BundelID="com.microsoft.edgemac"
+            ;;
+            *Microsoft_Excel* | *Microsoft\ Excel* | *Excel*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_721a7bf38cec7552ecd6ffaee9a0ed2ab21b2318639c23082250be12517fca1c"
+                validation="/Applications/Microsoft Excel.app/Contents/Info.plist"
+                BundelID="com.microsoft.Excel"
+            ;;
+            *Microsoft_OneNote* | *Microsoft\ OneNote* | *OneNote*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_a10ac257accff5479d467cf0c8f148559b92eb0ccb7c78f80464901532c95bdb"
+                validation="/Applications/Microsoft OneNote.app/Contents/Info.plist"
+                BundelID="com.microsoft.onenote.mac"
+            ;;
+            *Microsoft_PowerPoint* | *Microsoft\ PowerPoint* | *PowerPoint*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_9f13ca0d3ab7939d3147fbdea116fbdd94f6716a27292505231a8e93f6307fd6"
+                validation="/Applications/Microsoft PowerPoint.app/Contents/Info.plist"
+                BundelID="com.microsoft.Powerpoint"
+            ;;
+            *Microsoft_Remote_Desktop* | *Microsoft\ Remote\ Desktop*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_accfb8273af78d6e2f456a9e3ea882267f82e99c13f9e515d374ffd749aba082"
+                validation="/Applications/Microsoft Remote Desktop.app/Contents/Info.plist"
+                BundelID="com.microsoft.rdc.mac"
+            ;;
+            *Microsoft_Teams* | *Microsoft\ Teams* | *Teams*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_623505d45ca9c2a1bd26f733306e30cd3fcc1cc0fd59ffc89ee0bfcbfbd0b37e"
+                validation="/Applications/Microsoft Teams.app/Contents/Info.plist"
+                BundelID="com.microsoft.teams"
+            ;;
+            *Microsoft_Word* | *Word*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_a4686ab0e2efa2b3c30c42289e3958e5925b60b227ecd688f986d199443cc7a7"
+                validation="/Applications/Microsoft Word.app/Contents/Info.plist"
+                BundelID="com.microsoft.Word"
+                #BundelID=""
+            ;;
+            *Postman*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_019df97f436478ca2b98e3f858eb95d4a527a353029df0384f5b8f18dbd0c61d"
+                validation="/Applications/Postman.app/Contents/Info.plist"
+                BundelID="com.postmanlabs.mac"
+            ;;
+            *Support_App* | *Support\ App*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_6a2b5ed3a7762b7641b837fd5cc0a5541462f27ec43126db2d4e8dbdcc298f6d"
+                validation="/Applications/Support.app/Contents/Info.plist"
+                BundelID=""
+            ;;
+            *TeamViewer* | *Teamviewer*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_ccbb12778c38f0e2c245a712e78d417930c5d599f44832be9bbee1705f69d3e4"
+                validation="/Applications/TeamViewer.app/Contents/Info.plist"
+                BundelID="com.teamviewer.TeamViewer"
+            ;;
+            *Visual_Studio_Code* | *Visual\ Studio\ Code*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_011955c4065d9215a82905984bd200f224c8b3736e3fb947ba64b6fa28b0c02a"
+                validation="/Applications/Visual Studio Code.app/Contents/Info.plist"
+                BundelID="com.microsoft.VSCode"
+            ;;
+            *Zoom*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_92b8d3c448e7d773457532f0478a428a0662f694fbbfc6cb69e1fab5ff106d97"
+                validation="/Applications/zoom.us.app/Contents/Info.plist"
+                BundelID="us.zoom.xos"
+            ;;
+            *Zeplin*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9"
+                validation="/Applications/Zeplin.app/Contents/Info.plist"
+                BundelID="io.zeplin.osx"
+            ;;
+            *VLC*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_2b428c169b78204f03cff3b040b2b5c428eac9288108e11d43aca994d5bd39f0"
+                validation="/Applications/VLC.app/Contents/Info.plist"
+                BundelID="org.videolan.vlc"
+            ;;
+            *The_Unarchiver* | *The\ Unarchiver*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2"
+                validation="/Applications/The Unarchiver.app/Contents/Info.plist"
+                BundelID="cx.c3.theunarchiver"
+            ;;
+            *Sketch*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_32f378b2490f45b03042fc8a388dbc433e7e2e4c2c68b697e3c9647fcd217e44"
+                validation="/Applications/Sketch.app/Contents/Info.plist"
+                BundelID="com.bohemiancoding.sketch3"
+            ;;
+            *Miro*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_89d42f52cebdbb0862c2229254074da1b31dc334c984031a6ccfc5f46141a569"
+                validation="/Applications/Miro.app/Contents/Info.plist"
+                BundelID="com.electron.miro"
+            ;;
+            *Microsoft_Skype_for_Busines* | *Microsoft\ Skype\ for\ Busines* | *Skype\ for\ Busines*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_a0bb8ab7d90a958892febf03aea84f3b090c2dc0ea9305f7d17f27d622bfbb9e"
+                validation="/Applications/Skype for Business.app/Contents/Info.plist"
+                BundelID="com.microsoft.SkypeForBusiness"
+            ;;
+            *Keka*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_b2f82bb89f6e69834dec02b0f12ce6180fbdc1352494adf10d7e7a7aa65c85e6"
+                validation="/Applications/Keka.app/Contents/Info.plist"
+                BundelID="com.aone.keka"
+            ;;
+            *ImageOptim*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_5dcd3a597ee4fd5b52e63ee0e5f86d97352d281398ee4e91d45abc75e292e086"
+                validation="/Applications/ImageOptim.app/Contents/Info.plist"
+                BundelID="net.pornel.ImageOptim"
+            ;;
+            *Filezilla*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_b2aa33567e5b48be41e5165c6f02eac485710e041367a685be5bbc97b265229b"
+                validation="/Applications/FileZilla.app/Contents/Info.plist"
+                BundelID="org.filezilla-project.filezilla"
+            ;;
+            *DropBox*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_e6361d9d6f2867bf1f939fb9fbe5b7f785413b17dd9d36331e02c3f42f1a3a07"
+                validation="/Applications/Dropbox.app/Contents/Info.plist"
+                BundelID="com.getdropbox.dropbox"
+            ;;
+            *Figma*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de"
+                validation="/Applications/Figma.app/Contents/Info.plist"
+                BundelID="com.figma.Desktop"
+            ;;
+            *EasyFind*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_a7ad6e3e43ee50fcb73d3e26fd29146906681a6f048a3d305b4857f3165298f5"
+                validation="/Applications/EasyFind.app/Contents/Info.plist"
+                BundelID="com.devon-technologies.easyfind"
+            ;;
+            *DisplayLink_Manager* | *DisplayLink\ Manager*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_ed6f88bfb07d71e245f6b3d69574467f7089ef39d9a98f5d5d770b314706b460"
+                validation="/Applications/DisplayLink Manager.app/Contents/Info.plist"
+                BundelID="com.displaylink.displaylinkmanager"
+            ;;
+            *Cyberduck*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_d807ad9581dffc5e7317c5b301104a43b37ceca866b36799053412ef327264b8"
+                validation="/Applications/Cyberduck.app/Contents/Info.plist"
+                BundelID="ch.sudo.cyberduck"
+            ;;
+            *Blender*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_d1420bec7e93fc1197c999f499ff1743764ac17789bee60f5466569e83fc7fab"
+                validation="/Applications/Blender.app/Contents/Info.plist"
+                BundelID="org.blenderfoundation.blender"
+            ;;
+            *Balsamiq_Wireframes* | *Balsamiq\ Wireframes*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_2aacaa75080df809d095065d9fd5ac25066d1bfe90eec277f1834e82d44a555a"
+                validation="/Applications/Balsamiq Wireframes.app/Contents/Info.plist"
+                BundelID="com.balsamiq.mockups"  # possibly ‘com.balsamiq.mockups5’ or variant
+            ;;
+            *AppCleaner*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_c304da7fe44e5ab4241d909a1051ae44e9af7d7694ed8dbc53f4d53e6dd0c1f6"
+                validation="/Applications/AppCleaner.app/Contents/Info.plist"
+                BundelID="net.freemacsoft.AppCleaner"
+            ;;
+            *Adobe_Creative_Cloud_Desktop* | *Adobe\ Creative\ Cloud\ Desktop*)
+                icon="$Adobe_Creative_Cloud_Desktop"
+                validation="$Adobe_Creative_Cloud_Desktop_validation"
+                # Frequently used IDs: com.adobe.acc.AdobeCreativeCloud or com.adobe.ccx.process
+                BundelID="com.adobe.acc.AdobeCreativeCloud"
+            ;;
+            *1Password_8* | *1Password\ 8* | *1Password*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_274cae31e3447da5b641ecd0dcd3ae6d27e7aa24e4aff112f54e9047f9711aa7"
+                validation="/Applications/1Password.app/Contents/Info.plist"
+                # Version 8: com.agilebits.onepassword8  (Attention: it may vary depending on the source of supply!)
+                BundelID="com.agilebits.onepassword8"
+            ;;
+            *Adobe_Acrobar_Reader* | *Adobe\ Acrobar\ Reader*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c"
+                validation="/Applications/Adobe Acrobat Reader.app/Contents/Info.plist"
+                BundelID="com.adobe.Reader"
+            ;;
+            *Anydesk*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d"
+                validation="/Applications/AnyDesk.app/Contents/Info.plist"
+                BundelID="com.philandro.anydesk"
+            ;;
+            *Audacity*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f"
+                validation="/Applications/Audacity.app/Contents/Info.plist"
+                BundelID="org.audacityteam.audacity"
+            ;;
+            *balenaEtcher* | *balena\ Etcher*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d"
+                validation="/Applications/balenaEtcher.app/Contents/Info.plist"
+                BundelID="com.balena.etcher"
+            ;;
+            *Clipy*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946"
+                validation="/Applications/Clipy.app/Contents/Info.plist"
+                BundelID="com.clipy-app.Clipy"
+            ;;
+            *Drawio* | *Draw.io*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74"
+                validation="/Applications/draw.io.app/Contents/Info.plist"
+                BundelID="com.jgraph.drawio.desktop"
+            ;;
+            *Keeping_you_Awake* | *Keeping\ you\ Awake*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca"
+                validation="/Applications/KeepingYouAwake.app/Contents/Info.plist"
+                BundelID="info.marcel-dierkes.KeepingYouAwake"
+            ;;
+            *Monitor_Control* | *Monitor\ Control*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2"
+                validation="/Applications/MonitorControl.app/Contents/Info.plist"
+                BundelID="me.guillaumeb.MonitorControl"
+            ;;
+            *OmniGraffle_7* | *OmniGraffle\ 7* | *Omni\ Graffle\ 7* | *Omni\ Graffle*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94"
+                validation="/Applications/OmniGraffle.app/Contents/Info.plist"
+                BundelID="com.omnigroup.OmniGraffle7"
+            ;;
+            *Rectangle*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253"
+                validation="/Applications/Rectangle.app/Contents/Info.plist"
+                BundelID="com.knollsoft.Rectangle"
+            ;;
+            *Sourcetree*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f"
+                validation="/Applications/Sourcetree.app/Contents/Info.plist"
+                BundelID="com.torusknot.SourceTreeNotMAS"
+            ;;
+            *Zulip*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e"
+                validation="/Applications/Zulip.app/Contents/Info.plist"
+                BundelID="org.zulip.zulip"
+            ;;
+            *Go_to_Meeting* | *Go\ to\ Meeting*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a"
+                validation="/Applications/GoToMeeting.app/Contents/Info.plist"
+                BundelID="com.logmein.GoToMeeting"
+            ;;
+            *GIMP*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94"
+                validation="/Applications/GIMP.app/Contents/Info.plist"
+                BundelID="org.gimp.GIMP"
+            ;;
+            *Apache_Directory_Studio* | *Apache\ Directory\ Studio*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe"
+                validation="/Applications/ApacheDirectoryStudio.app/Contents/Info.plist"
+                BundelID="org.apache.directory.studio"
+            ;;
+            *Azure_Data_Studio* | *Azure\ Data\ Studio*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c"
+                validation="/Applications/Azure Data Studio.app/Contents/Info.plist"
+                BundelID="com.microsoft.azuredatastudio"
+            ;;
+            *Docker*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af"
+                validation="/Applications/Docker.app/Contents/Info.plist"
+                BundelID="com.docker.docker"
+            ;;
+            *Meld*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e"
+                validation="/Applications/Meld.app/Contents/Info.plist"
+                BundelID="org.gnome.meld"
+            ;;
+            *PyCharm*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a"
+                validation="/Applications/PyCharm.app/Contents/Info.plist"
+                BundelID="com.jetbrains.pycharm"
+            ;;
+            *SquidMan* | *Squid\ Man*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab"
+                validation="/Applications/SquidMan.app/Contents/Info.plist"
+                BundelID="it.antonioventuri.squidman"
+            ;;
+            *TNEFs_Enough* | *TNEFs\ Enough*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602"
+                validation="/Applications/TNEF's Enough.app/Contents/Info.plist"
+                # In some cases ‘com.joshjacob.tnef’, but not consistently confirmed
+                BundelID="com.joshjacob.tnef"
+            ;;
+            *Wireshark*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3"
+                validation="/Applications/Wireshark.app/Contents/Info.plist"
+                BundelID="org.wireshark.Wireshark"
+            ;;
+            *Jabra_Direct* | *Jabra\ Direct*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2"
+                validation="/Applications/Jabra Direct.app/Contents/Info.plist"
+                # Not 100% confirmed, leave blank if unknown
+                BundelID=""
+            ;;
+            *SimpleMind_Pro* | *SimpleMind\ Pro* | *Simple\ Mind\ Pro*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04"
+                validation="/Applications/SimpleMind Pro.app/Contents/Info.plist"
+                # For some versions: ‘com.modelmakertools.simplemindmac’
+                BundelID="com.modelmakertools.simplemindmac"
+            ;;
+            *Tunnelblick*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd"
+                validation="/Applications/Tunnelblick.app/Contents/Info.plist"
+                BundelID="net.tunnelblick.tunnelblick"
+            ;;
+            *UTM*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc"
+                validation="/Applications/UTM.app/Contents/Info.plist"
+                BundelID="com.utmapp.UTM"
+            ;;
+            *Bitwarden*)
+                icon="https://ics.services.jamfcloud.com/icon/hash_4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18"
+                validation="/Applications/Bitwarden.app/Contents/Info.plist"
+                BundelID="com.bitwarden.desktop"
+            ;;
+            *Brave*)
+                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_d07ef04ebf5d9a509070858a26c39fd99feef114422de934973b6b19cb565a6c"
+                validation="/Applications/Brave Browser.app/Contents/Info.plist"
+                BundelID="com.brave.Browser"
+            ;;
+            *)
+                icon="https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
+                validation="None"
+                BundelID=""
+            ;;
+        esac
+        
+        # Prüfen, ob BundelID leer ist
+        if [[ -z "$BundelID" ]]; then
+            # BundelID empty => no check, include directly in JSON
+            policyJSON+='
+                        {
+                        "listitem": "'${PolicyName}'",
+                        "icon": "'${icon}'",
+                        "progresstext": "Updating '${PolicyName}'",
+                        "trigger_list": [
+                            {
+                                "trigger": "'${PolicyID}'",
+                                "validation": "'${validation}'"
+                            }
+                        ]
+                        }'
+            # Comma for all entries except the last
+            if (( i != ${#IDs[@]} - 1 )); then
+                policyJSON+=','
+                
+            fi
+            PolicyNameUserPromt+=( "$PolicyName" )
+        else
+            # BundleID not empty => Service check
+            result=$(/bin/launchctl asuser "$loggedInUserID" sudo -iu "$loggedInUser" /bin/launchctl list 2>/dev/null | grep -F "$BundelID")
+            
+            if [[ -z "$result" ]]; then
+                # Service is NOT running => execute jamf policy
+                updateScriptLog "BACKGROUND-UPDATER: The application: $PolicyName is not executed. The policy with the trigger: ${PolicyID} is now executed."
+                /usr/local/bin/jamf policy -id "${PolicyID}" -forceNoRecon
+                
+                (( Update_Count-- ))
+                (( Update_Count_in_background++ ))
+                updatedApps+=( "$PolicyName" )
+                
+                # If Update_Count == 0, execute Recon and end script
+                if [[ $Update_Count -eq 0 ]]; then
+                    updateScriptLog "BACKGROUND-UPDATER: All applications could be executed in the background. The inventory is transferred to Jamf and the script is terminated without user information."
+                    updateScriptLog "BACKGROUND-UPDATER: The following applications have been updated: ${updatedApps[*]}"
+                    /usr/local/bin/jamf recon
+                    
+                    if [[ "$LaunchDaemonisReady" -eq 1 ]]; then
+                        updateScriptLog "Remove existing LaunchDaemon (since updates were successful)."
+                        ClearUpPlist
+                        ClearUpLaunchDaemon
+                        
+                    fi
+                    
+                    
+                    exit 0
+                fi
+            else
+                # Service running => include in the JSON
+                policyJSON+='
+                            {
+                            "listitem": "'${PolicyName}'",
+                            "icon": "'${icon}'",
+                            "progresstext": "Updating '${PolicyName}'",
+                            "trigger_list": [
+                                {
+                                    "trigger": "'${PolicyID}'",
+                                    "validation": "'${validation}'"
+                                }
+                            ]
+                            }'
+                # Comma for all entries except the last
+                if (( i != ${#IDs[@]} - 1 )); then
+                    policyJSON+=','
+                    
+                fi
+                PolicyNameUserPromt+=( "$PolicyName" )
+            fi
+        fi
+        
+    done
+    
+    # At the end of the loop - if the script was not terminated before -
+    # we output the remaining value of Update_Count
+    updateScriptLog "BACKGROUND-CHECK: Remaining updates that could not be updated in the background: $Update_Count"
+    
+    # Inventory-Eintrag am Ende anhängen
+    policyJSON+='
+                ,
+                {
+                "listitem": "Update Inventory",
+                "icon": "https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9",
+                "progresstext": "Updating Inventory",
+                "trigger_list": [
+                    {
+                        "trigger": "recon",
+                        "validation": "None"
+                    }
+                ]
+                }
+                ]
+                }'
+    
+    if (( Update_Count_in_background > 0 ))
+    then
+        updateScriptLog "BACKGROUND-CHECK: The following number of applications could be updated in the background: $Update_Count_in_background"
+        updateScriptLog "BACKGROUND-CHECK: The following applications have been updated: ${updatedApps[*]}"
+    else
+        updateScriptLog "BACKGROUND-CHECK: No applications could be updated in the background"
+    fi
+    
+    if (( ${#PolicyNameUserPromt[@]} > 0 )); then
+        joinedPolicyNames=$(IFS=", ' '"; echo "${PolicyNameUserPromt[*]}")
+        
+        updateScriptLog "BACKGROUND-CHECK: The following applications could not be updated in the background: $joinedPolicyNames"
+    fi
+    
+}
+
+UpdateJSONConfiguration
+
+if [[ "$Update_Count" -eq 1 ]]
+then
+    Plural_EN=""
+    Plural_DE=""
+    pluralQuantity_DE="ist"
+else
+    Plural_EN="s"
+    Plural_DE="s"
+    pluralQuantity_DE="sind"
+fi
+
+Plural=Plural_${UserLanguage}
+
+if [[ "$Update_Count" -eq 1 ]]
+then
+    final_sucess_progresstext_EN="The update has been installed. Thanks for the patience ${loggedInUserFirstname}."
+    final_sucess_progresstext_DE="Das Update wurde installiert. Danke für die Geduld ${loggedInUserFirstname}."
+    
+else
+    final_sucess_progresstext_EN="All updates have been installed. Thanks for the patience ${loggedInUserFirstname}."
+    final_sucess_progresstext_DE="Alle Updates wurden installiert. Danke für die Geduld ${loggedInUserFirstname}."
+fi
 
 # # # # # # # # # # # # # # # # # # # "Patch Helper" dialog Title, Messages # # # # # # # # # # # # # # # #
 UserInfoTitle_DE="Hey ${loggedInUserFirstname}, es $pluralQuantity_DE ${Update_Count} Update${!Plural} verfügbar."
 UserInfoTitle_EN="Hello ${loggedInUserFirstname}, there $pluralQuantity_EN ${Update_Count} update${!Plural} available."
-    
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-UserInfoMessage_DE="Die folgenden Programme werden aktualisiert: \n\n${Names_display[*]} \n\n--- \nWährend der Installation werden sie geschlossen. Bitte klicke auf **Update**, um mit der Aktualisierung zu beginnen. \n\n#### Verbleibende Anzahl an Verschiebungen: $CurrentDeferralValue \n\nDieser Dialog wird Dich **${!Time}** erinnern, bis die maximale Verschiebung der Updates erreicht ist."
 
-UserInfoMessage_EN="The following applications are updated: \n\n${Names_display[*]} \n\n--- \nDuring the installation the affected applications will be closed. Please click **Update** to start the update. \n\n#### Remaining number of moves: $CurrentDeferralValue \n\nUnless you apply the updates, this dialog **${!Time}** will remind you until the number reaches **0**."
+# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
+UserInfoMessage_DE="Die folgenden Programme werden aktualisiert: \n\n${joinedPolicyNames[*]} \n\n--- \nWährend der Installation werden sie geschlossen. Bitte klicke auf **Update**, um mit der Aktualisierung zu beginnen. \n\n#### Verbleibende Anzahl an Verschiebungen: $CurrentDeferralValue \n\nDieser Dialog wird Dich **${!Time}** erinnern, bis die maximale Verschiebung der Updates erreicht ist."
+
+UserInfoMessage_EN="The following applications are updated: \n\n${joinedPolicyNames[*]} \n\n--- \nDuring the installation the affected applications will be closed. Please click **Update** to start the update. \n\n#### Remaining number of moves: $CurrentDeferralValue \n\nUnless you apply the updates, this dialog **${!Time}** will remind you until the number reaches **0**."
 # * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
 UserEnforceMessage_DE="**Hallo ${loggedInUserFirstname}, Deine Updates können nun nicht mehr verschoben werden.** \n Die folgenden Programme werden nun aktualisiert: \n\n${Names_display[*]} \n\n--- \nWährend der Installation werden die betroffenen Programme geschlossen. Bitte klicke nun auf **Update**."
 
@@ -762,6 +1147,7 @@ final_sucess_progresstext=final_sucess_progresstext_${UserLanguage}
 progresstext=progresstext_${UserLanguage}
 button1text=button1text_${UserLanguage}
 
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 # PROMPT DIALOG
@@ -777,42 +1163,40 @@ then
     setDeferral "$BundleID" "$DeferralType" "$CurrTimer" "$DeferralPlist"
     
     PromtUserJSON='
-    {
-        "bannerimage" : "'${BannerImage}'",
-        "title" : "'${!UserInfoTitle}'",
-        "message" : "'${!UserInfoMessage}'",
-        "icon" : "'${InfoboxIcon}'",
-        "iconsize" : "198.0",
-        "button1text" : "Update",
-        "button2text" : "Later",
-        "timer" : "'${TimePromtUser}'",
-        "infotext" : "'${scriptVersion}'",
-        "blurscreen" : "false",
-        "ontop" : "true",
-        "titlefont" : "shadow=true, size=28",
-        "messagefont" : "size=16",
-        "width" : "700",
-        "height" : "625"
-    }
-    '
+{
+    "bannerimage" : "'${BannerImage}'",
+    "title" : "'${!UserInfoTitle}'",
+    "message" : "'${!UserInfoMessage}'",
+    "icon" : "'${InfoboxIcon}'",
+    "iconsize" : "198.0",
+    "button1text" : "Update",
+    "button2text" : "Later",
+    "timer" : "'${TimePromtUser}'",
+    "infotext" : "'${scriptVersion}'",
+    "ontop" : "true",
+    "titlefont" : "shadow=true, size=28",
+    "messagefont" : "size=16",
+    "width" : "700",
+    "height" : "625"
+}
+'
 else
     PromtUserJSON='
-    {
-        "bannerimage" : "'${BannerImage}'",
-        "title" : "'${!UserInfoTitle}'",
-        "message" : "'${!UserEnforceMessage}'",
-        "icon" : "'${InfoboxIcon}'",
-        "iconsize" : "198.0",
-        "button1text" : "Update",
-        "infotext" : "'${scriptVersion}'",
-        "blurscreen" : "false",
-        "ontop" : "true",
-        "titlefont" : "shadow=true, size=28",
-        "messagefont" : "size=16",
-        "width" : "700",
-        "height" : "625"
-    }
-    '
+{
+    "bannerimage" : "'${BannerImage}'",
+    "title" : "'${!UserInfoTitle}'",
+    "message" : "'${!UserEnforceMessage}'",
+    "icon" : "'${InfoboxIcon}'",
+    "iconsize" : "198.0",
+    "button1text" : "Update",
+    "infotext" : "'${scriptVersion}'",
+    "ontop" : "true",
+    "titlefont" : "shadow=true, size=28",
+    "messagefont" : "size=16",
+    "width" : "700",
+    "height" : "625"
+}
+'
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -857,337 +1241,6 @@ runUpdates="$dialogBinary \
 --quitkey k \
 --commandfile \"$PatchHelperCommandFile\" "
 
-IconServicePrefixUrl="https://ics.services.jamfcloud.com/icon/hash_"
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-function UpdateJSONConfiguration() {
-    
-    # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-    
-    updateScriptLog "PROMT USER DIALOG: PolicyJSON Configuration: $Updates"
-            
-            policyJSON='{
-    "steps": ['
-            
-            
-    for ((i = 0; i < ${#IDs[@]}; i++)); do
-        PolicyName=$(GetPolicyName "${IDs[i]}")
-        
-                # Setzen des Icons basierend auf dem App-Namen
-                case $PolicyName in
-                    *Google_Chrome* | *Chrome*)
-                        icon=$Google_Chrome
-                        validation=$Google_Chrome_validation
-                    ;;
-                    *Microsoft_Outlook* | *Outlook*)
-                        icon=$Microsoft_Outlook
-                        validation=$Microsoft_Outlook_validation
-                    ;;
-                    *Slack*)
-                        icon=$Slack
-                        validation=$Slack_validation
-                    ;;
-                    *Company_Portal* | *Company\ Portal*)
-                        icon=$Company_Portal
-                        validation=$Company_Portal_validation
-                    ;;
-                    *Mozilla_Firefox* | *Firefox* )
-                        icon=$Mozilla_Firefox
-                        validation=$Mozilla_Firefox_validation
-                    ;;
-                    *GitHub_Desktop* | *GitHub\ Desktop*)
-                        icon=$GitHub_Desktop
-                        validation=$GitHub_Desktop_validation
-                    ;;
-                    *iTerm2*)
-                        icon=$iTerm2
-                        validation=$iTerm2_validation
-                    ;;
-                    *Microsoft_Edge* | *Microsoft\ Edge* | *Edge*)
-                        icon=$Microsoft_Edge
-                        validation=$Microsoft_Edge_validation
-                    ;;
-                    *Microsoft_Excel* | *Microsoft\ Excel* | *Excel* )
-                        icon=$Microsoft_Excel
-                        validation=$Microsoft_Excel_validation
-                    ;;
-                    *Microsoft_OneNote* | *Microsoft\ OneNote* | *OneNote*)
-                        icon=$Microsoft_OneNote
-                        validation=$Microsoft_OneNote_validation
-                    ;;
-                    *Microsoft_PowerPoint* | *Microsoft\ PowerPoint* | *PowerPoint*)
-                        icon=$Microsoft_PowerPoint
-                        validation=$Microsoft_PowerPoint_validation
-                    ;;
-                    *Microsoft_Remote_Desktop* | *Microsoft\ Remote\ Desktop*)
-                        icon=$Microsoft_Remote_Desktop
-                        validation=$Microsoft_Remote_Desktop_validation
-                    ;;
-                    *Microsoft_Teams* | *Microsoft\ Teams* | *Teams*)
-                        icon=$Microsoft_Teams
-                        validation=$Microsoft_Teams_validation
-                    ;;
-                    *Microsoft_Word* | *Word*)
-                        icon=$Microsoft_Word
-                        validation=$Microsoft_Word_validation
-                    ;;
-                    *Postman*)
-                        icon=$Postman
-                        validation=$Postman_validation
-                    ;;
-                    *Support_App* | *Support\ App*)
-                        icon=$Support_App
-                        validation=$Support_App_validation
-                    ;;
-                    *TeamViewer* | *Teamviewer*)
-                        icon=$TeamViewer
-                        validation=$TeamViewer_validation
-                    ;;
-                    *Visual_Studio_Code* | *Visual\ Studio\ Code*)
-                        icon=$Visual_Studio_Code
-                        validation=$Visual_Studio_Code_validation
-                    ;;
-                    *Zoom*)
-                        icon=$Zoom
-                        validation=$Zoom_validation
-                    ;;
-                    *Zeplin*)
-                        icon=$Zeplin
-                        validation=$Zeplin_validation
-                    ;;
-                    *VLC*)
-                        icon=$VLC
-                        validation=$VLC_validation
-                    ;;
-                    *The_Unarchiver* | *The\ Unarchiver*)
-                        icon=$The_Unarchiver
-                        validation=$The_Unarchiver_validation
-                    ;;
-                    *Sketch*)
-                        icon=$Sketch
-                        validation=$Sketch_validation
-                    ;;
-                    *Miro*)
-                        icon=$Miro
-                        validation=$Miro_validation
-                    ;;
-                    *Microsoft_Skype_for_Busines* | *Microsoft\ Skype\ for\ Busines* | *Skype\ for\ Busines*)
-                        icon=$Microsoft_Skype_for_Business
-                        validation=$Microsoft_Skype_for_Business_validation
-                    ;;
-                    *Keka*)
-                        icon=$Keka
-                        validation=$Keka_validation
-                    ;;
-                    *ImageOptim*)
-                        icon=$ImageOptim
-                        validation=$ImageOptim_validation
-                    ;;
-                    *Filezilla*)
-                        icon=$Filezilla
-                        validation=$Filezilla_validation
-                    ;;
-                    *DropBox*)
-                        icon=$DropBox
-                        validation=$DropBox_validation
-                    ;;
-                    *Figma*)
-                        icon=$Figma
-                        validation=$Figma_validation
-                    ;;
-                    *EasyFind*)
-                        icon=$EasyFind
-                        validation=$EasyFind_validation
-                    ;;
-                    *DisplayLink_Manager* | *DisplayLink\ Manager*)
-                        icon=$DisplayLink_Manager
-                        validation=$DisplayLink_Manager_validation
-                    ;;
-                    *Cyberduck*)
-                        icon=$Cyberduck
-                        validation=$Cyberduck_validation
-                    ;;
-                    *Blender*)
-                        icon=$Blender
-                        validation=$Blender_validation
-                    ;;
-                    *Balsamiq_Wireframes* | *Balsamiq\ Wireframes*)
-                        icon=$Balsamiq_Wireframes
-                        validation=$Balsamiq_Wireframes_validation
-                    ;;
-                    *AppCleaner*)
-                        icon=$AppCleaner
-                        validation=$AppCleaner_validation
-                    ;;
-                    *Adobe_Creative_Cloud_Desktop* | *Adobe\ Creative\ Cloud\ Desktop*)
-                        icon=$Adobe_Creative_Cloud_Desktop
-                        validation=$Adobe_Creative_Cloud_Desktop_validation
-                    ;;
-                    *1Password_8* | *1Password\ 8* | *1Password*)
-                        icon=$Password
-                        validation=$Password_validation
-                    ;;
-                    *Adobe_Acrobar_Reader* | *Adobe\ Acrobar\ Reader*)
-                        icon=$Adobe_Acrobar_Reader
-                        validation=$Adobe_Acrobar_Reader_validation
-                    ;;
-                    *Anydesk*)
-                        icon=$Anydesk
-                        validation=$Anydesk_validation
-                    ;;
-                    *Audacity*)
-                        icon=$Audacity
-                        validation=$Audacity_validation
-                    ;;
-                    *balenaEtcher* | *balena\ Etcher*)
-                        icon=$balenaEtcher
-                        validation=$balenaEtcher_validation
-                    ;;
-                    *Clipy*)
-                        icon=$Clipy
-                        validation=$Clipy_validation
-                    ;;
-                    *Drawio* | *Draw.io*)
-                        icon=$Drawio
-                        validation=$Drawio_validation
-                    ;;
-                    *Keeping_you_Awake* | *Keeping\ you\ Awake*)
-                        icon=$Keeping_you_Awake
-                        validation=$Keeping_you_Awake_validation
-                    ;;
-                    *Monitor_Control* | *Monitor\ Control*)
-                        icon=$Monitor_Control
-                        validation=$Monitor_Control_validation
-                    ;;
-                    *OmniGraffle_7* | *OmniGraffle\ 7* | *Omni\ Graffle\ 7* | *Omni\ Graffle*)
-                        icon=$OmniGraffle_7
-                        validation=$OmniGraffle_7_validation
-                    ;;
-                    *Rectangle*)
-                        icon=$Rectangle
-                        validation=$Rectangle_validation
-                    ;;
-                    *Sourcetree*)
-                        icon=$Sourcetree
-                        validation=$Sourcetree_validation
-                    ;;
-                    *Zulip*)
-                        icon=$Zulip
-                        validation=$Zulip_validation
-                    ;;
-                    *Go_to_Meeting* | *Go\ to\ Meeting*)
-                        icon=$Go_to_Meeting
-                        validation=$Go_to_Meeting_validation
-                    ;;
-                    *GIMP*)
-                        icon=$GIMP
-                        validation=$GIMP_validation
-                    ;;
-                    *Apache_Directory_Studio* | *Apache\ Directory\ Studio*)
-                        icon=$Apache_Directory_Studio
-                        validation=$Apache_Directory_Studio_validation
-                    ;;
-                    *Azure_Data_Studio* | *Azure\ Data\ Studio*)
-                        icon=$Azure_Data_Studio
-                        validation=$Azure_Data_Studio_validation
-                    ;;
-                    *Docker*)
-                        icon=$Docker
-                        validation=$Docker_validation
-                    ;;
-                    *Meld*)
-                        icon=$Meld
-                        validation=$Meld_validation
-                    ;;
-                    *PyCharm*)
-                        icon=$PyCharm
-                        validation=$PyCharm_validation
-                    ;;
-                    *SquidMan* | *Squid\ Man*)
-                        icon=$SquidMan
-                        validation=$SquidMan_validation
-                    ;;
-                    *TNEFs_Enough* | *TNEFs\ Enough*)
-                        icon=$TNEFs_Enough
-                        validation=$TNEFs_Enough_validation
-                    ;;
-                    *Wireshark*)
-                        icon=$Wireshark
-                        validation=$Wireshark_validation
-                    ;;
-                    *Jabra_Direct* | *Jabra\ Direct*)
-                        icon=$Jabra_Direct
-                        validation=$Jabra_Direct_validation
-                    ;;
-                    *SimpleMind_Pro* | *SimpleMind\ Pro* | *Simple\ Mind\ Pro*)
-                        icon=$SimpleMind_Pro
-                        validation=$SimpleMind_Pro_validation
-                    ;;
-                    *Tunnelblick*)
-                        icon=$Tunnelblick
-                        validation=$Tunnelblick_validation
-                    ;;
-                    *UTM*)
-                        icon=$UTM
-                        validation=$UTM_validation
-                    ;;
-                    *Bitwarden*)
-                        icon=$Bitwarden
-                        validation=$Bitwarden_validation
-                    ;;
-                    *Safari*)
-                        icon=$Safari
-                        validation=$Safari_validation
-                    ;;
-                    *Brave*)
-                        icon=$Brave
-                        validation=$Brave_validation
-                    ;;
-                    
-                    *)
-                        icon="$placeholder_icon"
-                        validation="$placeholder_validation"
-                    ;;
-                esac
-                
-                policyJSON+='
-        {
-            "listitem": "'${PolicyName}'",
-            "icon": "'$icon'",
-            "progresstext": "Updating '${PolicyName}'",
-            "trigger_list": [
-                {
-                    "trigger": "'${IDs[i]}'",
-                    "validation": "'$validation'"
-                }
-            ]
-        }'
-                
-                if ((i != ${#IDs[@]} - 1)); then
-                    policyJSON+=','
-                fi
-            done
-    
-    # Step for "Update Inventory"
-    policyJSON+='
-        ,
-        {
-            "listitem": "Update Inventory",
-            "icon": "ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9",
-            "progresstext": "Updating Inventory",
-            "trigger_list": [
-                {
-                    "trigger": "recon",
-                    "validation": "None"
-                }
-            ]
-        }
-    ]
-
-}'
-}
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -1250,10 +1303,8 @@ esac
 # shellcheck disable=SC2145
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function runAsUser() {
-
     updateScriptLog "Run \"$@\" as \"$loggedInUserID\" … "
     launchctl asuser "$loggedInUserID" sudo -u "$loggedInUser" "$@"
-
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1397,7 +1448,7 @@ function run_jamf_trigger() {
         updateScriptLog "Patch Helper DIALOG: Computer inventory, with the following reconOptions: \"${reconOptions}\", will be be executed in the 'confirmPolicyExecution' function …"
         # eval "${jamfBinary} recon ${reconOptions}"
     else
-        updateScriptLog "Patch Helper DIALOG: RUNNING: $jamfBinary policy -id $trigger"
+        updateScriptLog "Patch Helper DIALOG: RUNNING: $jamfBinary policy -id $trigger -forceNoRecon"
         eval "${jamfBinary} policy -id ${trigger}"                                     # Add comment for policy testing
         # eval "${jamfBinary} policy -id ${trigger} -true | tee -a ${scriptLog}"    # Remove comment for policy testing
     fi
@@ -1575,7 +1626,7 @@ function killProcess() {
             updateScriptLog "ERROR: '$process' could not be terminated."
         fi
     else
-        updateScriptLog "The '$process' process isn't running."
+        updateScriptLog "QUIT SCRIPT: The '$process' process isn't running."
     fi
 }
 
@@ -1626,7 +1677,7 @@ function quitScript() {
     if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     updateScriptLog "QUIT SCRIPT: Exiting …"
-    updateScriptLog "Revoke API Token"
+    updateScriptLog "QUIT SCRIPT: Revoke API Token"
     invalidateToken
     # Stop `caffeinate` process
     updateScriptLog "QUIT SCRIPT: De-caffeinate …"
@@ -1658,19 +1709,14 @@ function quitScript() {
 
     # Remove any default dialog file
     if [[ -e /var/tmp/dialog.log ]]; then
-        updateScriptLog "QUIT SCRIPT: Removing default dialog file …"
+        updateScriptLog "QUIT SCRIPT: Removing /var/tmp/dialog.log"
         rm /var/tmp/dialog.log
     fi
 
     # Remove tmp files
-    if [[ -e ${xsltFile} ]]; then
-        updateScriptLog "QUIT SCRIPT: Removing ${xsltFile} …"
-        rm "${xsltFile}"
-    fi
-    
-    if [[ -e ${xmlFile} ]]; then
-        updateScriptLog "QUIT SCRIPT: Removing ${xmlFile} …"
-        rm "${xmlFile}"
+    if [[ -e ${plistOutput} ]]; then
+        updateScriptLog "QUIT SCRIPT: Removing ${plistOutput} …"
+        rm "${plistOutput}"
     fi
     
     if [[ -e ${xmlupdates} ]]; then
@@ -1678,12 +1724,10 @@ function quitScript() {
         rm "${xmlupdates}"
     fi
     
-    
     if [[ "$ClearUpDeferral" == "true" ]]; then
         updateScriptLog "QUIT SCRIPT: Removing LaunchDaemon …"
         ClearUpDeferral
     fi
-    
     
     # Check for user clicking "Quit" at PROMT USER DIALOG
     if [[ "${PromtUser}" == "2" ]]; then
@@ -1693,52 +1737,6 @@ function quitScript() {
         updateScriptLog "QUIT SCRIPT: Executing Completion Action Option: '${completionActionOption}' …"
         completionAction "${completionActionOption}"
     fi
-}
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Function create LaunchDaemon 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #    
-    
-function createLaunchDaemon() {
-
-/bin/cat <<EOC > /Library/LaunchDaemons/it.next.UpdateEnforce.plist
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>it.next.UpdateEnforce</string>
-    <key>ProgramArguments</key>
-    <array>
-            <string>/usr/local/jamf/bin/jamf</string>
-            <string>policy</string>
-            <string>-event</string>
-            <string>update</string>
-    </array>
-    <key>RunAtLoad</key>
-    <false/>
-    <key>StartInterval</key>
-    <integer>$StartInterval</integer>
-    <key>UserName</key>
-    <string>root</string>
-</dict>
-</plist>
-EOC
-    
-}
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Function start the LaunchDaemon 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-function StartLaunchDaemon() {
-    # set ownership on LastWarningDaemon launch daemon
-    updateScriptLog "Patch Helper DIALOG: Change permissions for the Daemon…"
-    /usr/sbin/chown root:wheel /Library/LaunchDaemons/it.next.UpdateEnforce.plist
-    /bin/chmod 644 /Library/LaunchDaemons/it.next.UpdateEnforce.plist
-    
-    #load launchd
-    updateScriptLog "Patch Helper DIALOG: Load the Daemon …"
-    launchctl load /Library/LaunchDaemons/it.next.UpdateEnforce.plist
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1766,10 +1764,11 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
 
     welcomeResults=$( eval "${dialogApp} --jsonfile ${CommandFile} --json" )
 
-    if [[ -z "${welcomeResults}" ]]; then
-        PromtUser="2"
-    else
-        PromtUser="0"
+    if [[ -z "${welcomeResults}" ]]
+        then
+            PromtUser="2"
+        else
+            PromtUser="0"
     fi
 
     case "${PromtUser}" in
@@ -1777,25 +1776,10 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
         0)  # Process exit code 0 scenario here
             echo "Exit 0"
                         
-            updateScriptLog "PROMT USER DIALOG: ${loggedInUser} entered information and clicked Continue"
-
-            ###
-            # Extract the various values from the welcomeResults JSON
-            ###
+            updateScriptLog "PROMT USER DIALOG: ${loggedInUser} has received the information and has clicked on Update "
 
             Updates=$(get_json_value_UserInformation "$welcomeResults" "selectedValue")
-            
-            ###
-            # Select `policyJSON` based on selected Configuration
-            ###
-
-            UpdateJSONConfiguration
-            # Output `recon` options to log
             updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
-
-            ###
-            # Display "Patch Helper" dialog (and capture Process ID)
-            ###
 
             eval "${runUpdates[*]}" & sleep 0.3
             PatchHelperProcessID=$!
@@ -1815,10 +1799,15 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
             echo "exit 2"
             if [[ "$CurrentDeferralValue" -gt 0 ]]
             then
-                ###
-                # First check if a displacement is already present.
-                ###
-                CheckDeferral
+                # If no LaunchDaemon is running yet, create and load it now
+                if [[ "$LaunchDaemonisReady" -eq 0 ]]
+                    then
+                        updateScriptLog "LAUNCH-DAEMON FUNCTION: No LaunchDaemon available. Create and load it now."
+                        createLaunchDaemon
+                        StartLaunchDaemon
+                    else
+                        updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon was already active; no need to create it again."
+                fi
 
                 updateScriptLog "PROMT USER DIALOG: ${loggedInUser} clicked Quit at PROMT USER DIALOG"
                 completionActionOption="Quit"
@@ -1826,23 +1815,8 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
             else
             updateScriptLog "PROMT USER DIALOG: ${loggedInUser} clicked Command Q at PROMT USER DIALOG"
             
-            ###
-            # Extract the various values from the welcomeResults JSON
-            ###
-            
             Updates=$(get_json_value_UserInformation "$welcomeResults" "selectedValue")
-            
-            ###
-            # Select `policyJSON` based on selected Configuration
-            ###
-            
-            UpdateJSONConfiguration
-            # Output `recon` options to log
             updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
-            
-            ###
-            # Display "Patch Helper" dialog (and capture Process ID)
-            ###
             
             eval "${runUpdates[*]}" & sleep 0.3
             PatchHelperProcessID=$!
@@ -1881,7 +1855,7 @@ else
 
     if [[ "${debugMode}" == "true" ]]; then updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     Updates="Catch-all ('Welcome' dialog disabled)"
-    UpdateJSONConfiguration
+    # UpdateJSONConfiguration
     
     
     eval "${runUpdates[*]}" & sleep 0.3
@@ -2002,7 +1976,7 @@ for (( i=0; i<dialog_step_length; i++ )); do
 
     # If there's a value in the variable, update running swiftDialog
     if [[ -n "$listitem" ]]; then
-        updateScriptLog "\n\n# # #\n# Patch Helper DIALOG: policyJSON > listitem: ${listitem}\n# # #\n"
+        updateScriptLog "\n\n# * * * * * * * * * * * * * * * * * * * * * * #\n# Patch Helper DIALOG: policyJSON > listitem: ${listitem}\n# * * * * * * * * * * * * * * * * * * * * * * #\n"
         PatchHelper "listitem: index: $i, status: wait, statustext: Installing …, "
     fi
     if [[ -n "$icon" ]]; then PatchHelper "icon: ${icon}"; fi
