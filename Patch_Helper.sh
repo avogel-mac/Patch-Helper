@@ -316,7 +316,7 @@ function ClearUpLaunchDaemon() {
 
 function ClearUpPlist() {
     updateScriptLog "QUIT SCRIPT: Set Deferral Count back to Default."
-     rm -rf "/Library/Application Support/JAMF/it.next.update.deferrals.plist"
+     rm -rf "/Library/Application Support/JAMF/it.next.PatchHelper.update.deferrals.plist"
 }
 
 function ClearUpDeferral() {
@@ -577,7 +577,8 @@ function GetPolicyName() {
     }
 '
 }
-    
+
+
 function UpdateJSONConfiguration() {
     # counts background updates, saves the names of the apps updated in the background
     Update_Count_in_background=0
@@ -1026,7 +1027,6 @@ function UpdateJSONConfiguration() {
     
     # Inventory-Eintrag am Ende anhängen
     policyJSON+='
-                ,
                 {
                 "listitem": "Update Inventory",
                 "icon": "https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9",
@@ -1058,6 +1058,8 @@ function UpdateJSONConfiguration() {
 }
 
 UpdateJSONConfiguration
+
+echo $policyJSON
 
 if [[ "$Update_Count" -eq 1 ]]
 then
