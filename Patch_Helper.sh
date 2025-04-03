@@ -505,7 +505,7 @@ esac
 dialogApp="/Library/Application\ Support/Dialog/Dialog.app/Contents/MacOS/Dialog"
 dialogBinary="/usr/local/bin/dialog"
 CommandFile=$( mktemp /var/tmp/dialogWelcome.XXX )
-PatchHelperCommandFile=$( mktemp /var/tmp/dialogSetupYourMac.XXX )
+PatchHelperCommandFile=$( mktemp /var/tmp/dialogPatchHelper.XXX )
 failureCommandFile=$( mktemp /var/tmp/dialogFailure.XXX )
 jamfBinary="/usr/local/bin/jamf"
 
@@ -579,483 +579,483 @@ function GetPolicyName() {
 }
 
 
-function UpdateJSONConfiguration() {
-    # counts background updates, saves the names of the apps updated in the background
-    Update_Count_in_background=0
-    updatedApps=()
-    PolicyNameUserPromt=()
-    
-    # Read the value for Update_Count from the plist file
-    Update_Count=$(/usr/libexec/PlistBuddy -c "Print :ApplicationCount" "$plistOutput" 2>/dev/null)
-    
-    # Determine IDs
-    IDs=($(get_PolicyIDs))
-    
-    # JSON basic framework
-    policyJSON='{"steps": ['
-    
-    for (( i = 0; i < ${#IDs[@]}; i++ )); do
+    function UpdateJSONConfiguration() {
+        # Zählt Hintergrund-Updates und speichert die Namen der in den Hintergrund aktualisierten Apps
+        Update_Count_in_background=0
+        updatedApps=()
+        PolicyNameUserPromt=()
         
-        # Policy-ID and -Name
-        PolicyID="${IDs[i]}"
-        PolicyName="$(GetPolicyName "${PolicyID}")"
+        # Lese den Wert für Update_Count aus der plist-Datei
+        Update_Count=$(/usr/libexec/PlistBuddy -c "Print :ApplicationCount" "$plistOutput" 2>/dev/null)
         
-        # Case-Block für Icon / Validation / BundleID
-        local icon validation BundelID
-        case "$PolicyName" in
-            *Google_Chrome* | *Chrome*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_94f8d7f60fe82fb234065e05cccf385b1a4f9763ea1b4a3d9737e6a980fd0eae"
-                validation="/Applications/Google Chrome.app/Contents/Info.plist"
-                BundelID="com.google.Chrome"
-            ;;
-            *Microsoft_Outlook* | *Outlook*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_b96ae8bdcb09597bff8b2e82ec3b64d0a2d17f33414dbd7d9a48e5186de7fd93"
-                validation="/Applications/Microsoft Outlook.app/Contents/Info.plist"
-                BundelID="com.microsoft.Outlook"
-            ;;
-            *Slack*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026"
-                validation="/Applications/Slack.app/Contents/Info.plist"
-                BundelID="com.tinyspeck.slackmacgap"
-            ;;
-            *Company_Portal* | *Company\ Portal*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_2af383e90f870e948ec2d03a5910af1b27fe2b32d7c757848db0fdecfea2ef71"
-                validation="/Applications/Company Portal.app/Contents/Info.plist"
-                BundelID="com.microsoft.intune.companyportal"
-            ;;
-            *Mozilla_Firefox* | *Firefox*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_b50bdee2e72b3f98cd7cfe8da06a3d5f405507ca0dca2f5f408978f4f24fee0c"
-                validation="/Applications/Firefox.app/Contents/Info.plist"
-                BundelID="org.mozilla.firefox"
-            ;;
-            *GitHub_Desktop* | *GitHub\ Desktop*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_e7790b367556baee89ffb70d7d545b4cf78698e84cf646777a7d9058762bf69d"
-                validation="/Applications/GitHub Desktop.app/Contents/Info.plist"
-                BundelID="com.github.GitHubClient"
-            ;;
-            *iTerm2*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_85951b4b7b290fa90d8b3a4d7b652316acb5dac44ebce95e7a00a38879710cc6"
-                validation="/Applications/iTerm.app/Contents/Info.plist"
-                BundelID="com.googlecode.iterm2"
-            ;;
-            *Microsoft_Edge* | *Microsoft\ Edge* | *Edge*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_f1fa00c7d8b4cb4d3c58d98c0b0bdbe719a56be39f8b6445ed3df9c8219a126d"
-                validation="/Applications/Microsoft Edge.app/Contents/Info.plist"
-                BundelID="com.microsoft.edgemac"
-            ;;
-            *Microsoft_Excel* | *Microsoft\ Excel* | *Excel*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_721a7bf38cec7552ecd6ffaee9a0ed2ab21b2318639c23082250be12517fca1c"
-                validation="/Applications/Microsoft Excel.app/Contents/Info.plist"
-                BundelID="com.microsoft.Excel"
-            ;;
-            *Microsoft_OneNote* | *Microsoft\ OneNote* | *OneNote*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_a10ac257accff5479d467cf0c8f148559b92eb0ccb7c78f80464901532c95bdb"
-                validation="/Applications/Microsoft OneNote.app/Contents/Info.plist"
-                BundelID="com.microsoft.onenote.mac"
-            ;;
-            *Microsoft_PowerPoint* | *Microsoft\ PowerPoint* | *PowerPoint*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_9f13ca0d3ab7939d3147fbdea116fbdd94f6716a27292505231a8e93f6307fd6"
-                validation="/Applications/Microsoft PowerPoint.app/Contents/Info.plist"
-                BundelID="com.microsoft.Powerpoint"
-            ;;
-            *Microsoft_Remote_Desktop* | *Microsoft\ Remote\ Desktop*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_accfb8273af78d6e2f456a9e3ea882267f82e99c13f9e515d374ffd749aba082"
-                validation="/Applications/Microsoft Remote Desktop.app/Contents/Info.plist"
-                BundelID="com.microsoft.rdc.mac"
-            ;;
-            *Microsoft_Teams* | *Microsoft\ Teams* | *Teams*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_623505d45ca9c2a1bd26f733306e30cd3fcc1cc0fd59ffc89ee0bfcbfbd0b37e"
-                validation="/Applications/Microsoft Teams.app/Contents/Info.plist"
-                BundelID="com.microsoft.teams"
-            ;;
-            *Microsoft_Word* | *Word*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_a4686ab0e2efa2b3c30c42289e3958e5925b60b227ecd688f986d199443cc7a7"
-                validation="/Applications/Microsoft Word.app/Contents/Info.plist"
-                BundelID="com.microsoft.Word"
-                #BundelID=""
-            ;;
-            *Postman*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_019df97f436478ca2b98e3f858eb95d4a527a353029df0384f5b8f18dbd0c61d"
-                validation="/Applications/Postman.app/Contents/Info.plist"
-                BundelID="com.postmanlabs.mac"
-            ;;
-            *Support_App* | *Support\ App*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_6a2b5ed3a7762b7641b837fd5cc0a5541462f27ec43126db2d4e8dbdcc298f6d"
-                validation="/Applications/Support.app/Contents/Info.plist"
-                BundelID=""
-            ;;
-            *TeamViewer* | *Teamviewer*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_ccbb12778c38f0e2c245a712e78d417930c5d599f44832be9bbee1705f69d3e4"
-                validation="/Applications/TeamViewer.app/Contents/Info.plist"
-                BundelID="com.teamviewer.TeamViewer"
-            ;;
-            *Visual_Studio_Code* | *Visual\ Studio\ Code*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_011955c4065d9215a82905984bd200f224c8b3736e3fb947ba64b6fa28b0c02a"
-                validation="/Applications/Visual Studio Code.app/Contents/Info.plist"
-                BundelID="com.microsoft.VSCode"
-            ;;
-            *Zoom*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_92b8d3c448e7d773457532f0478a428a0662f694fbbfc6cb69e1fab5ff106d97"
-                validation="/Applications/zoom.us.app/Contents/Info.plist"
-                BundelID="us.zoom.xos"
-            ;;
-            *Zeplin*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9"
-                validation="/Applications/Zeplin.app/Contents/Info.plist"
-                BundelID="io.zeplin.osx"
-            ;;
-            *VLC*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_2b428c169b78204f03cff3b040b2b5c428eac9288108e11d43aca994d5bd39f0"
-                validation="/Applications/VLC.app/Contents/Info.plist"
-                BundelID="org.videolan.vlc"
-            ;;
-            *The_Unarchiver* | *The\ Unarchiver*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2"
-                validation="/Applications/The Unarchiver.app/Contents/Info.plist"
-                BundelID="cx.c3.theunarchiver"
-            ;;
-            *Sketch*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_32f378b2490f45b03042fc8a388dbc433e7e2e4c2c68b697e3c9647fcd217e44"
-                validation="/Applications/Sketch.app/Contents/Info.plist"
-                BundelID="com.bohemiancoding.sketch3"
-            ;;
-            *Miro*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_89d42f52cebdbb0862c2229254074da1b31dc334c984031a6ccfc5f46141a569"
-                validation="/Applications/Miro.app/Contents/Info.plist"
-                BundelID="com.electron.miro"
-            ;;
-            *Microsoft_Skype_for_Busines* | *Microsoft\ Skype\ for\ Busines* | *Skype\ for\ Busines*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_a0bb8ab7d90a958892febf03aea84f3b090c2dc0ea9305f7d17f27d622bfbb9e"
-                validation="/Applications/Skype for Business.app/Contents/Info.plist"
-                BundelID="com.microsoft.SkypeForBusiness"
-            ;;
-            *Keka*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_b2f82bb89f6e69834dec02b0f12ce6180fbdc1352494adf10d7e7a7aa65c85e6"
-                validation="/Applications/Keka.app/Contents/Info.plist"
-                BundelID="com.aone.keka"
-            ;;
-            *ImageOptim*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_5dcd3a597ee4fd5b52e63ee0e5f86d97352d281398ee4e91d45abc75e292e086"
-                validation="/Applications/ImageOptim.app/Contents/Info.plist"
-                BundelID="net.pornel.ImageOptim"
-            ;;
-            *Filezilla*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_b2aa33567e5b48be41e5165c6f02eac485710e041367a685be5bbc97b265229b"
-                validation="/Applications/FileZilla.app/Contents/Info.plist"
-                BundelID="org.filezilla-project.filezilla"
-            ;;
-            *DropBox*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_e6361d9d6f2867bf1f939fb9fbe5b7f785413b17dd9d36331e02c3f42f1a3a07"
-                validation="/Applications/Dropbox.app/Contents/Info.plist"
-                BundelID="com.getdropbox.dropbox"
-            ;;
-            *Figma*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de"
-                validation="/Applications/Figma.app/Contents/Info.plist"
-                BundelID="com.figma.Desktop"
-            ;;
-            *EasyFind*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_a7ad6e3e43ee50fcb73d3e26fd29146906681a6f048a3d305b4857f3165298f5"
-                validation="/Applications/EasyFind.app/Contents/Info.plist"
-                BundelID="com.devon-technologies.easyfind"
-            ;;
-            *DisplayLink_Manager* | *DisplayLink\ Manager*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_ed6f88bfb07d71e245f6b3d69574467f7089ef39d9a98f5d5d770b314706b460"
-                validation="/Applications/DisplayLink Manager.app/Contents/Info.plist"
-                BundelID="com.displaylink.displaylinkmanager"
-            ;;
-            *Cyberduck*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_d807ad9581dffc5e7317c5b301104a43b37ceca866b36799053412ef327264b8"
-                validation="/Applications/Cyberduck.app/Contents/Info.plist"
-                BundelID="ch.sudo.cyberduck"
-            ;;
-            *Blender*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_d1420bec7e93fc1197c999f499ff1743764ac17789bee60f5466569e83fc7fab"
-                validation="/Applications/Blender.app/Contents/Info.plist"
-                BundelID="org.blenderfoundation.blender"
-            ;;
-            *Balsamiq_Wireframes* | *Balsamiq\ Wireframes*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_2aacaa75080df809d095065d9fd5ac25066d1bfe90eec277f1834e82d44a555a"
-                validation="/Applications/Balsamiq Wireframes.app/Contents/Info.plist"
-                BundelID="com.balsamiq.mockups"  # possibly ‘com.balsamiq.mockups5’ or variant
-            ;;
-            *AppCleaner*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_c304da7fe44e5ab4241d909a1051ae44e9af7d7694ed8dbc53f4d53e6dd0c1f6"
-                validation="/Applications/AppCleaner.app/Contents/Info.plist"
-                BundelID="net.freemacsoft.AppCleaner"
-            ;;
-            *Adobe_Creative_Cloud_Desktop* | *Adobe\ Creative\ Cloud\ Desktop*)
-                icon="$Adobe_Creative_Cloud_Desktop"
-                validation="$Adobe_Creative_Cloud_Desktop_validation"
-                # Frequently used IDs: com.adobe.acc.AdobeCreativeCloud or com.adobe.ccx.process
-                BundelID="com.adobe.acc.AdobeCreativeCloud"
-            ;;
-            *1Password_8* | *1Password\ 8* | *1Password*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_274cae31e3447da5b641ecd0dcd3ae6d27e7aa24e4aff112f54e9047f9711aa7"
-                validation="/Applications/1Password.app/Contents/Info.plist"
-                # Version 8: com.agilebits.onepassword8  (Attention: it may vary depending on the source of supply!)
-                BundelID="com.agilebits.onepassword8"
-            ;;
-            *Adobe_Acrobar_Reader* | *Adobe\ Acrobar\ Reader*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c"
-                validation="/Applications/Adobe Acrobat Reader.app/Contents/Info.plist"
-                BundelID="com.adobe.Reader"
-            ;;
-            *Anydesk*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d"
-                validation="/Applications/AnyDesk.app/Contents/Info.plist"
-                BundelID="com.philandro.anydesk"
-            ;;
-            *Audacity*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f"
-                validation="/Applications/Audacity.app/Contents/Info.plist"
-                BundelID="org.audacityteam.audacity"
-            ;;
-            *balenaEtcher* | *balena\ Etcher*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d"
-                validation="/Applications/balenaEtcher.app/Contents/Info.plist"
-                BundelID="com.balena.etcher"
-            ;;
-            *Clipy*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946"
-                validation="/Applications/Clipy.app/Contents/Info.plist"
-                BundelID="com.clipy-app.Clipy"
-            ;;
-            *Drawio* | *Draw.io*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74"
-                validation="/Applications/draw.io.app/Contents/Info.plist"
-                BundelID="com.jgraph.drawio.desktop"
-            ;;
-            *Keeping_you_Awake* | *Keeping\ you\ Awake*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca"
-                validation="/Applications/KeepingYouAwake.app/Contents/Info.plist"
-                BundelID="info.marcel-dierkes.KeepingYouAwake"
-            ;;
-            *Monitor_Control* | *Monitor\ Control*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2"
-                validation="/Applications/MonitorControl.app/Contents/Info.plist"
-                BundelID="me.guillaumeb.MonitorControl"
-            ;;
-            *OmniGraffle_7* | *OmniGraffle\ 7* | *Omni\ Graffle\ 7* | *Omni\ Graffle*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94"
-                validation="/Applications/OmniGraffle.app/Contents/Info.plist"
-                BundelID="com.omnigroup.OmniGraffle7"
-            ;;
-            *Rectangle*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253"
-                validation="/Applications/Rectangle.app/Contents/Info.plist"
-                BundelID="com.knollsoft.Rectangle"
-            ;;
-            *Sourcetree*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f"
-                validation="/Applications/Sourcetree.app/Contents/Info.plist"
-                BundelID="com.torusknot.SourceTreeNotMAS"
-            ;;
-            *Zulip*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e"
-                validation="/Applications/Zulip.app/Contents/Info.plist"
-                BundelID="org.zulip.zulip"
-            ;;
-            *Go_to_Meeting* | *Go\ to\ Meeting*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a"
-                validation="/Applications/GoToMeeting.app/Contents/Info.plist"
-                BundelID="com.logmein.GoToMeeting"
-            ;;
-            *GIMP*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94"
-                validation="/Applications/GIMP.app/Contents/Info.plist"
-                BundelID="org.gimp.GIMP"
-            ;;
-            *Apache_Directory_Studio* | *Apache\ Directory\ Studio*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe"
-                validation="/Applications/ApacheDirectoryStudio.app/Contents/Info.plist"
-                BundelID="org.apache.directory.studio"
-            ;;
-            *Azure_Data_Studio* | *Azure\ Data\ Studio*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c"
-                validation="/Applications/Azure Data Studio.app/Contents/Info.plist"
-                BundelID="com.microsoft.azuredatastudio"
-            ;;
-            *Docker*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af"
-                validation="/Applications/Docker.app/Contents/Info.plist"
-                BundelID="com.docker.docker"
-            ;;
-            *Meld*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e"
-                validation="/Applications/Meld.app/Contents/Info.plist"
-                BundelID="org.gnome.meld"
-            ;;
-            *PyCharm*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a"
-                validation="/Applications/PyCharm.app/Contents/Info.plist"
-                BundelID="com.jetbrains.pycharm"
-            ;;
-            *SquidMan* | *Squid\ Man*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab"
-                validation="/Applications/SquidMan.app/Contents/Info.plist"
-                BundelID="it.antonioventuri.squidman"
-            ;;
-            *TNEFs_Enough* | *TNEFs\ Enough*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602"
-                validation="/Applications/TNEF's Enough.app/Contents/Info.plist"
-                # In some cases ‘com.joshjacob.tnef’, but not consistently confirmed
-                BundelID="com.joshjacob.tnef"
-            ;;
-            *Wireshark*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3"
-                validation="/Applications/Wireshark.app/Contents/Info.plist"
-                BundelID="org.wireshark.Wireshark"
-            ;;
-            *Jabra_Direct* | *Jabra\ Direct*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2"
-                validation="/Applications/Jabra Direct.app/Contents/Info.plist"
-                # Not 100% confirmed, leave blank if unknown
-                BundelID=""
-            ;;
-            *SimpleMind_Pro* | *SimpleMind\ Pro* | *Simple\ Mind\ Pro*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04"
-                validation="/Applications/SimpleMind Pro.app/Contents/Info.plist"
-                # For some versions: ‘com.modelmakertools.simplemindmac’
-                BundelID="com.modelmakertools.simplemindmac"
-            ;;
-            *Tunnelblick*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd"
-                validation="/Applications/Tunnelblick.app/Contents/Info.plist"
-                BundelID="net.tunnelblick.tunnelblick"
-            ;;
-            *UTM*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc"
-                validation="/Applications/UTM.app/Contents/Info.plist"
-                BundelID="com.utmapp.UTM"
-            ;;
-            *Bitwarden*)
-                icon="https://ics.services.jamfcloud.com/icon/hash_4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18"
-                validation="/Applications/Bitwarden.app/Contents/Info.plist"
-                BundelID="com.bitwarden.desktop"
-            ;;
-            *Brave*)
-                icon="https://euc1.ics.services.jamfcloud.com/icon/hash_d07ef04ebf5d9a509070858a26c39fd99feef114422de934973b6b19cb565a6c"
-                validation="/Applications/Brave Browser.app/Contents/Info.plist"
-                BundelID="com.brave.Browser"
-            ;;
-            *)
-                icon="https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
-                validation="None"
-                BundelID=""
-            ;;
-        esac
+        # Ermittele die IDs
+        IDs=($(get_PolicyIDs))
         
-        # Prüfen, ob BundelID leer ist
-        if [[ -z "$BundelID" ]]; then
-            # BundelID empty => no check, include directly in JSON
-            policyJSON+='
-                        {
-                        "listitem": "'${PolicyName}'",
-                        "icon": "'${icon}'",
-                        "progresstext": "Updating '${PolicyName}'",
-                        "trigger_list": [
-                            {
-                                "trigger": "'${PolicyID}'",
-                                "validation": "'${validation}'"
-                            }
-                        ]
-                        }'
-            # Comma for all entries except the last
-            if (( i != ${#IDs[@]} - 1 )); then
-                policyJSON+=','
-                
-            fi
-            PolicyNameUserPromt+=( "$PolicyName" )
-        else
-            # BundleID not empty => Service check
-            result=$(/bin/launchctl asuser "$loggedInUserID" sudo -iu "$loggedInUser" /bin/launchctl list 2>/dev/null | grep -F "$BundelID")
+        # JSON-Grundgerüst
+        policyJSON='{"steps": ['
+        
+        # separater Zähler für hinzugefügte JSON-Objekte
+        addedObjects=0
+        
+        for (( i = 0; i < ${#IDs[@]}; i++ )); do
             
-            if [[ -z "$result" ]]; then
-                # Service is NOT running => execute jamf policy
-                updateScriptLog "BACKGROUND-UPDATER: The application: $PolicyName is not executed. The policy with the trigger: ${PolicyID} is now executed."
-                /usr/local/bin/jamf policy -id "${PolicyID}" -forceNoRecon
-                
-                (( Update_Count-- ))
-                (( Update_Count_in_background++ ))
-                updatedApps+=( "$PolicyName" )
-                
-                # If Update_Count == 0, execute Recon and end script
-                if [[ $Update_Count -eq 0 ]]; then
-                    updateScriptLog "BACKGROUND-UPDATER: All applications could be executed in the background. The inventory is transferred to Jamf and the script is terminated without user information."
-                    updateScriptLog "BACKGROUND-UPDATER: The following applications have been updated: ${updatedApps[*]}"
-                    /usr/local/bin/jamf recon
-                    
-                    if [[ "$LaunchDaemonisReady" -eq 1 ]]; then
-                        updateScriptLog "Remove existing LaunchDaemon (since updates were successful)."
-                        ClearUpPlist
-                        ClearUpLaunchDaemon
-                        
-                    fi
-                    
-                    
-                    exit 0
-                fi
-            else
-                # Service running => include in the JSON
-                policyJSON+='
-                            {
-                            "listitem": "'${PolicyName}'",
-                            "icon": "'${icon}'",
-                            "progresstext": "Updating '${PolicyName}'",
-                            "trigger_list": [
-                                {
-                                    "trigger": "'${PolicyID}'",
-                                    "validation": "'${validation}'"
-                                }
-                            ]
-                            }'
-                # Comma for all entries except the last
-                if (( i != ${#IDs[@]} - 1 )); then
+            # Policy-ID und -Name
+            PolicyID="${IDs[i]}"
+            PolicyName="$(GetPolicyName "${PolicyID}")"
+            
+            # Case-Block für Icon, Validation und BundleID
+            local icon validation BundelID
+            case "$PolicyName" in
+                *Google_Chrome* | *Chrome*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_94f8d7f60fe82fb234065e05cccf385b1a4f9763ea1b4a3d9737e6a980fd0eae"
+                    validation="/Applications/Google Chrome.app/Contents/Info.plist"
+                    BundelID="com.google.Chrome"
+                ;;
+                *Microsoft_Outlook* | *Outlook*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_b96ae8bdcb09597bff8b2e82ec3b64d0a2d17f33414dbd7d9a48e5186de7fd93"
+                    validation="/Applications/Microsoft Outlook.app/Contents/Info.plist"
+                    BundelID="com.microsoft.Outlook"
+                ;;
+                *Slack*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026"
+                    validation="/Applications/Slack.app/Contents/Info.plist"
+                    BundelID="com.tinyspeck.slackmacgap"
+                ;;
+                *Company_Portal* | *Company\ Portal*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_2af383e90f870e948ec2d03a5910af1b27fe2b32d7c757848db0fdecfea2ef71"
+                    validation="/Applications/Company Portal.app/Contents/Info.plist"
+                    BundelID="com.microsoft.intune.companyportal"
+                ;;
+                *Mozilla_Firefox* | *Firefox*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_b50bdee2e72b3f98cd7cfe8da06a3d5f405507ca0dca2f5f408978f4f24fee0c"
+                    validation="/Applications/Firefox.app/Contents/Info.plist"
+                    BundelID="org.mozilla.firefox"
+                ;;
+                *GitHub_Desktop* | *GitHub\ Desktop*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_e7790b367556baee89ffb70d7d545b4cf78698e84cf646777a7d9058762bf69d"
+                    validation="/Applications/GitHub Desktop.app/Contents/Info.plist"
+                    BundelID="com.github.GitHubClient"
+                ;;
+                *iTerm2*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_85951b4b7b290fa90d8b3a4d7b652316acb5dac44ebce95e7a00a38879710cc6"
+                    validation="/Applications/iTerm.app/Contents/Info.plist"
+                    BundelID="com.googlecode.iterm2"
+                ;;
+                *Microsoft_Edge* | *Microsoft\ Edge* | *Edge*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_f1fa00c7d8b4cb4d3c58d98c0b0bdbe719a56be39f8b6445ed3df9c8219a126d"
+                    validation="/Applications/Microsoft Edge.app/Contents/Info.plist"
+                    BundelID="com.microsoft.edgemac"
+                ;;
+                *Microsoft_Excel* | *Microsoft\ Excel* | *Excel*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_721a7bf38cec7552ecd6ffaee9a0ed2ab21b2318639c23082250be12517fca1c"
+                    validation="/Applications/Microsoft Excel.app/Contents/Info.plist"
+                    BundelID="com.microsoft.Excel"
+                ;;
+                *Microsoft_OneNote* | *Microsoft\ OneNote* | *OneNote*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_a10ac257accff5479d467cf0c8f148559b92eb0ccb7c78f80464901532c95bdb"
+                    validation="/Applications/Microsoft OneNote.app/Contents/Info.plist"
+                    BundelID="com.microsoft.onenote.mac"
+                ;;
+                *Microsoft_PowerPoint* | *Microsoft\ PowerPoint* | *PowerPoint*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_9f13ca0d3ab7939d3147fbdea116fbdd94f6716a27292505231a8e93f6307fd6"
+                    validation="/Applications/Microsoft PowerPoint.app/Contents/Info.plist"
+                    BundelID="com.microsoft.Powerpoint"
+                ;;
+                *Microsoft_Remote_Desktop* | *Microsoft\ Remote\ Desktop*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_accfb8273af78d6e2f456a9e3ea882267f82e99c13f9e515d374ffd749aba082"
+                    validation="/Applications/Microsoft Remote Desktop.app/Contents/Info.plist"
+                    BundelID="com.microsoft.rdc.mac"
+                ;;
+                *Microsoft_Teams* | *Microsoft\ Teams* | *Teams*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_623505d45ca9c2a1bd26f733306e30cd3fcc1cc0fd59ffc89ee0bfcbfbd0b37e"
+                    validation="/Applications/Microsoft Teams.app/Contents/Info.plist"
+                    BundelID="com.microsoft.teams"
+                ;;
+                *Microsoft_Word* | *Word*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_a4686ab0e2efa2b3c30c42289e3958e5925b60b227ecd688f986d199443cc7a7"
+                    validation="/Applications/Microsoft Word.app/Contents/Info.plist"
+                    BundelID="com.microsoft.Word"
+                    #BundelID=""
+                ;;
+                *Postman*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_019df97f436478ca2b98e3f858eb95d4a527a353029df0384f5b8f18dbd0c61d"
+                    validation="/Applications/Postman.app/Contents/Info.plist"
+                    #BundelID="com.postmanlabs.mac"
+                    BundelID=""
+                ;;
+                *Support_App* | *Support\ App*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_6a2b5ed3a7762b7641b837fd5cc0a5541462f27ec43126db2d4e8dbdcc298f6d"
+                    validation="/Applications/Support.app/Contents/Info.plist"
+                    BundelID=""
+                ;;
+                *TeamViewer* | *Teamviewer*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_ccbb12778c38f0e2c245a712e78d417930c5d599f44832be9bbee1705f69d3e4"
+                    validation="/Applications/TeamViewer.app/Contents/Info.plist"
+                    BundelID="com.teamviewer.TeamViewer"
+                ;;
+                *Visual_Studio_Code* | *Visual\ Studio\ Code*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_011955c4065d9215a82905984bd200f224c8b3736e3fb947ba64b6fa28b0c02a"
+                    validation="/Applications/Visual Studio Code.app/Contents/Info.plist"
+                    BundelID="com.microsoft.VSCode"
+                ;;
+                *Zoom*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_92b8d3c448e7d773457532f0478a428a0662f694fbbfc6cb69e1fab5ff106d97"
+                    validation="/Applications/zoom.us.app/Contents/Info.plist"
+                    BundelID="us.zoom.xos"
+                ;;
+                *Zeplin*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9"
+                    validation="/Applications/Zeplin.app/Contents/Info.plist"
+                    BundelID="io.zeplin.osx"
+                ;;
+                *VLC*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_2b428c169b78204f03cff3b040b2b5c428eac9288108e11d43aca994d5bd39f0"
+                    validation="/Applications/VLC.app/Contents/Info.plist"
+                    BundelID="org.videolan.vlc"
+                ;;
+                *The_Unarchiver* | *The\ Unarchiver*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2"
+                    validation="/Applications/The Unarchiver.app/Contents/Info.plist"
+                    BundelID="cx.c3.theunarchiver"
+                ;;
+                *Sketch*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_32f378b2490f45b03042fc8a388dbc433e7e2e4c2c68b697e3c9647fcd217e44"
+                    validation="/Applications/Sketch.app/Contents/Info.plist"
+                    BundelID="com.bohemiancoding.sketch3"
+                ;;
+                *Miro*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_89d42f52cebdbb0862c2229254074da1b31dc334c984031a6ccfc5f46141a569"
+                    validation="/Applications/Miro.app/Contents/Info.plist"
+                    BundelID="com.electron.miro"
+                ;;
+                *Microsoft_Skype_for_Busines* | *Microsoft\ Skype\ for\ Busines* | *Skype\ for\ Busines*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_a0bb8ab7d90a958892febf03aea84f3b090c2dc0ea9305f7d17f27d622bfbb9e"
+                    validation="/Applications/Skype for Business.app/Contents/Info.plist"
+                    BundelID="com.microsoft.SkypeForBusiness"
+                ;;
+                *Keka*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_b2f82bb89f6e69834dec02b0f12ce6180fbdc1352494adf10d7e7a7aa65c85e6"
+                    validation="/Applications/Keka.app/Contents/Info.plist"
+                    BundelID="com.aone.keka"
+                ;;
+                *ImageOptim*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_5dcd3a597ee4fd5b52e63ee0e5f86d97352d281398ee4e91d45abc75e292e086"
+                    validation="/Applications/ImageOptim.app/Contents/Info.plist"
+                    BundelID="net.pornel.ImageOptim"
+                ;;
+                *Filezilla*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_b2aa33567e5b48be41e5165c6f02eac485710e041367a685be5bbc97b265229b"
+                    validation="/Applications/FileZilla.app/Contents/Info.plist"
+                    BundelID="org.filezilla-project.filezilla"
+                ;;
+                *DropBox*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_e6361d9d6f2867bf1f939fb9fbe5b7f785413b17dd9d36331e02c3f42f1a3a07"
+                    validation="/Applications/Dropbox.app/Contents/Info.plist"
+                    BundelID="com.getdropbox.dropbox"
+                ;;
+                *Figma*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de"
+                    validation="/Applications/Figma.app/Contents/Info.plist"
+                    BundelID="com.figma.Desktop"
+                ;;
+                *EasyFind*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_a7ad6e3e43ee50fcb73d3e26fd29146906681a6f048a3d305b4857f3165298f5"
+                    validation="/Applications/EasyFind.app/Contents/Info.plist"
+                    BundelID="com.devon-technologies.easyfind"
+                ;;
+                *DisplayLink_Manager* | *DisplayLink\ Manager*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_ed6f88bfb07d71e245f6b3d69574467f7089ef39d9a98f5d5d770b314706b460"
+                    validation="/Applications/DisplayLink Manager.app/Contents/Info.plist"
+                    BundelID="com.displaylink.displaylinkmanager"
+                ;;
+                *Cyberduck*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_d807ad9581dffc5e7317c5b301104a43b37ceca866b36799053412ef327264b8"
+                    validation="/Applications/Cyberduck.app/Contents/Info.plist"
+                    BundelID="ch.sudo.cyberduck"
+                ;;
+                *Blender*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_d1420bec7e93fc1197c999f499ff1743764ac17789bee60f5466569e83fc7fab"
+                    validation="/Applications/Blender.app/Contents/Info.plist"
+                    BundelID="org.blenderfoundation.blender"
+                ;;
+                *Balsamiq_Wireframes* | *Balsamiq\ Wireframes*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_2aacaa75080df809d095065d9fd5ac25066d1bfe90eec277f1834e82d44a555a"
+                    validation="/Applications/Balsamiq Wireframes.app/Contents/Info.plist"
+                    BundelID="com.balsamiq.mockups"  # possibly ‘com.balsamiq.mockups5’ or variant
+                ;;
+                *AppCleaner*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_c304da7fe44e5ab4241d909a1051ae44e9af7d7694ed8dbc53f4d53e6dd0c1f6"
+                    validation="/Applications/AppCleaner.app/Contents/Info.plist"
+                    BundelID="net.freemacsoft.AppCleaner"
+                ;;
+                *Adobe_Creative_Cloud_Desktop* | *Adobe\ Creative\ Cloud\ Desktop*)
+                    icon="$Adobe_Creative_Cloud_Desktop"
+                    validation="$Adobe_Creative_Cloud_Desktop_validation"
+                    # Frequently used IDs: com.adobe.acc.AdobeCreativeCloud or com.adobe.ccx.process
+                    BundelID="com.adobe.acc.AdobeCreativeCloud"
+                ;;
+                *1Password_8* | *1Password\ 8* | *1Password*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_274cae31e3447da5b641ecd0dcd3ae6d27e7aa24e4aff112f54e9047f9711aa7"
+                    validation="/Applications/1Password.app/Contents/Info.plist"
+                    # Version 8: com.agilebits.onepassword8  (Attention: it may vary depending on the source of supply!)
+                    BundelID="com.agilebits.onepassword8"
+                ;;
+                *Adobe_Acrobar_Reader* | *Adobe\ Acrobar\ Reader*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c"
+                    validation="/Applications/Adobe Acrobat Reader.app/Contents/Info.plist"
+                    BundelID="com.adobe.Reader"
+                ;;
+                *Anydesk*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d"
+                    validation="/Applications/AnyDesk.app/Contents/Info.plist"
+                    BundelID="com.philandro.anydesk"
+                ;;
+                *Audacity*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f"
+                    validation="/Applications/Audacity.app/Contents/Info.plist"
+                    BundelID="org.audacityteam.audacity"
+                ;;
+                *balenaEtcher* | *balena\ Etcher*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d"
+                    validation="/Applications/balenaEtcher.app/Contents/Info.plist"
+                    BundelID="com.balena.etcher"
+                ;;
+                *Clipy*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946"
+                    validation="/Applications/Clipy.app/Contents/Info.plist"
+                    BundelID="com.clipy-app.Clipy"
+                ;;
+                *Drawio* | *Draw.io*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74"
+                    validation="/Applications/draw.io.app/Contents/Info.plist"
+                    BundelID="com.jgraph.drawio.desktop"
+                ;;
+                *Keeping_you_Awake* | *Keeping\ you\ Awake*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca"
+                    validation="/Applications/KeepingYouAwake.app/Contents/Info.plist"
+                    BundelID="info.marcel-dierkes.KeepingYouAwake"
+                ;;
+                *Monitor_Control* | *Monitor\ Control*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2"
+                    validation="/Applications/MonitorControl.app/Contents/Info.plist"
+                    BundelID="me.guillaumeb.MonitorControl"
+                ;;
+                *OmniGraffle_7* | *OmniGraffle\ 7* | *Omni\ Graffle\ 7* | *Omni\ Graffle*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94"
+                    validation="/Applications/OmniGraffle.app/Contents/Info.plist"
+                    BundelID="com.omnigroup.OmniGraffle7"
+                ;;
+                *Rectangle*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253"
+                    validation="/Applications/Rectangle.app/Contents/Info.plist"
+                    BundelID="com.knollsoft.Rectangle"
+                ;;
+                *Sourcetree*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f"
+                    validation="/Applications/Sourcetree.app/Contents/Info.plist"
+                    BundelID="com.torusknot.SourceTreeNotMAS"
+                ;;
+                *Zulip*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e"
+                    validation="/Applications/Zulip.app/Contents/Info.plist"
+                    BundelID="org.zulip.zulip"
+                ;;
+                *Go_to_Meeting* | *Go\ to\ Meeting*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a"
+                    validation="/Applications/GoToMeeting.app/Contents/Info.plist"
+                    BundelID="com.logmein.GoToMeeting"
+                ;;
+                *GIMP*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94"
+                    validation="/Applications/GIMP.app/Contents/Info.plist"
+                    BundelID="org.gimp.GIMP"
+                ;;
+                *Apache_Directory_Studio* | *Apache\ Directory\ Studio*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe"
+                    validation="/Applications/ApacheDirectoryStudio.app/Contents/Info.plist"
+                    BundelID="org.apache.directory.studio"
+                ;;
+                *Azure_Data_Studio* | *Azure\ Data\ Studio*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c"
+                    validation="/Applications/Azure Data Studio.app/Contents/Info.plist"
+                    BundelID="com.microsoft.azuredatastudio"
+                ;;
+                *Docker*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af"
+                    validation="/Applications/Docker.app/Contents/Info.plist"
+                    BundelID="com.docker.docker"
+                ;;
+                *Meld*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e"
+                    validation="/Applications/Meld.app/Contents/Info.plist"
+                    BundelID="org.gnome.meld"
+                ;;
+                *PyCharm*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a"
+                    validation="/Applications/PyCharm.app/Contents/Info.plist"
+                    BundelID="com.jetbrains.pycharm"
+                ;;
+                *SquidMan* | *Squid\ Man*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab"
+                    validation="/Applications/SquidMan.app/Contents/Info.plist"
+                    BundelID="it.antonioventuri.squidman"
+                ;;
+                *TNEFs_Enough* | *TNEFs\ Enough*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602"
+                    validation="/Applications/TNEF's Enough.app/Contents/Info.plist"
+                    # In some cases ‘com.joshjacob.tnef’, but not consistently confirmed
+                    BundelID="com.joshjacob.tnef"
+                ;;
+                *Wireshark*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3"
+                    validation="/Applications/Wireshark.app/Contents/Info.plist"
+                    BundelID="org.wireshark.Wireshark"
+                ;;
+                *Jabra_Direct* | *Jabra\ Direct*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2"
+                    validation="/Applications/Jabra Direct.app/Contents/Info.plist"
+                    # Not 100% confirmed, leave blank if unknown
+                    BundelID=""
+                ;;
+                *SimpleMind_Pro* | *SimpleMind\ Pro* | *Simple\ Mind\ Pro*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04"
+                    validation="/Applications/SimpleMind Pro.app/Contents/Info.plist"
+                    # For some versions: ‘com.modelmakertools.simplemindmac’
+                    BundelID="com.modelmakertools.simplemindmac"
+                ;;
+                *Tunnelblick*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd"
+                    validation="/Applications/Tunnelblick.app/Contents/Info.plist"
+                    BundelID="net.tunnelblick.tunnelblick"
+                ;;
+                *UTM*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc"
+                    validation="/Applications/UTM.app/Contents/Info.plist"
+                    BundelID="com.utmapp.UTM"
+                ;;
+                *Bitwarden*)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18"
+                    validation="/Applications/Bitwarden.app/Contents/Info.plist"
+                    BundelID="com.bitwarden.desktop"
+                ;;
+                *Brave*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_d07ef04ebf5d9a509070858a26c39fd99feef114422de934973b6b19cb565a6c"
+                    validation="/Applications/Brave Browser.app/Contents/Info.plist"
+                    BundelID="com.brave.Browser"
+                ;;
+                *Jamf_Connect* | *Jamf\ Connect*)
+                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_c7473f7ba3d046e0937dc9ad2fa1bc1453661d1303cd17693e5973948bb4a167"
+                    validation="/Applications/Jamf Connect.app/Contents/Info.plist"
+                    BundelID=""
+                ;;
+                *)
+                    icon="https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
+                    validation="None"
+                    BundelID=""
+                ;;
+            esac
+            
+            # Prüfen, ob BundelID leer ist
+            if [[ -z "$BundelID" ]]; then
+                # Keine BundleID => direkt in JSON einfügen
+                if (( addedObjects > 0 )); then
                     policyJSON+=','
-                    
                 fi
-                PolicyNameUserPromt+=( "$PolicyName" )
-            fi
-        fi
-        
-    done
-    
-    # At the end of the loop - if the script was not terminated before -
-    # we output the remaining value of Update_Count
-    updateScriptLog "BACKGROUND-CHECK: Remaining updates that could not be updated in the background: $Update_Count"
-    
-    # Inventory-Eintrag am Ende anhängen
-    policyJSON+='
-                {
-                "listitem": "Update Inventory",
-                "icon": "https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9",
-                "progresstext": "Updating Inventory",
+                policyJSON+='{
+                "listitem": "'"${PolicyName}"'",
+                "icon": "'"${icon}"'",
+                "progresstext": "Updating '"${PolicyName}"'",
                 "trigger_list": [
                     {
-                        "trigger": "recon",
-                        "validation": "None"
+                        "trigger": "'"${PolicyID}"'",
+                        "validation": "'"${validation}"'"
                     }
                 ]
-                }
-                ]
+            }'
+                (( addedObjects++ ))
+                PolicyNameUserPromt+=( "$PolicyName" )
+            else
+                # BundleID vorhanden => Service-Check
+                result=$(/bin/launchctl asuser "$loggedInUserID" sudo -iu "$loggedInUser" /bin/launchctl list 2>/dev/null | grep -F "$BundelID")
+                
+                if [[ -z "$result" ]]; then
+                    # Service läuft nicht => jamf Policy ausführen
+                    updateScriptLog "BACKGROUND-UPDATER: The application: $PolicyName is not executed. The policy with the trigger: ${PolicyID} is now executed."
+                    /usr/local/bin/jamf policy -id "${PolicyID}" -forceNoRecon
+                    
+                    (( Update_Count-- ))
+                    (( Update_Count_in_background++ ))
+                    updatedApps+=( "$PolicyName" )
+                    
+                    # Falls Update_Count == 0, Recon ausführen und Skript beenden
+                    if [[ $Update_Count -eq 0 ]]; then
+                        updateScriptLog "BACKGROUND-UPDATER: All applications could be executed in the background. The inventory is transferred to Jamf and the script is terminated without user information."
+                        updateScriptLog "BACKGROUND-UPDATER: The following applications have been updated: ${updatedApps[*]}"
+                        /usr/local/bin/jamf recon
+                        
+                        if [[ "$LaunchDaemonisReady" -eq 1 ]]; then
+                            updateScriptLog "Remove existing LaunchDaemon (since updates were successful)."
+                            ClearUpPlist
+                            ClearUpLaunchDaemon
+                        fi
+                        
+                        exit 0
+                    fi
+                else
+                    # Service läuft => in JSON einfügen
+                    if (( addedObjects > 0 )); then
+                        policyJSON+=','
+                    fi
+                    policyJSON+='{
+                    "listitem": "'"${PolicyName}"'",
+                    "icon": "'"${icon}"'",
+                    "progresstext": "Updating '"${PolicyName}"'",
+                    "trigger_list": [
+                        {
+                            "trigger": "'"${PolicyID}"'",
+                            "validation": "'"${validation}"'"
+                        }
+                    ]
                 }'
-    
-    if (( Update_Count_in_background > 0 ))
-    then
-        updateScriptLog "BACKGROUND-CHECK: The following number of applications could be updated in the background: $Update_Count_in_background"
-        updateScriptLog "BACKGROUND-CHECK: The following applications have been updated: ${updatedApps[*]}"
-    else
-        updateScriptLog "BACKGROUND-CHECK: No applications could be updated in the background"
-    fi
-    
-    if (( ${#PolicyNameUserPromt[@]} > 0 )); then
-        joinedPolicyNames=$(IFS=", ' '"; echo "${PolicyNameUserPromt[*]}")
+                    (( addedObjects++ ))
+                    PolicyNameUserPromt+=( "$PolicyName" )
+                fi
+            fi
+            
+        done
         
-        updateScriptLog "BACKGROUND-CHECK: The following applications could not be updated in the background: $joinedPolicyNames"
-    fi
-    
-}
+        # Logge verbleibende Updates
+        updateScriptLog "BACKGROUND-CHECK: Remaining updates that could not be updated in the background: $Update_Count"
+        
+        # Inventory-Eintrag am Ende anhängen
+        if (( addedObjects > 0 )); then
+            policyJSON+=','
+        fi
+        policyJSON+='{
+        "listitem": "Update Inventory",
+        "icon": "https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9",
+        "progresstext": "Updating Inventory",
+        "trigger_list": [
+            {
+                "trigger": "recon",
+                "validation": "None"
+            }
+        ]
+    }]
+    }'
+        
+        if (( Update_Count_in_background > 0 )); then
+            updateScriptLog "BACKGROUND-CHECK: The following number of applications could be updated in the background: $Update_Count_in_background"
+            updateScriptLog "BACKGROUND-CHECK: The following applications have been updated: ${updatedApps[*]}"
+        else
+            updateScriptLog "BACKGROUND-CHECK: No applications could be updated in the background"
+        fi
+        
+        if (( ${#PolicyNameUserPromt[@]} > 0 )); then
+            joinedPolicyNames=$(IFS=", ' '"; echo "${PolicyNameUserPromt[*]}")
+            updateScriptLog "BACKGROUND-CHECK: The following applications could not be updated in the background: $joinedPolicyNames"
+        fi
+    }
 
 UpdateJSONConfiguration
 
@@ -1359,6 +1359,7 @@ function finalise(){
         PatchHelper "button1: enable"
         PatchHelper "progress: reset"
         
+        
         # Wait for user-acknowledgment due to detected failure
         wait
         
@@ -1390,11 +1391,12 @@ function finalise(){
         
         PatchHelper "title: ${!final_sucess_titel}"        
         PatchHelper "progresstext: ${!final_sucess_progresstext}"
-            
+        
         PatchHelper "icon: SF=checkmark.circle.fill,weight=bold,colour1=#00ff44,colour2=#075c1e"
         PatchHelper "progress: complete"
         PatchHelper "button1text: ${button1textCompletionActionOption}"
         PatchHelper "button1: enable"
+        
         
         # If either "wait" or "sleep" has been specified for `completionActionOption`, honor that behavior
         if [[ "${completionActionOption}" == "wait" ]] || [[ "${completionActionOption}" == "[Ss]leep"* ]]; then
