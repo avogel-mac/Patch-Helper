@@ -211,7 +211,6 @@ fi
 ########################################################################
 ## Deferral Handling
 ########################################################################
-
 setDeferral (){
     BundleID="${1}"
     DeferralType="${2}"
@@ -1791,7 +1790,16 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
                 # Output Line Number in `true` Debug Mode
                 if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
                 updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
-                sleep 0.5
+                counter=0
+                while true; do
+                    ((counter++))
+                    updateScriptLog "Current value of counter: $counter"
+                    if [ "$counter" -ge 60 ]; then
+                        updateScriptLog "Counter has reached the value of 60. Exiting script with exit code 1."
+                        exit 1
+                    fi
+                    sleep 1
+                done
             done
             updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
             updateScriptLog "PROMT USER DIALOG: Check function ClearUpDeferral"
@@ -1828,7 +1836,16 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
                 # Output Line Number in `true` Debug Mode
                 if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
                 updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
-                sleep 0.5
+                counter=0
+                while true; do
+                    ((counter++))
+                    updateScriptLog "Current value of counter: $counter"
+                    if [ "$counter" -ge 60 ]; then
+                        updateScriptLog "Counter has reached the value of 60. Exiting script with exit code 1."
+                        exit 1
+                    fi
+                    sleep 1
+                done
             done
             updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
             runAsUser osascript -e 'tell application "Dialog" to activate'
