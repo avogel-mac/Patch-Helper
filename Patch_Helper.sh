@@ -2040,3 +2040,4 @@ done
 if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 finalise
+quitScript
