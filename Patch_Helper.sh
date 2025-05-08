@@ -506,6 +506,8 @@ dialogBinary="/usr/local/bin/dialog"
 CommandFile=$( mktemp /var/tmp/dialogWelcome.XXX )
 PatchHelperCommandFile=$( mktemp /var/tmp/dialogPatchHelper.XXX )
 failureCommandFile=$( mktemp /var/tmp/dialogFailure.XXX )
+chmod 755 "$CommandFile" "$PatchHelperCommandFile" "$failureCommandFile"
+
 jamfBinary="/usr/local/bin/jamf"
 
 # # # # # # # # # # # # # # # # # # # "Patch Helper" Change Time Value # # # # # # # # # # # # # # # #
