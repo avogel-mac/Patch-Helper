@@ -2,68 +2,105 @@
 #######################################################################
 # Shellscript     :   Patch Helper
 # Edetiert durch  :   Andreas Vogel
-# Changelog			: 	0.1    -	initial skript
-#                   :   0.2     -   Termination of the LaunchDaemon via bootout
-#                   :   0.3     -   Retrieve customization of PolicyNames via API
-#                   :   0.4     -   Adjustment of the icons so that they use the correct icon in the "case" function
-#                   :   0.5     -   Adjustment of the JSON so that it always executes the policy for Update Inventory at the end..
-#                   :   0.6     -   Added function for "invalidateToken" so that the token is automatically discarded on exit.
-#                   :   0.7     -   Customization of the icon 
-#                   :   0.8     -   Safari (has been removed again)
-#					:	0.9     -	Translation, Redigatur
-#                   :   0.9.1   -   Counter is changed as $Update_Count so that only the number of updates is displayed and
-#                                   no longer the number of all steps (incl. the update inventory)
-#                   :   0.9.2   -   Adding the new variable $BundelID, this now checks whether the affected application is running or not.
-#                                   is executed or not. If the application is not executed, it will be executed immediately via the 
-#                                   jamf policy -id will be executed immediately. If it is executed or the $BundelID variable is empty,
-#                                   is empty, this is included in the json and the user is informed. If all applications to be patched are not 
-#                                   are executed, all policies are executed in the background and the user is not aware of this. 
-#
 #######################################################################
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Internal IT contacts
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-Support_Telefon="+49 12 3456 789"
-Support_Email="support@nextenterprise.it"
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/jamf/bin/
+scriptVersion="1.0.0"
+debugMode="${6:-"true"}"                                 # Parameter 4: Debug Mode [ true (default) | false | verbose ]
+completionActionOption="wait"                               # Completion Action [ wait | Close ]
+UserInformation="promtUserInfo"
+failureIcon="SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"
+macOSproductVersion="$( sw_vers -productVersion )"
+macOSbuildVersion="$( sw_vers -buildVersion )"
+serialNumber=$( system_profiler SPHardwareDataType | grep Serial |  awk '{print $NF}' )
+timestamp="$( date '+%Y-%m-%d-%H%M%S' )"
+reconOptions=""
+exitCode="0"
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Script Version and Jamf Pro Script Parameters
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-scriptVersion="0.9.3"
-export PATH=/usr/bin:/bin:/usr/sbin:/sbin
-scriptLog="/var/log/it.next_patch_management.log"
+BundleIDPlist="it.next.PatchHelper"
+IconBundelPlist="it.next.icon_Service"
 
+Managed_Preferences="/Library/Managed Preferences/${BundleIDPlist}.plist"
+Managed_Icon_Service="/Library/Managed Preferences/${IconBundelPlist}.plist"
 
-if [[ ! -f "${scriptLog}" ]]; then
-    touch "${scriptLog}"
+error_flag=0
+if [[ ! -f "$Managed_Preferences" ]]; then
+    echo "Fehler: '$Managed_Preferences' does not exist. Please configure and deploy the configuration profile via Jamf Pro."
+    error_flag=1
 fi
 
-debugMode="${4:-"false"}"                                 # Parameter 4: Debug Mode [ true (default) | false ]
-
-BannerImage="${5}"                                        # Parameter 5: BannerImage on Top of swiftDialog
-if [[ -z "$BannerImage" ]]; then
-    BannerImage="https://ics.services.jamfcloud.com/icon/hash_cfbe99281c08b7ef85da92dcb56be11a6ff8562e37d24bb20ecf230495d617df"
+if [[ ! -f "$Managed_Icon_Service" ]]; then
+    echo "Fehler: '$Managed_Icon_Service' does not exist. Please configure and deploy the configuration profile via Jamf Pro."
+    error_flag=1
 fi
 
-InfoboxIcon="${6}"                                        # Parameter 6: InfoboxIcon Icon on left Site of swiftDialog
-if [[ -z "$InfoboxIcon" ]]; then
-    InfoboxIcon="https://ics.services.jamfcloud.com/icon/hash_0b3ab277243d56f8bbe486f3453ba6c4fa9ea53f50245597f7852b62624d2bc6"
+if [[ $error_flag -eq 1 ]]; then
+    exit 1
 fi
 
-StartInterval="${7}"
-if [[ -z "$StartInterval" ]]; then
-    StartInterval="3600"
+missing_keys=()
+
+get_required() {
+    local keypath="$1"
+    local varname="$2"
+    local val
+    
+    val=$(/usr/libexec/PlistBuddy -c "Print $keypath" "$Managed_Preferences" 2>/dev/null)
+    if [[ $? -ne 0 || -z $val ]]
+        then
+            missing_keys+=("$keypath")
+        else
+            printf -v "$varname" '%s' "$val"
+    fi
+}
+
+get_required ":Daemon_and_Deferral_Settings:LaunchDaemonLabel"   LaunchDaemonLabel
+get_required ":Daemon_and_Deferral_Settings:StartInterval"       StartInterval
+get_required ":Daemon_and_Deferral_Settings:DaemonEventTrigger"  DaemonEventTrigger
+get_required ":Daemon_and_Deferral_Settings:DeferralPlist"  DeferralPlist
+get_required ":Daemon_and_Deferral_Settings:BundleIDDeferral"  BundleIDDeferral
+get_required ":Dialog_Settings:BannerImage"         BannerImage
+get_required ":Dialog_Settings:InfoboxIcon"         InfoboxIcon
+get_required ":Dialog_Settings:button1text_wait"    button1text_wait
+get_required ":Dialog_Settings:Dialog_update_width"       Dialog_update_width
+get_required ":Dialog_Settings:Dialog_update_height"      Dialog_update_height
+get_required ":Dialog_Settings:Dialog_update_titlefont"   Dialog_update_titlefont
+get_required ":Dialog_Settings:Dialog_update_messagefont" Dialog_update_messagefont
+get_required ":Dialog_Settings:Install_Button_Custom" Install_Button_Custom
+get_required ":Dialog_Settings:Defer_Button_Custom"   Defer_Button_Custom
+get_required ":Dialog_Settings:Dialog_quitkey"        Dialog_quitkey
+get_required ":Dialog_Settings:RunUpdates_Dialog_position" RunUpdates_Dialog_position
+get_required ":Dialog_Settings:Faild_Button_Custom"         Faild_Button_Custom
+get_required ":Dialog_Settings:Faild_Dialog_position"       Faild_Dialog_position
+get_required ":Dialog_Settings:TimePromtUser"               TimePromtUser
+get_required ":Dialog_Settings:UpdateDeferral_Value"        UpdateDeferral_Value
+get_required ":Dialog_Settings:Support_Telefon" Support_Telefon
+get_required ":Dialog_Settings:Support_Email"   Support_Email
+get_required ":ScriptLog:scriptLog"             scriptLog
+
+
+if (( ${#missing_keys[@]} )); then
+    echo "Error: The following required keys are missing or empty in '$Managed_Preferences':" >&2
+    for key in "${missing_keys[@]}"; do
+        echo "  • $key" >&2
+    done
+    echo "Please set these values via a configuration profile." >&2
+    exit 1
 fi
 
 
-UpdateDeferral_Value="${8}"
-if [[ -z "$UpdateDeferral_Value" ]]; then
-    UpdateDeferral_Value="4"
-fi
-
-TimePromtUser="${9}"
-if [[ -z "$TimePromtUser" ]]; then
-    TimePromtUser="300"
+if [[ ! -f "${scriptLog}" ]]
+    then
+        touch "${scriptLog}"
+    else
+        if [[ $(stat -f%z "${scriptLog}") -gt 10000000 ]]; then
+            zipFile="${scriptLog%.log}_$(date +'%Y-%m-%d %H:%M:%S').zip"
+            zip -j "${zipFile}" "${scriptLog}"
+            
+            rm "${scriptLog}"
+            
+            touch "${scriptLog}"
+            echo "$(date +'%Y-%m-%d %H:%M:%S') - log file too large, has been zipped to ${zipFile}" >> "${scriptLog}"
+        fi
 fi
 
 profilesSTATUS=$(profiles status -type enrollment 2>&1)
@@ -73,44 +110,43 @@ if [[ -z "$jamfpro_url" ]]; then
     exit 1
 fi
 
-encodedCredentials="${11}"
-if [[ -z "$encodedCredentials" ]]; then
-    echo "Credentials missing"
-    exit 1
+jamf_api_client="$4"
+if [[ -z "$jamf_api_client" ]]; then
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]
+    then
+        echo "Function-Check Jamf API debugMode: Jamf Pro Client Secret is missing"
+        echo "Function-Check Jamf API debugMode: Skript running in Debug Mode Testing of API Calls not possible"
+    else
+        echo "Function-Check Jamf API: Jamf Pro Client Secret is missing"
+        echo "# * * * * * * * * * * * * * * * * * * * * * * * END WITH ERROR * * * * * * * * * * * * * * * * * * * * * * * #"
+        exit 1
+    fi
+fi
+
+jamf_api_secret="$5"
+if [[ -z "$jamf_api_secret" ]]; then
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]
+    then
+        echo "Function-Check Jamf API debugMode: Jamf Pro Client Secret is missing"
+        echo "Function-Check Jamf API debugMode: Skript running in Debug Mode Testing of API Calls not possible"
+        
+    else
+        echo "Function-Check Jamf API: Jamf Pro Client Secret is missing"
+        echo "# * * * * * * * * * * * * * * * * * * * * * * * END WITH ERROR * * * * * * * * * * * * * * * * * * * * * * * #"
+        exit 1
+    fi
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# ****************************** Testing *********************************************************************#
-
-#encodedCredentials=""
-#if [[ -z "$encodedCredentials" ]]; then
-#   echo "Credentials missing"
-#   exit 1
-#fi
-
-# ****************************** End Testing *****************************************************************#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-UserInformation="promtUserInfo"                     # PROMT USER DIALOG [ promtUserInfo (default) | false ]
-completionActionOption="wait"                       # Completion Action [ wait | Close ]
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Operating System, currently logged-in user and default Exit Code
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-osVersion=$( sw_vers -productVersion )
-osBuild=$( sw_vers -buildVersion )
-osMajorVersion=$( echo "${osVersion}" | awk -F '.' '{print $1}' )
-reconOptions=""
-exitCode="0"
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
 # WARM-UPs
-#
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # Client-side Script Logging Function  # # # # # # # # # # # # # # # # #
 function updateScriptLog() {
-    echo -e "$( date +%Y-%m-%d\ %H:%M:%S ) - ${1}" | tee -a "${scriptLog}"
+    if [[ "${debugMode}" == "verbose" ]]
+    then
+        echo -e "$( date +%Y-%m-%d\ %H:%M:%S ) - Line No. ${BASH_LINENO[0]} - ${1}" | tee -a "${scriptLog}"
+    else
+        echo -e "$( date +%Y-%m-%d\ %H:%M:%S ) - ${1}" | tee -a "${scriptLog}"
+    fi
 }
 # # # # # # # # # # # # # # # Current Logged-in User Function  # # # # # # # # # # # # # # # # # # #
 function currentLoggedInUser() {
@@ -132,12 +168,10 @@ currentLoggedInUser
 counter="1"
 
 until { [[ "${loggedInUser}" != "_mbsetupuser" ]] || [[ "${counter}" -gt "180" ]]; } && { [[ "${loggedInUser}" != "loginwindow" ]] || [[ "${counter}" -gt "30" ]]; } ; do
-    
     updateScriptLog "PRE-FLIGHT CHECK: Logged-in User Counter: ${counter}"
     currentLoggedInUser
     sleep 2
     ((counter++))
-    
 done
 
 loggedInUserFullname=$( id -F "${loggedInUser}" )
@@ -147,113 +181,82 @@ updateScriptLog "PRE-FLIGHT CHECK: Current Logged-in User First Name: ${loggedIn
 updateScriptLog "PRE-FLIGHT CHECK: Current Logged-in User ID: ${loggedInUserID}"
 # # # # # # # # # # # # # # # # # # Validate swiftDialog is install # # # # # # # # # # # # # # # #
 function dialogCheck() {
-
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "WARM-UP: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "WARM-UP: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     # Get the URL of the latest PKG From the Dialog GitHub repo
-    # dialogURL=$(curl --silent --fail --location "https://api.github.com/repos/bartreardon/swiftDialog/releases/latest" | awk -F '"' "/browser_download_url/ && /pkg\"/ { print \$4; exit }")
+    dialogURL=$(curl -L --silent --fail "https://api.github.com/repos/swiftDialog/swiftDialog/releases/latest" | awk -F '"' "/browser_download_url/ && /pkg\"/ { print \$4; exit }")
         
-    dialogURL="https://github.com/swiftDialog/swiftDialog/releases/download/v2.2.1/dialog-2.2.1-4591.pkg"
-    
-    # Expected Team ID of the downloaded PKG
     expectedDialogTeamID="PWA5E9TQ59"
 
     # Check for Dialog and install if not found
-    if [ ! -e "/Library/Application Support/Dialog/Dialog.app" ]; then
-
-        updateScriptLog "PRE-FLIGHT CHECK: Dialog not found. Installing..."
-
-        # Create temporary working directory
-        workDirectory=$( /usr/bin/basename "$0" )
-        tempDirectory=$( /usr/bin/mktemp -d "/private/tmp/$workDirectory.XXXXXX" )
-
-        # Download the installer package
-        /usr/bin/curl --location --silent "$dialogURL" -o "$tempDirectory/Dialog.pkg"
-
-        # Verify the download
-        teamID=$(/usr/sbin/spctl -a -vv -t install "$tempDirectory/Dialog.pkg" 2>&1 | awk '/origin=/ {print $NF }' | tr -d '()')
-
-        # Install the package if Team ID validates
-        if [[ "$expectedDialogTeamID" == "$teamID" ]]; then
-
-            /usr/sbin/installer -pkg "$tempDirectory/Dialog.pkg" -target /
-            sleep 2
-            dialogVersion=$( /usr/local/bin/dialog --version )
-            updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version ${dialogVersion} installed; proceeding..."
-
-        else
-
-            # Display a so-called "simple" dialog if Team ID fails to validate
-            osascript -e 'display dialog "Please advise your Support Representative of the following error:\r\r• Dialog Team ID verification failed\r\r" with title "Patch Helper: Error" buttons {"Close"} with icon caution'
-            completionActionOption="Quit"
-            exitCode="1"
-            quitScript
-
-        fi
-
-        # Remove the temporary working directory when done
-        /bin/rm -Rf "$tempDirectory"
-
-    else
-
-        updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version $(/usr/local/bin/dialog --version) found; proceeding..."
-
-    fi
-
-}
-
-if [[ ! -e "/Library/Application Support/Dialog/Dialog.app" ]]; then
-    dialogCheck
-else
-    updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version $(/usr/local/bin/dialog --version) found; proceeding..."
-fi
-########################################################################
-## Deferral Handling
-########################################################################
-setDeferral (){
-    BundleID="${1}"
-    DeferralType="${2}"
-    UpdateDeferral_Value="${3}"
-    DeferralPlist="${4}"
+    if [ ! -e "/Library/Application Support/Dialog/Dialog.app" ]
+        then
+            updateScriptLog "PRE-FLIGHT CHECK: Dialog not found. Installing..."
     
-    if [[ "$DeferralType" == "date" ]]
-    then
-        DeferralDate="$(/usr/libexec/PlistBuddy -c "print :$BundleID:date" "$DeferralPlist" 2>/dev/null)"
-        # Set deferral date
-        if [[ -n "$DeferralDate" ]] && [[ ! "$DeferralDate" =~ "File Doesn't Exist" ]]
-        then
-            # /usr/libexec/PlistBuddy -c "set :$BundleID:date '07/04/2019 11:21:51 +0000'" "$DeferralPlist"
-            /usr/libexec/PlistBuddy -c "set :$BundleID:date $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
+            workDirectory=$( /usr/bin/basename "$0" )
+            tempDirectory=$( /usr/bin/mktemp -d "/private/tmp/$workDirectory.XXXXXX" )
+    
+            /usr/bin/curl --location --silent "$dialogURL" -o "$tempDirectory/Dialog.pkg"
+    
+            teamID=$(/usr/sbin/spctl -a -vv -t install "$tempDirectory/Dialog.pkg" 2>&1 | awk '/origin=/ {print $NF }' | tr -d '()')
+    
+            if [[ "$expectedDialogTeamID" == "$teamID" ]]
+                then
+                    /usr/sbin/installer -pkg "$tempDirectory/Dialog.pkg" -target /
+                    sleep 2
+                    dialogVersion=$( /usr/local/bin/dialog --version )
+                    updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version ${dialogVersion} installed; proceeding..."
+        
+                else
+                    osascript -e 'display dialog "Please advise your Support Representative of the following error:\r\r• Dialog Team ID verification failed\r\r" with title "Patch Helper: Error" buttons {"Close"} with icon caution'
+                    completionActionOption="Quit"
+                    exitCode="1"
+                    quitScript
+    
+            fi
+            /bin/rm -Rf "$tempDirectory"
+    
         else
-            # /usr/libexec/PlistBuddy -c "add :$BundleID:date date '07/04/2019 11:21:51 +0000'" "$DeferralPlist"
-            /usr/libexec/PlistBuddy -c "add :$BundleID:date date $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
-        fi
-    elif [[ "$DeferralType" == "count" ]]; then
-        DeferralCount="$(/usr/libexec/PlistBuddy -c "print :$BundleID:count" "$DeferralPlist" 2>/dev/null)"
-        # Set deferral count
-        if [[ -n "$DeferralCount" ]] && [[ ! "$DeferralCount" =~ "File Doesn't Exist" ]]
-        then
-            /usr/libexec/PlistBuddy -c "set :$BundleID:count $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
-        else
-            /usr/libexec/PlistBuddy -c "add :$BundleID:count integer $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
-        fi
-    else
-        echo "Incorrect deferral type used."
-        exit 14
+            updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version $(/usr/local/bin/dialog --version) found; proceeding..."
+
     fi
 }
 
-DeferralPlist="/Library/Application Support/JAMF/it.next.PatchHelper.update.deferrals.plist"
-BundleID="it.next.PatchHelper"
-DeferralType="count"
-
-CurrentDeferralValue="$(/usr/libexec/PlistBuddy -c "print :$BundleID:count" "$DeferralPlist" 2>/dev/null)"
-# Set up the deferral value if it does not exist already
-if [[ -z "$CurrentDeferralValue" ]] || [[ "$CurrentDeferralValue" =~ "File Doesn't Exist" ]]; then
-    setDeferral "$BundleID" "$DeferralType" "$UpdateDeferral_Value" "$DeferralPlist"
-    CurrentDeferralValue="$(/usr/libexec/PlistBuddy -c "print :$BundleID:count" "$DeferralPlist" 2>/dev/null)"
+if [[ ! -e "/Library/Application Support/Dialog/Dialog.app" ]]
+    then
+        dialogCheck
+    else
+        updateScriptLog "PRE-FLIGHT CHECK: swiftDialog version $(/usr/local/bin/dialog --version) found; proceeding..."
 fi
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Deferral Handling
+setDeferralCount() {
+    local BundleID="$1"
+    local UpdateDeferral_Value="$2"
+    local DeferralPlist="$3"
+    
+    local DeferralCount
+    DeferralCount="$(/usr/libexec/PlistBuddy -c "print :${BundleIDDeferral}:count" "$DeferralPlist" 2>/dev/null)"
+    
+    if [[ -n "$DeferralCount" ]] && [[ ! "$DeferralCount" =~ "File Doesn't Exist" ]]
+        then
+            /usr/libexec/PlistBuddy -c "set :${BundleIDDeferral}:count $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
+        else
+            /usr/libexec/PlistBuddy -c "add :${BundleIDDeferral}:count integer $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
+    fi
+}
+
+
+CurrentDeferralValue="$(/usr/libexec/PlistBuddy -c "print :${BundleIDDeferral}:count" "$DeferralPlist" 2>/dev/null)"
+if [[ -z "$CurrentDeferralValue" ]] || [[ "$CurrentDeferralValue" =~ "File Doesn't Exist" ]]; then
+    setDeferralCount "$BundleIDDeferral" "$UpdateDeferral_Value" "$DeferralPlist"
+    CurrentDeferralValue="$(/usr/libexec/PlistBuddy -c "print :${BundleIDDeferral}:count" "$DeferralPlist" 2>/dev/null)"
+fi
+
+echo "Current deferral count for ${BundleIDDeferral}: $CurrentDeferralValue"
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PRE-FLIGHT CHECK: Complete
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -262,12 +265,9 @@ updateScriptLog "PRE-FLIGHT CHECK: Complete"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # LaunchDaemon Check 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-LaunchDaemonLabel="it.next.UpdateEnforce"
 LaunchDaemonPlist="/Library/LaunchDaemons/$LaunchDaemonLabel.plist"
 LaunchDaemonisReady=0
 
-# Prüfe, ob LaunchDaemon-Datei existiert und ob sie geladen ist
 if [[ -f "$LaunchDaemonPlist" ]]
     then
         if launchctl list | grep -q "$LaunchDaemonLabel"
@@ -284,21 +284,7 @@ if [[ -f "$LaunchDaemonPlist" ]]
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Language
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-CurrentUser=$(/usr/sbin/scutil <<< "show State:/Users/ConsoleUser" | /usr/bin/awk -F': ' '/[[:space:]]+Name[[:space:]]:/ { if ( $2 != "loginwindow" ) { print $2 }}')
-Language=$(/usr/libexec/PlistBuddy -c 'print AppleLanguages:0' "/Users/$CurrentUser/Library/Preferences/.GlobalPreferences.plist")
-
-if [[ $Language != de* ]]
-    then
-        UserLanguage="EN"
-    else
-        UserLanguage="DE"
-fi
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Helper-Funktionen: Cleanup etc.
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 function ClearUpLaunchDaemon() {
     updateScriptLog "QUIT SCRIPT: Stopping LaunchDaemon via launchctl bootout system …"
     launchctl bootout system/$LaunchDaemonLabel 2>/dev/null
@@ -315,7 +301,7 @@ function ClearUpLaunchDaemon() {
 
 function ClearUpPlist() {
     updateScriptLog "QUIT SCRIPT: Set Deferral Count back to Default."
-     rm -rf "/Library/Application Support/JAMF/it.next.PatchHelper.update.deferrals.plist"
+     rm -rf "$DeferralPlist"
 }
 
 function ClearUpDeferral() {
@@ -332,7 +318,7 @@ function ClearUpDeferral() {
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # LaunchDaemon anlegen und starten
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 function createLaunchDaemon() {
     /bin/cat <<EOC > "$LaunchDaemonPlist"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -347,12 +333,12 @@ function createLaunchDaemon() {
     <string>/usr/local/jamf/bin/jamf</string>
     <string>policy</string>
     <string>-event</string>
-    <string>update</string>
+    <string>${DaemonEventTrigger}</string>
 </array>
 <key>RunAtLoad</key>
 <false/>
 <key>StartInterval</key>
-<integer>${StartIntervalDaemon}</integer>
+<integer>${StartInterval}</integer>
 <key>UserName</key>
 <string>root</string>
 </dict>
@@ -387,34 +373,86 @@ function StartLaunchDaemon() {
     fi
     
     updateScriptLog "LAUNCH-DAEMON FUNCTION: Process completed."
-
 }
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Auth / Policies
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-authToken=$(/usr/bin/curl "${jamfpro_url}/api/v1/auth/token" --silent \
---request POST \
---header "Authorization: Basic ${encodedCredentials}")
-
-if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]
+function get_api_token() {
+    
+    validToken="false"
+    
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]
     then
-        api_token=$(/usr/bin/awk -F \" 'NR==2{print $4}' <<< "$authToken" | /usr/bin/xargs)
+        updateScriptLog "Function-GET API Token debugMode: debugMode is activated"
+        updateScriptLog "Function-GET API Token debugMode: try to call the API if credentials are available"
+        
+        if [[ -n "$jamf_api_client" && -n "$jamf_api_secret" ]]
+        then
+            curl_response=$(curl --silent --location --request POST "${jamfpro_url}/api/oauth/token" --header "Content-Type: application/x-www-form-urlencoded" --data-urlencode "client_id=${jamf_api_client}" --data-urlencode "grant_type=client_credentials" --data-urlencode "client_secret=${jamf_api_secret}")
+            
+            if [[ $(echo "${curl_response}" | grep -c 'token') -gt 0 ]]
+                then
+                    if [[ $(sw_vers -productVersion | cut -d'.' -f1) -lt 12 ]]
+                        then
+                            api_token=$(echo "${curl_response}" | plutil -extract access_token raw -)
+                        else 
+                            api_token=$(echo "${curl_response}" | awk -F '"' '{print $4;}' | xargs)
+                    fi
+                    updateScriptLog "Function-GET API Token: Token was successfully generated"
+                    validToken="true"
+                else
+                    updateScriptLog "Function-GET API Token: Token could not be generated"
+                    updateScriptLog "Function-GET API Token: Verify the --auth-jamf-client=ClientID and --auth-jamf-secret=ClientSecret are values."
+                    
+                    updateScriptLog "# * * * * * * * * * * * * * * * * * * * * * * * END WITH ERROR * * * * * * * * * * * * * * * * * * * * * * * #"
+                    killProcess "caffeinate"
+                    quitScript
+                    exit 1
+            fi
+        else
+            updateScriptLog "Function-GET API Token debugMode: no credentials available."
+            updateScriptLog "Function-GET API Token debugMode: Continue with the test to display the dialogues."
+        fi
+        
     else
-        api_token=$(/usr/bin/plutil -extract token raw -o - - <<< "$authToken")
-fi
+        
+        curl_response=$(curl --silent --location --request POST "${jamfpro_url}/api/oauth/token" --header "Content-Type: application/x-www-form-urlencoded" --data-urlencode "client_id=${jamf_api_client}" --data-urlencode "grant_type=client_credentials" --data-urlencode "client_secret=${jamf_api_secret}")
+        
+        if [[ $(echo "${curl_response}" | grep -c 'token') -gt 0 ]]
+            then
+                if [[ $(sw_vers -productVersion | cut -d'.' -f1) -lt 12 ]]
+                    then
+                        api_token=$(echo "${curl_response}" | plutil -extract access_token raw -)
+                    else 
+                        api_token=$(echo "${curl_response}" | awk -F '"' '{print $4;}' | xargs)
+                fi
+                updateScriptLog "Function-GET API Token: Token was successfully generated"
+                validToken="true"
+            else
+                updateScriptLog "Function-GET API Token: Token could not be generated"
+                updateScriptLog "Function-GET API Token: Verify the --auth-jamf-client=ClientID and --auth-jamf-secret=ClientSecret are values."
+                updateScriptLog "# * * * * * * * * * * * * * * * * * * * * * * * END WITH ERROR * * * * * * * * * * * * * * * * * * * * * * * #"
+                killProcess "caffeinate"
+                quitScript
+                exit 1
+        fi
+    fi
+}
+    
+get_api_token
+    
 
-response=$(/usr/bin/curl -X GET \
-"$jamfpro_url/JSSResource/computermanagement/udid/$(system_profiler SPHardwareDataType | grep UUID | awk '" " { print $NF }')/subset/policies" \
--H "accept: application/xml" \
--H "Authorization: Bearer ${api_token}")
-
-xmlupdates="/tmp/policies.xml"
-echo "$response" > "$xmlupdates"
-
-plistOutput="/tmp/AppUpdates.plist"
-
-# Plist-Header
-cat <<EOF > "$plistOutput"
+if [[ "$validToken" == "true" ]]
+then
+    response=$(/usr/bin/curl -X GET "$jamfpro_url/JSSResource/computermanagement/udid/$(system_profiler SPHardwareDataType | grep UUID | awk '" " { print $NF }')/subset/policies" -H "accept: application/xml" -H "Authorization: Bearer ${api_token}")
+    
+    xmlupdates="/tmp/policies.xml"
+    echo "$response" > "$xmlupdates"
+    
+    plistOutput="/tmp/AppUpdates.plist"
+    
+    # Plist-Header
+    cat <<EOF > "$plistOutput"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" 
 "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -423,37 +461,94 @@ cat <<EOF > "$plistOutput"
 <key>Applications</key>
 <array>
 EOF
-
-count=0
-while read -r line; do
-    id=$(echo "$line" | xmllint --xpath "string(//id)" - 2>/dev/null)
-    name=$(echo "$line" | xmllint --xpath "string(//name)" - 2>/dev/null)
-    if [[ -n "$id" && -n "$name" ]]; then
-        cat <<EOF >> "$plistOutput"
+    
+    count=0
+    while read -r line; do
+        id=$(echo "$line" | xmllint --xpath "string(//id)" - 2>/dev/null)
+        name=$(echo "$line" | xmllint --xpath "string(//name)" - 2>/dev/null)
+        if [[ -n "$id" && -n "$name" ]]; then
+            cat <<EOF >> "$plistOutput"
 <dict>
-    <key>ID</key>
-    <string>$id</string>
-    <key>Name</key>
-    <string>$name</string>
+<key>ID</key>
+<string>$id</string>
+<key>Name</key>
+<string>$name</string>
 </dict>
 EOF
-        count=$((count + 1))
-    fi
-done < <(echo "$response" | xmllint --xpath "//policy[triggers='patch_app_updates']" -)
-
-cat <<EOF >> "$plistOutput"
+            count=$((count + 1))
+        fi
+    done < <(echo "$response" | xmllint --xpath "//policy[triggers='patch_app_updates']" -)
+    
+    cat <<EOF >> "$plistOutput"
 </array>
 <key>ApplicationCount</key>
 <integer>$count</integer>
 </dict>
 </plist>
 EOF
-
+    
+    initial_Update_Count=$(/usr/libexec/PlistBuddy -c "Print :ApplicationCount" "$plistOutput" 2>/dev/null)
+    updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The total number of updates is: $initial_Update_Count"
+    
+else
+    policyJSON='
+                {
+                    "steps": [
+                        {
+                            "listitem": "TEST Slack",
+                            "icon": "https://ics.services.jamfcloud.com/icon/hash_a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026",
+                            "progresstext": "Updating TEST Policy Slack",
+                            "trigger_list": [
+                                {
+                                    "trigger": "",
+                                    "validation": "None"
+                                }
+                            ]
+                        },
+                        {
+                            "listitem": "TEST The Unarchiver",
+                            "icon": "https://ics.services.jamfcloud.com/icon/hash_5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2",
+                            "progresstext": "Updating TEST The Unarchiver",
+                            "trigger_list": [
+                                {
+                                    "trigger": "",
+                                    "validation": "None"
+                                }
+                            ]
+                        },
+                        {
+                            "listitem": "TEST Figma",
+                            "icon": "https://ics.services.jamfcloud.com/icon/hash_ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de",
+                            "progresstext": "Updating TEST Figma",
+                            "trigger_list": [
+                                {
+                                    "trigger": "",
+                                    "validation": "None"
+                                }
+                            ]
+                        },
+                        {
+                            "listitem": "Update Inventory",
+                            "icon": "https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9",
+                            "progresstext": "Updating Inventory",
+                            "trigger_list": [
+                                {
+                                    "trigger": "recon",
+                                    "validation": "None"
+                                }
+                            ]
+                        }
+                    ]
+                }
+                '
+    initial_Update_Count="3"
+    Update_Count="3"
+    joinedPolicyNames="Slack, The Unarchiver, Figma"
+    
+fi
+    
 function invalidateToken() {
-    responseCode=$(
-    curl -w "%{http_code}" -H "Authorization: Bearer ${api_token}" \
-    "$jamfpro_url/api/v1/auth/invalidate-token" -X POST -s -o /dev/null
-)
+    responseCode=$(curl -w "%{http_code}" -H "Authorization: Bearer ${api_token}" "$jamfpro_url/api/v1/auth/invalidate-token" -X POST -s -o /dev/null)
     if [[ ${responseCode} == 204 ]]; then
         updateScriptLog "QUIT SCRIPT: Token successfully invalidated"
     elif [[ ${responseCode} == 401 ]]; then
@@ -463,8 +558,6 @@ function invalidateToken() {
     fi
 }
 
-initial_Update_Count=$(/usr/libexec/PlistBuddy -c "Print :ApplicationCount" "$plistOutput" 2>/dev/null)
-updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The total number of updates is: $initial_Update_Count"
 
 if [[ "$initial_Update_Count" -eq 0 ]]; then
     updateScriptLog "CHECK-FOR-UPDATES FUNCTION: no patches found, exiting"
@@ -477,31 +570,18 @@ if [[ "$initial_Update_Count" -eq 0 ]]; then
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-# Dialog Variables
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # infobox-related variables
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-macOSproductVersion="$( sw_vers -productVersion )"
-macOSbuildVersion="$( sw_vers -buildVersion )"
-serialNumber=$( system_profiler SPHardwareDataType | grep Serial |  awk '{print $NF}' )
-timestamp="$( date '+%Y-%m-%d-%H%M%S' )"
 dialogVersion=$( /usr/local/bin/dialog --version )
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Reflect Debug Mode in `infotext` (i.e., bottom, left-hand corner of each dialog)
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 case ${debugMode} in
     "true"   ) scriptVersion="DEBUG MODE | Dialog: v${dialogVersion} • Patch Helper: v${scriptVersion}" ;;
     "false"   ) scriptVersion="Patch Helper | v${scriptVersion}" ;;
+    "verbose" ) scriptVersion="Verbose MODE | Dialog: v${dialogVersion} • Patch Helper: v${scriptVersion}" ;;
 esac
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Set Dialog path, Command Files, JAMF binary, log files and currently logged-in user
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-dialogApp="/Library/Application\ Support/Dialog/Dialog.app/Contents/MacOS/Dialog"
 dialogBinary="/usr/local/bin/dialog"
 CommandFile=$( mktemp /var/tmp/dialogWelcome.XXX )
 PatchHelperCommandFile=$( mktemp /var/tmp/dialogPatchHelper.XXX )
@@ -509,34 +589,6 @@ failureCommandFile=$( mktemp /var/tmp/dialogFailure.XXX )
 chmod 755 "$CommandFile" "$PatchHelperCommandFile" "$failureCommandFile"
 
 jamfBinary="/usr/local/bin/jamf"
-
-# # # # # # # # # # # # # # # # # # # "Patch Helper" Change Time Value # # # # # # # # # # # # # # # #
-updateScriptLog "CHECK-FOR-UPDATES FUNCTION: Read the values for the LaunchDaemon."
-
-if [[ $StartInterval -eq 3600 ]]; then
-        updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The update is carried out every hour."
-        Time_EN="hourly"
-        Time_DE="stündlich"
-elif [[ $StartInterval -lt 3600 ]]; then
-        # Converted interval in minutes
-        intervalMinutes=$((StartInterval / 60))
-        
-        updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The update is executed every $intervalMinutes minutes."
-        
-        Time_EN="all $intervalMinutes minutes"
-        Time_DE="alle $intervalMinutes Minuten"
-else
-        # Converted interval in hours and minutes
-        intervalHours=$((StartInterval / 3600))
-        intervalMinutes=$(( (StartInterval % 3600) / 60 ))
-        
-        updateScriptLog "CHECK-FOR-UPDATES FUNCTION: The update is forced every $intervalHours hr. $intervalMinutes min."
-        
-        Time_EN="all $intervalHours Hours $intervalMinutes minutes"
-        Time_DE="jede $intervalHours Stunde und $intervalMinutes Minuten"
-fi
-
-Time=Time_${UserLanguage}
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Baue JSON aus den plist-Einträgen
@@ -579,577 +631,175 @@ function GetPolicyName() {
 '
 }
 
-
-    function UpdateJSONConfiguration() {
-        # Zählt Hintergrund-Updates und speichert die Namen der in den Hintergrund aktualisierten Apps
-        Update_Count_in_background=0
-        updatedApps=()
-        PolicyNameUserPromt=()
-        
-        # Lese den Wert für Update_Count aus der plist-Datei
-        Update_Count=$(/usr/libexec/PlistBuddy -c "Print :ApplicationCount" "$plistOutput" 2>/dev/null)
-        
-        # Ermittele die IDs
-        IDs=($(get_PolicyIDs))
-        
-        # JSON-Grundgerüst
-        policyJSON='{"steps": ['
-        
-        # separater Zähler für hinzugefügte JSON-Objekte
-        addedObjects=0
-        
-        for (( i = 0; i < ${#IDs[@]}; i++ )); do
-            
-            # Policy-ID und -Name
-            PolicyID="${IDs[i]}"
-            PolicyName="$(GetPolicyName "${PolicyID}")"
-            
-            # Case-Block für Icon, Validation und BundleID
-            local icon validation BundelID
-            case "$PolicyName" in
-                *Google_Chrome* | *Chrome*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_94f8d7f60fe82fb234065e05cccf385b1a4f9763ea1b4a3d9737e6a980fd0eae"
-                    validation="/Applications/Google Chrome.app/Contents/Info.plist"
-                    BundelID="com.google.Chrome"
-                ;;
-                *Microsoft_Outlook* | *Outlook*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_b96ae8bdcb09597bff8b2e82ec3b64d0a2d17f33414dbd7d9a48e5186de7fd93"
-                    validation="/Applications/Microsoft Outlook.app/Contents/Info.plist"
-                    BundelID="com.microsoft.Outlook"
-                ;;
-                *Slack*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026"
-                    validation="/Applications/Slack.app/Contents/Info.plist"
-                    BundelID="com.tinyspeck.slackmacgap"
-                ;;
-                *Company_Portal* | *Company\ Portal*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_2af383e90f870e948ec2d03a5910af1b27fe2b32d7c757848db0fdecfea2ef71"
-                    validation="/Applications/Company Portal.app/Contents/Info.plist"
-                    BundelID="com.microsoft.intune.companyportal"
-                ;;
-                *Mozilla_Firefox* | *Firefox*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_b50bdee2e72b3f98cd7cfe8da06a3d5f405507ca0dca2f5f408978f4f24fee0c"
-                    validation="/Applications/Firefox.app/Contents/Info.plist"
-                    BundelID="org.mozilla.firefox"
-                ;;
-                *GitHub_Desktop* | *GitHub\ Desktop*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_e7790b367556baee89ffb70d7d545b4cf78698e84cf646777a7d9058762bf69d"
-                    validation="/Applications/GitHub Desktop.app/Contents/Info.plist"
-                    BundelID="com.github.GitHubClient"
-                ;;
-                *iTerm2*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_85951b4b7b290fa90d8b3a4d7b652316acb5dac44ebce95e7a00a38879710cc6"
-                    validation="/Applications/iTerm.app/Contents/Info.plist"
-                    BundelID="com.googlecode.iterm2"
-                ;;
-                *Microsoft_Edge* | *Microsoft\ Edge* | *Edge*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_f1fa00c7d8b4cb4d3c58d98c0b0bdbe719a56be39f8b6445ed3df9c8219a126d"
-                    validation="/Applications/Microsoft Edge.app/Contents/Info.plist"
-                    BundelID="com.microsoft.edgemac"
-                ;;
-                *Microsoft_Excel* | *Microsoft\ Excel* | *Excel*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_721a7bf38cec7552ecd6ffaee9a0ed2ab21b2318639c23082250be12517fca1c"
-                    validation="/Applications/Microsoft Excel.app/Contents/Info.plist"
-                    BundelID="com.microsoft.Excel"
-                ;;
-                *Microsoft_OneNote* | *Microsoft\ OneNote* | *OneNote*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_a10ac257accff5479d467cf0c8f148559b92eb0ccb7c78f80464901532c95bdb"
-                    validation="/Applications/Microsoft OneNote.app/Contents/Info.plist"
-                    BundelID="com.microsoft.onenote.mac"
-                ;;
-                *Microsoft_PowerPoint* | *Microsoft\ PowerPoint* | *PowerPoint*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_9f13ca0d3ab7939d3147fbdea116fbdd94f6716a27292505231a8e93f6307fd6"
-                    validation="/Applications/Microsoft PowerPoint.app/Contents/Info.plist"
-                    BundelID="com.microsoft.Powerpoint"
-                ;;
-                *Microsoft_Remote_Desktop* | *Microsoft\ Remote\ Desktop*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_accfb8273af78d6e2f456a9e3ea882267f82e99c13f9e515d374ffd749aba082"
-                    validation="/Applications/Microsoft Remote Desktop.app/Contents/Info.plist"
-                    BundelID="com.microsoft.rdc.mac"
-                ;;
-                *Microsoft_Teams* | *Microsoft\ Teams* | *Teams*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_623505d45ca9c2a1bd26f733306e30cd3fcc1cc0fd59ffc89ee0bfcbfbd0b37e"
-                    validation="/Applications/Microsoft Teams.app/Contents/Info.plist"
-                    BundelID="com.microsoft.teams"
-                ;;
-                *Microsoft_Word* | *Word*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_a4686ab0e2efa2b3c30c42289e3958e5925b60b227ecd688f986d199443cc7a7"
-                    validation="/Applications/Microsoft Word.app/Contents/Info.plist"
-                    BundelID="com.microsoft.Word"
-                    #BundelID=""
-                ;;
-                *Postman*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_019df97f436478ca2b98e3f858eb95d4a527a353029df0384f5b8f18dbd0c61d"
-                    validation="/Applications/Postman.app/Contents/Info.plist"
-                    #BundelID="com.postmanlabs.mac"
-                    BundelID=""
-                ;;
-                *Support_App* | *Support\ App*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_6a2b5ed3a7762b7641b837fd5cc0a5541462f27ec43126db2d4e8dbdcc298f6d"
-                    validation="/Applications/Support.app/Contents/Info.plist"
-                    BundelID=""
-                ;;
-                *TeamViewer* | *Teamviewer*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_ccbb12778c38f0e2c245a712e78d417930c5d599f44832be9bbee1705f69d3e4"
-                    validation="/Applications/TeamViewer.app/Contents/Info.plist"
-                    BundelID="com.teamviewer.TeamViewer"
-                ;;
-                *Visual_Studio_Code* | *Visual\ Studio\ Code*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_011955c4065d9215a82905984bd200f224c8b3736e3fb947ba64b6fa28b0c02a"
-                    validation="/Applications/Visual Studio Code.app/Contents/Info.plist"
-                    BundelID="com.microsoft.VSCode"
-                ;;
-                *Zoom*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_92b8d3c448e7d773457532f0478a428a0662f694fbbfc6cb69e1fab5ff106d97"
-                    validation="/Applications/zoom.us.app/Contents/Info.plist"
-                    BundelID="us.zoom.xos"
-                ;;
-                *Zeplin*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9"
-                    validation="/Applications/Zeplin.app/Contents/Info.plist"
-                    BundelID="io.zeplin.osx"
-                ;;
-                *VLC*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_2b428c169b78204f03cff3b040b2b5c428eac9288108e11d43aca994d5bd39f0"
-                    validation="/Applications/VLC.app/Contents/Info.plist"
-                    BundelID="org.videolan.vlc"
-                ;;
-                *The_Unarchiver* | *The\ Unarchiver*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2"
-                    validation="/Applications/The Unarchiver.app/Contents/Info.plist"
-                    BundelID="cx.c3.theunarchiver"
-                ;;
-                *Sketch*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_32f378b2490f45b03042fc8a388dbc433e7e2e4c2c68b697e3c9647fcd217e44"
-                    validation="/Applications/Sketch.app/Contents/Info.plist"
-                    BundelID="com.bohemiancoding.sketch3"
-                ;;
-                *Miro*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_89d42f52cebdbb0862c2229254074da1b31dc334c984031a6ccfc5f46141a569"
-                    validation="/Applications/Miro.app/Contents/Info.plist"
-                    BundelID="com.electron.miro"
-                ;;
-                *Microsoft_Skype_for_Busines* | *Microsoft\ Skype\ for\ Busines* | *Skype\ for\ Busines*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_a0bb8ab7d90a958892febf03aea84f3b090c2dc0ea9305f7d17f27d622bfbb9e"
-                    validation="/Applications/Skype for Business.app/Contents/Info.plist"
-                    BundelID="com.microsoft.SkypeForBusiness"
-                ;;
-                *Keka*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_b2f82bb89f6e69834dec02b0f12ce6180fbdc1352494adf10d7e7a7aa65c85e6"
-                    validation="/Applications/Keka.app/Contents/Info.plist"
-                    BundelID="com.aone.keka"
-                ;;
-                *ImageOptim*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_5dcd3a597ee4fd5b52e63ee0e5f86d97352d281398ee4e91d45abc75e292e086"
-                    validation="/Applications/ImageOptim.app/Contents/Info.plist"
-                    BundelID="net.pornel.ImageOptim"
-                ;;
-                *Filezilla*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_b2aa33567e5b48be41e5165c6f02eac485710e041367a685be5bbc97b265229b"
-                    validation="/Applications/FileZilla.app/Contents/Info.plist"
-                    BundelID="org.filezilla-project.filezilla"
-                ;;
-                *DropBox*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_e6361d9d6f2867bf1f939fb9fbe5b7f785413b17dd9d36331e02c3f42f1a3a07"
-                    validation="/Applications/Dropbox.app/Contents/Info.plist"
-                    BundelID="com.getdropbox.dropbox"
-                ;;
-                *Figma*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de"
-                    validation="/Applications/Figma.app/Contents/Info.plist"
-                    BundelID="com.figma.Desktop"
-                ;;
-                *EasyFind*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_a7ad6e3e43ee50fcb73d3e26fd29146906681a6f048a3d305b4857f3165298f5"
-                    validation="/Applications/EasyFind.app/Contents/Info.plist"
-                    BundelID="com.devon-technologies.easyfind"
-                ;;
-                *DisplayLink_Manager* | *DisplayLink\ Manager*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_ed6f88bfb07d71e245f6b3d69574467f7089ef39d9a98f5d5d770b314706b460"
-                    validation="/Applications/DisplayLink Manager.app/Contents/Info.plist"
-                    BundelID="com.displaylink.displaylinkmanager"
-                ;;
-                *Cyberduck*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_d807ad9581dffc5e7317c5b301104a43b37ceca866b36799053412ef327264b8"
-                    validation="/Applications/Cyberduck.app/Contents/Info.plist"
-                    BundelID="ch.sudo.cyberduck"
-                ;;
-                *Blender*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_d1420bec7e93fc1197c999f499ff1743764ac17789bee60f5466569e83fc7fab"
-                    validation="/Applications/Blender.app/Contents/Info.plist"
-                    BundelID="org.blenderfoundation.blender"
-                ;;
-                *Balsamiq_Wireframes* | *Balsamiq\ Wireframes*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_2aacaa75080df809d095065d9fd5ac25066d1bfe90eec277f1834e82d44a555a"
-                    validation="/Applications/Balsamiq Wireframes.app/Contents/Info.plist"
-                    BundelID="com.balsamiq.mockups"  # possibly ‘com.balsamiq.mockups5’ or variant
-                ;;
-                *AppCleaner*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_c304da7fe44e5ab4241d909a1051ae44e9af7d7694ed8dbc53f4d53e6dd0c1f6"
-                    validation="/Applications/AppCleaner.app/Contents/Info.plist"
-                    BundelID="net.freemacsoft.AppCleaner"
-                ;;
-                *Adobe_Creative_Cloud_Desktop* | *Adobe\ Creative\ Cloud\ Desktop*)
-                    icon="$Adobe_Creative_Cloud_Desktop"
-                    validation="$Adobe_Creative_Cloud_Desktop_validation"
-                    # Frequently used IDs: com.adobe.acc.AdobeCreativeCloud or com.adobe.ccx.process
-                    BundelID="com.adobe.acc.AdobeCreativeCloud"
-                ;;
-                *1Password_8* | *1Password\ 8* | *1Password*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_274cae31e3447da5b641ecd0dcd3ae6d27e7aa24e4aff112f54e9047f9711aa7"
-                    validation="/Applications/1Password.app/Contents/Info.plist"
-                    # Version 8: com.agilebits.onepassword8  (Attention: it may vary depending on the source of supply!)
-                    BundelID="com.agilebits.onepassword8"
-                ;;
-                *Adobe_Acrobar_Reader* | *Adobe\ Acrobar\ Reader*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c"
-                    validation="/Applications/Adobe Acrobat Reader.app/Contents/Info.plist"
-                    BundelID="com.adobe.Reader"
-                ;;
-                *Anydesk*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d"
-                    validation="/Applications/AnyDesk.app/Contents/Info.plist"
-                    BundelID="com.philandro.anydesk"
-                ;;
-                *Audacity*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f"
-                    validation="/Applications/Audacity.app/Contents/Info.plist"
-                    BundelID="org.audacityteam.audacity"
-                ;;
-                *balenaEtcher* | *balena\ Etcher*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d"
-                    validation="/Applications/balenaEtcher.app/Contents/Info.plist"
-                    BundelID="com.balena.etcher"
-                ;;
-                *Clipy*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946"
-                    validation="/Applications/Clipy.app/Contents/Info.plist"
-                    BundelID="com.clipy-app.Clipy"
-                ;;
-                *Drawio* | *Draw.io*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74"
-                    validation="/Applications/draw.io.app/Contents/Info.plist"
-                    BundelID="com.jgraph.drawio.desktop"
-                ;;
-                *Keeping_you_Awake* | *Keeping\ you\ Awake*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca"
-                    validation="/Applications/KeepingYouAwake.app/Contents/Info.plist"
-                    BundelID="info.marcel-dierkes.KeepingYouAwake"
-                ;;
-                *Monitor_Control* | *Monitor\ Control*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2"
-                    validation="/Applications/MonitorControl.app/Contents/Info.plist"
-                    BundelID="me.guillaumeb.MonitorControl"
-                ;;
-                *OmniGraffle_7* | *OmniGraffle\ 7* | *Omni\ Graffle\ 7* | *Omni\ Graffle*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94"
-                    validation="/Applications/OmniGraffle.app/Contents/Info.plist"
-                    BundelID="com.omnigroup.OmniGraffle7"
-                ;;
-                *Rectangle*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253"
-                    validation="/Applications/Rectangle.app/Contents/Info.plist"
-                    BundelID="com.knollsoft.Rectangle"
-                ;;
-                *Sourcetree*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f"
-                    validation="/Applications/Sourcetree.app/Contents/Info.plist"
-                    BundelID="com.torusknot.SourceTreeNotMAS"
-                ;;
-                *Zulip*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e"
-                    validation="/Applications/Zulip.app/Contents/Info.plist"
-                    BundelID="org.zulip.zulip"
-                ;;
-                *Go_to_Meeting* | *Go\ to\ Meeting*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a"
-                    validation="/Applications/GoToMeeting.app/Contents/Info.plist"
-                    BundelID="com.logmein.GoToMeeting"
-                ;;
-                *GIMP*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94"
-                    validation="/Applications/GIMP.app/Contents/Info.plist"
-                    BundelID="org.gimp.GIMP"
-                ;;
-                *Apache_Directory_Studio* | *Apache\ Directory\ Studio*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe"
-                    validation="/Applications/ApacheDirectoryStudio.app/Contents/Info.plist"
-                    BundelID="org.apache.directory.studio"
-                ;;
-                *Azure_Data_Studio* | *Azure\ Data\ Studio*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c"
-                    validation="/Applications/Azure Data Studio.app/Contents/Info.plist"
-                    BundelID="com.microsoft.azuredatastudio"
-                ;;
-                *Docker*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af"
-                    validation="/Applications/Docker.app/Contents/Info.plist"
-                    BundelID="com.docker.docker"
-                ;;
-                *Meld*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e"
-                    validation="/Applications/Meld.app/Contents/Info.plist"
-                    BundelID="org.gnome.meld"
-                ;;
-                *PyCharm*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a"
-                    validation="/Applications/PyCharm.app/Contents/Info.plist"
-                    BundelID="com.jetbrains.pycharm"
-                ;;
-                *SquidMan* | *Squid\ Man*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab"
-                    validation="/Applications/SquidMan.app/Contents/Info.plist"
-                    BundelID="it.antonioventuri.squidman"
-                ;;
-                *TNEFs_Enough* | *TNEFs\ Enough*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602"
-                    validation="/Applications/TNEF's Enough.app/Contents/Info.plist"
-                    # In some cases ‘com.joshjacob.tnef’, but not consistently confirmed
-                    BundelID="com.joshjacob.tnef"
-                ;;
-                *Wireshark*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3"
-                    validation="/Applications/Wireshark.app/Contents/Info.plist"
-                    BundelID="org.wireshark.Wireshark"
-                ;;
-                *Jabra_Direct* | *Jabra\ Direct*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2"
-                    validation="/Applications/Jabra Direct.app/Contents/Info.plist"
-                    # Not 100% confirmed, leave blank if unknown
-                    BundelID=""
-                ;;
-                *SimpleMind_Pro* | *SimpleMind\ Pro* | *Simple\ Mind\ Pro*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04"
-                    validation="/Applications/SimpleMind Pro.app/Contents/Info.plist"
-                    # For some versions: ‘com.modelmakertools.simplemindmac’
-                    BundelID="com.modelmakertools.simplemindmac"
-                ;;
-                *Tunnelblick*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd"
-                    validation="/Applications/Tunnelblick.app/Contents/Info.plist"
-                    BundelID="net.tunnelblick.tunnelblick"
-                ;;
-                *UTM*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc"
-                    validation="/Applications/UTM.app/Contents/Info.plist"
-                    BundelID="com.utmapp.UTM"
-                ;;
-                *Bitwarden*)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18"
-                    validation="/Applications/Bitwarden.app/Contents/Info.plist"
-                    BundelID="com.bitwarden.desktop"
-                ;;
-                *Brave*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_d07ef04ebf5d9a509070858a26c39fd99feef114422de934973b6b19cb565a6c"
-                    validation="/Applications/Brave Browser.app/Contents/Info.plist"
-                    BundelID="com.brave.Browser"
-                ;;
-                *Jamf_Connect* | *Jamf\ Connect*)
-                    icon="https://euc1.ics.services.jamfcloud.com/icon/hash_c7473f7ba3d046e0937dc9ad2fa1bc1453661d1303cd17693e5973948bb4a167"
-                    validation="/Applications/Jamf Connect.app/Contents/Info.plist"
-                    BundelID=""
-                ;;
-                *)
-                    icon="https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
-                    validation="None"
-                    BundelID=""
-                ;;
-            esac
-            
-            # Prüfen, ob BundelID leer ist
-            if [[ -z "$BundelID" ]]; then
-                # Keine BundleID => direkt in JSON einfügen
-                if (( addedObjects > 0 )); then
-                    policyJSON+=','
-                fi
-                policyJSON+='{
-                "listitem": "'"${PolicyName}"'",
-                "icon": "'"${icon}"'",
-                "progresstext": "Updating '"${PolicyName}"'",
-                "trigger_list": [
-                    {
-                        "trigger": "'"${PolicyID}"'",
-                        "validation": "'"${validation}"'"
-                    }
-                ]
-            }'
-                (( addedObjects++ ))
-                PolicyNameUserPromt+=( "$PolicyName" )
-            else
-                # BundleID vorhanden => Service-Check
-                result=$(/bin/launchctl asuser "$loggedInUserID" sudo -iu "$loggedInUser" /bin/launchctl list 2>/dev/null | grep -F "$BundelID")
-                
-                if [[ -z "$result" ]]; then
-                    # Service läuft nicht => jamf Policy ausführen
-                    updateScriptLog "BACKGROUND-UPDATER: The application: $PolicyName is not executed. The policy with the trigger: ${PolicyID} is now executed."
-                    /usr/local/bin/jamf policy -id "${PolicyID}" -forceNoRecon
-                    
-                    (( Update_Count-- ))
-                    (( Update_Count_in_background++ ))
-                    updatedApps+=( "$PolicyName" )
-                    
-                    # Falls Update_Count == 0, Recon ausführen und Skript beenden
-                    if [[ $Update_Count -eq 0 ]]; then
-                        updateScriptLog "BACKGROUND-UPDATER: All applications could be executed in the background. The inventory is transferred to Jamf and the script is terminated without user information."
-                        updateScriptLog "BACKGROUND-UPDATER: The following applications have been updated: ${updatedApps[*]}"
-                        /usr/local/bin/jamf recon
-                        
-                        if [[ "$LaunchDaemonisReady" -eq 1 ]]; then
-                            updateScriptLog "Remove existing LaunchDaemon (since updates were successful)."
-                            ClearUpPlist
-                            ClearUpLaunchDaemon
-                        fi
-                        
-                        exit 0
-                    fi
+# Loads icon, validation and BundelID from the central plist
+function LoadPolicyAttributes() {
+    local policyName="$1"
+    local key found=false
+    
+    # 1) exakter Key
+    key="$policyName"
+    if /usr/libexec/PlistBuddy -c "Print :'${key}':BundelID" "$Managed_Icon_Service" &>/dev/null
+        then
+            found=true
+        else
+            # 2) Underscore key
+            key=$(echo "$policyName" | sed 's/[ \/]/_/g')
+            if /usr/libexec/PlistBuddy -c "Print :'${key}':BundelID" "$Managed_Icon_Service" &>/dev/null
+                then
+                    found=true
                 else
-                    # Service läuft => in JSON einfügen
-                    if (( addedObjects > 0 )); then
-                        policyJSON+=','
-                    fi
-                    policyJSON+='{
-                    "listitem": "'"${PolicyName}"'",
-                    "icon": "'"${icon}"'",
-                    "progresstext": "Updating '"${PolicyName}"'",
-                    "trigger_list": [
-                        {
-                            "trigger": "'"${PolicyID}"'",
-                            "validation": "'"${validation}"'"
-                        }
-                    ]
-                }'
-                    (( addedObjects++ ))
-                    PolicyNameUserPromt+=( "$PolicyName" )
-                fi
+                    # 3) Fuzzy match across all keys
+                    while IFS= read -r cand; do
+                        cKey=$(echo "$cand" | tr -d ' _' | tr '[:upper:]' '[:lower:]')
+                        cName=$(echo "$policyName" | tr -d ' _' | tr '[:upper:]' '[:lower:]')
+                        if [[ "$cKey" == *"$cName"* ]] || [[ "$cName" == *"$cKey"* ]]; then
+                            key="$cand"
+                            found=true
+                            break
+                        fi
+                    done < <(
+                                    /usr/libexec/PlistBuddy -c "Print" "$Managed_Icon_Service" \
+                                    | awk -F= '/^[[:space:]]*[A-Za-z0-9 _]+ = Dict/ {
+                                                        k=$1; gsub(/^[[:space:]]+|[[:space:]]+$/,"",k);
+                                                        print k
+                                                }'
+                            )
             fi
-            
-        done
+    fi
+    
+    if [[ "$found" == true ]]
+        then
+            BundelID=$(/usr/libexec/PlistBuddy -c "Print :'${key}':BundelID"    "$Managed_Icon_Service" 2>/dev/null) || BundelID=""
+            icon=$(/usr/libexec/PlistBuddy -c "Print :'${key}':icon"        "$Managed_Icon_Service" 2>/dev/null) || icon=""
+            validation=$(/usr/libexec/PlistBuddy -c "Print :'${key}':validation" "$Managed_Icon_Service" 2>/dev/null) || validation=""
+        else
+            BundelID=""; icon=""; validation=""
+    fi
+    
+    # Fallback-Defaults
+    [[ -z "$icon"       ]] && icon="https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9"
+    [[ -z "$validation" ]] && validation="None"
+}
+
+function UpdateJSONConfiguration() {
+    Update_Count_in_background=0
+    updatedApps=()
+    PolicyNameUserPrompt=()
+    
+    Update_Count=$(/usr/libexec/PlistBuddy -c "Print :ApplicationCount" "$plistOutput" 2>/dev/null)
+    IDs=($(get_PolicyIDs))
+    
+    policyJSON='{"steps": ['
+    addedObjects=0
+    
+    for PolicyID in "${IDs[@]}"; do
+        PolicyName="$(GetPolicyName "$PolicyID")"
+        LoadPolicyAttributes "$PolicyName"
         
-        # Logge verbleibende Updates
-        updateScriptLog "BACKGROUND-CHECK: Remaining updates that could not be updated in the background: $Update_Count"
-        
-        # Inventory-Eintrag am Ende anhängen
-        if (( addedObjects > 0 )); then
-            policyJSON+=','
+        if [[ -z "$BundelID" || "$BundelID" == "None" ]]; then
+            (( addedObjects > 0 )) && policyJSON+=','
+            policyJSON+='{
+                            "listitem":"'"${PolicyName}"'",
+                            "icon":"'"${icon}"'",
+                            "progresstext":"Updating '"${PolicyName}"'",
+                            "trigger_list":[{"trigger":"'"${PolicyID}"'","validation":"'"${validation}"'"}]
+                    }'
+            (( addedObjects++ ))
+            PolicyNameUserPrompt+=( "$PolicyName" )
+        else
+            result=$(/bin/launchctl asuser "$loggedInUserID" sudo -iu "$loggedInUser" \
+                                        /bin/launchctl list 2>/dev/null | grep -F "$BundelID")
+            if [[ -z "$result" ]]; then
+                updateScriptLog "BACKGROUND-UPDATER: $PolicyName (trigger $PolicyID) is now executed."
+                /usr/local/bin/jamf policy -id "$PolicyID" -forceNoRecon
+                (( Update_Count-- ))
+                (( Update_Count_in_background++ ))
+                updatedApps+=( "$PolicyName" )
+                if [[ $Update_Count -eq 0 ]]; then
+                    updateScriptLog "BACKGROUND-UPDATER: All apps updated in the background. Inventory is sent."
+                    /usr/local/bin/jamf recon
+                    [[ "$LaunchDaemonisReady" -eq 1 ]] && { ClearUpPlist; ClearUpLaunchDaemon; }
+                    exit 0
+                fi
+            else
+                (( addedObjects > 0 )) && policyJSON+=','
+                policyJSON+='{
+                                    "listitem":"'"${PolicyName}"'",
+                                    "icon":"'"${icon}"'",
+                                    "progresstext":"Updating '"${PolicyName}"'",
+                                    "trigger_list":[{"trigger":"'"${PolicyID}"'","validation":"'"${validation}"'"}]
+                            }'
+                (( addedObjects++ ))
+                PolicyNameUserPrompt+=( "$PolicyName" )
+            fi
         fi
-        policyJSON+='{
-        "listitem": "Update Inventory",
-        "icon": "https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9",
-        "progresstext": "Updating Inventory",
-        "trigger_list": [
-            {
-                "trigger": "recon",
-                "validation": "None"
-            }
-        ]
+    done
+    
+    (( addedObjects > 0 )) && policyJSON+=','
+    policyJSON+='{
+            "listitem":"Update Inventory",
+            "icon":"https://ics.services.jamfcloud.com/icon/hash_ff2147a6c09f5ef73d1c4406d00346811a9c64c0b6b7f36eb52fcb44943d26f9",
+            "progresstext":"Updating Inventory",
+            "trigger_list":[{"trigger":"recon","validation":"None"}]
     }]
     }'
-        
-        if (( Update_Count_in_background > 0 )); then
-            updateScriptLog "BACKGROUND-CHECK: The following number of applications could be updated in the background: $Update_Count_in_background"
-            updateScriptLog "BACKGROUND-CHECK: The following applications have been updated: ${updatedApps[*]}"
-        else
-            updateScriptLog "BACKGROUND-CHECK: No applications could be updated in the background"
-        fi
-        
-        if (( ${#PolicyNameUserPromt[@]} > 0 )); then
-            joinedPolicyNames=$(IFS=", ' '"; echo "${PolicyNameUserPromt[*]}")
-            updateScriptLog "BACKGROUND-CHECK: The following applications could not be updated in the background: $joinedPolicyNames"
-        fi
-    }
+    
+    updateScriptLog "BACKGROUND-CHECK: Remaining updates: $Update_Count"
+    if (( Update_Count_in_background > 0 )); then
+        updateScriptLog "BACKGROUND-CHECK: Updated in the background: $Update_Count_in_background → ${updatedApps[*]}"
+    else
+        updateScriptLog "BACKGROUND-CHECK: No background updates possible"
+    fi
+    if ((${#PolicyNameUserPrompt[@]})); then
+        joinedPolicyNames=$(IFS=', '; echo "${PolicyNameUserPrompt[*]}")
+        updateScriptLog "BACKGROUND-CHECK: Not updated in the background: $joinedPolicyNames"
+    fi
+}
 
+if [[ "$validToken" == "true" ]]; then
 UpdateJSONConfiguration
-
+fi
+    
 echo $policyJSON
 
 if [[ "$Update_Count" -eq 1 ]]
-then
-    Plural_EN=""
-    Plural_DE=""
-    pluralQuantity_DE="ist"
-else
-    Plural_EN="s"
-    Plural_DE="s"
-    pluralQuantity_DE="sind"
+    then
+        UserInfoTitle_SINGLE=$(/usr/libexec/PlistBuddy -c "Print :Messages:UserInfoTitle_Single" "$Managed_Preferences" 2>/dev/null)
+        UserInfoTitle_SINGLE="$(printf '%s\n' "$UserInfoTitle_SINGLE" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/" | /usr/bin/sed "s/%UPDATE_COUNT%/${Update_Count}/")"
+        
+        final_sucess_progresstext_SINGLE=$(/usr/libexec/PlistBuddy -c "Print :Messages:final_sucess_progresstext_Single" "$Managed_Preferences" 2>/dev/null)
+        final_sucess_progresstext_SINGLE="$(printf '%s\n' "$final_sucess_progresstext_SINGLE" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/" | /usr/bin/sed "s/%UPDATE_COUNT%/${Update_Count}/")"
+        
+        UserInfoTitle="$UserInfoTitle_SINGLE"
+        final_sucess_progresstext="$final_sucess_progresstext_SINGLE"
+    else
+        UserInfoTitle_MULTIPLE=$(/usr/libexec/PlistBuddy -c "Print :Messages:UserInfoTitle_Multi" "$Managed_Preferences" 2>/dev/null)
+        UserInfoTitle_MULTIPLE="$(printf '%s\n' "$UserInfoTitle_MULTIPLE" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/" | /usr/bin/sed "s/%UPDATE_COUNT%/${Update_Count}/")"
+        
+        final_sucess_progresstext_MULTIPLE=$(/usr/libexec/PlistBuddy -c "Print :Messages:final_sucess_progresstext_Multi" "$Managed_Preferences" 2>/dev/null)
+        final_sucess_progresstext_MULTIPLE="$(printf '%s\n' "$final_sucess_progresstext_MULTIPLE" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/" | /usr/bin/sed "s/%UPDATE_COUNT%/${Update_Count}/")"
+        
+        UserInfoTitle="$UserInfoTitle_MULTIPLE"
+        final_sucess_progresstext="$final_sucess_progresstext_MULTIPLE"
 fi
-
-Plural=Plural_${UserLanguage}
-
-if [[ "$Update_Count" -eq 1 ]]
-then
-    final_sucess_progresstext_EN="The update has been installed. Thanks for the patience ${loggedInUserFirstname}."
-    final_sucess_progresstext_DE="Das Update wurde installiert. Danke für die Geduld ${loggedInUserFirstname}."
     
-else
-    final_sucess_progresstext_EN="All updates have been installed. Thanks for the patience ${loggedInUserFirstname}."
-    final_sucess_progresstext_DE="Alle Updates wurden installiert. Danke für die Geduld ${loggedInUserFirstname}."
-fi
-
-# # # # # # # # # # # # # # # # # # # "Patch Helper" dialog Title, Messages # # # # # # # # # # # # # # # #
-UserInfoTitle_DE="Hey ${loggedInUserFirstname}, es $pluralQuantity_DE ${Update_Count} Update${!Plural} verfügbar."
-UserInfoTitle_EN="Hello ${loggedInUserFirstname}, there $pluralQuantity_EN ${Update_Count} update${!Plural} available."
-
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-UserInfoMessage_DE="Die folgenden Programme werden aktualisiert: \n\n${joinedPolicyNames[*]} \n\n--- \nWährend der Installation werden sie geschlossen. Bitte klicke auf **Update**, um mit der Aktualisierung zu beginnen. \n\n#### Verbleibende Anzahl an Verschiebungen: $CurrentDeferralValue \n\nDieser Dialog wird Dich **${!Time}** erinnern, bis die maximale Verschiebung der Updates erreicht ist."
-
-UserInfoMessage_EN="The following applications are updated: \n\n${joinedPolicyNames[*]} \n\n--- \nDuring the installation the affected applications will be closed. Please click **Update** to start the update. \n\n#### Remaining number of moves: $CurrentDeferralValue \n\nUnless you apply the updates, this dialog **${!Time}** will remind you until the number reaches **0**."
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-UserEnforceMessage_DE="**Hallo ${loggedInUserFirstname}, Deine Updates können nun nicht mehr verschoben werden.** \n Die folgenden Programme werden nun aktualisiert: \n\n${Names_display[*]} \n\n--- \nWährend der Installation werden die betroffenen Programme geschlossen. Bitte klicke nun auf **Update**."
-
-UserEnforceMessage_EN="**Hello ${loggedInUserFirstname} you have moved as many times as possible.** \n The following applications will now be updated: \n\n${Names_display[*]} \n\n--- \nDuring the installation the affected applications will be closed. Please click on **Update** now."
-
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-title_DE="Aktualisierung läuft....."
-title_EN="Update in progress....."
-
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-message_DE="Bitte warte, während die folgenden Anwendungen aktualisiert werden…"
-message_EN="Please wait while the following applications are installed…"
-
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-helpmessage_DE="Wenn Du Hilfe benötigst, wende Dich bitte an die Support Services:  \n- **Telefon:** ${Support_Telefon}  \n- **Email:** ${Support_Email} \n\n**Computer Information:** \n\n- **Betriebssystem:**  ${macOSproductVersion} ($macOSbuildVersion)  \n- **Seriennummer:** ${serialNumber}  \n- **Dialog:** ${dialogVersion}  \n- **Started:** ${timestamp}"
-
-helpmessage_EN="If you need help, please contact Support Services:  \n- **Telephone:** ${Support_Telefon}  \n- **Email:** ${Support_Email} \n\n**Computer Information:** \n\n- **Operating System:**  ${macOSproductVersion} ($macOSbuildVersion)  \n- **Serial Number:** ${serialNumber}  \n- **Dialog:** ${dialogVersion}  \n- **Started:** ${timestamp}"
-
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-failureTitle_DE="Fehler gefunden"
-failureTitle_EN="Error found"
-
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-final_sucess_titel_DE="Update Helper abgeschlossen"
-final_sucess_titel_EN="Patch Helper completed"
-
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-progresstext_DE="Initialisiere Patch Helper ..."
-progresstext_EN="Initialization Patch Helper ..."
-
-# * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * #
-button1text_DE="Bitte warten"
-button1text_EN="Please wait"
-
-failureMessage="Placeholder message; update in the 'finalise' function"
-failureIcon="SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"    
-#overlayicon=$( defaults read /Library/Preferences/com.jamfsoftware.jamf.plist self_service_app_path 2>&1 )
-overlayicon=$InfoboxIcon
+UserInfoMessage=$(/usr/libexec/PlistBuddy -c "Print :Messages:UserInfoMessage" "$Managed_Preferences" 2>/dev/null)
+UserInfoMessage="$(printf '%s\n' "$UserInfoMessage" | /usr/bin/sed "s/%joinedPolicyNames%/${joinedPolicyNames[*]}/" | /usr/bin/sed "s/%CURRENT_DEFERRAL_VALUE%/${CurrentDeferralValue}/")"
 
 
-infobox="Analyzing System …"
 
-UserInfoTitle=UserInfoTitle_${UserLanguage}
-UserInfoMessage=UserInfoMessage_${UserLanguage}
-UserEnforceMessage=UserEnforceMessage_${UserLanguage}
+UserEnforceMessage=$(/usr/libexec/PlistBuddy -c "Print :Messages:UserEnforceMessage" "$Managed_Preferences" 2>/dev/null)
+UserEnforceMessage="$(printf '%s\n' "$UserEnforceMessage" | /usr/bin/sed "s/%joinedPolicyNames%/${joinedPolicyNames[*]}/" | /usr/bin/sed "s/%CURRENT_DEFERRAL_VALUE%/${CurrentDeferralValue}/" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/" | /usr/bin/sed "s/%NAMES_DISPLAY%/${Names_display[*]}/")"
 
-title=title_${UserLanguage}
-message=message_${UserLanguage}
-helpmessage=helpmessage_${UserLanguage}
-failureTitle=failureTitle_${UserLanguage}
-final_error_titel=final_error_titel_${UserLanguage}
-final_error_progresstext=final_error_progresstext_${UserLanguage}
-final_sucess_titel=final_sucess_titel_${UserLanguage}
-final_sucess_progresstext=final_sucess_progresstext_${UserLanguage}
-progresstext=progresstext_${UserLanguage}
-button1text=button1text_${UserLanguage}
 
+title=$(/usr/libexec/PlistBuddy -c "Print :Messages:title" "$Managed_Preferences" 2>/dev/null)
+message=$(/usr/libexec/PlistBuddy -c "Print :Messages:message" "$Managed_Preferences" 2>/dev/null)
+failureTitle=$(/usr/libexec/PlistBuddy -c "Print :Messages:failureTitle" "$Managed_Preferences" 2>/dev/null)
+final_sucess_titel=$(/usr/libexec/PlistBuddy -c "Print :Messages:final_sucess_titel" "$Managed_Preferences" 2>/dev/null)
+progresstext=$(/usr/libexec/PlistBuddy -c "Print :Messages:progresstext" "$Managed_Preferences" 2>/dev/null)
+
+helpmessage=$(/usr/libexec/PlistBuddy -c "Print :Messages:helpmessage" "$Managed_Preferences" 2>/dev/null)
+helpmessage="$(printf '%s\n' "$helpmessage" | /usr/bin/sed "s/%SUPPORT_TELEFON%/${Support_Telefon}/" | /usr/bin/sed "s/%SUPPORT_EMAIL%/${Support_Email}/" | /usr/bin/sed "s/%MACOSPRDICTVERSION%/${macOSproductVersion} ($macOSbuildVersion)/" | /usr/bin/sed "s/%SERIALNUMBER%/${serialNumber}/" | /usr/bin/sed "s/%DIALOG_VERSION%/${dialogVersion}/" | /usr/bin/sed "s/%TIME_STAMP%/${timestamp}/")"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
@@ -1159,47 +809,49 @@ button1text=button1text_${UserLanguage}
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # "Promt User for Updates" JSON
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-if [[ "$CurrentDeferralValue" -gt 0 ]]
-then
-    # Reduce the timer by 1. The script will run again the next day
-    let CurrTimer=$CurrentDeferralValue-1
-    setDeferral "$BundleID" "$DeferralType" "$CurrTimer" "$DeferralPlist"
+case ${debugMode} in
+    "false"     ) dialogBinary="${dialogBinary}" ;;
+    "true"      ) dialogBinary="${dialogBinary} --verbose" ;;
+    "verbose"   ) dialogBinary="${dialogBinary} --verbose --resizable --debug red" ;;
+esac
     
-    PromtUserJSON='
-{
-    "bannerimage" : "'${BannerImage}'",
-    "title" : "'${!UserInfoTitle}'",
-    "message" : "'${!UserInfoMessage}'",
-    "icon" : "'${InfoboxIcon}'",
-    "iconsize" : "198.0",
-    "button1text" : "Update",
-    "button2text" : "Later",
-    "timer" : "'${TimePromtUser}'",
-    "infotext" : "'${scriptVersion}'",
-    "ontop" : "true",
-    "titlefont" : "shadow=true, size=28",
-    "messagefont" : "size=16",
-    "width" : "700",
-    "height" : "625"
-}
-'
-else
-    PromtUserJSON='
-{
-    "bannerimage" : "'${BannerImage}'",
-    "title" : "'${!UserInfoTitle}'",
-    "message" : "'${!UserEnforceMessage}'",
-    "icon" : "'${InfoboxIcon}'",
-    "iconsize" : "198.0",
-    "button1text" : "Update",
-    "infotext" : "'${scriptVersion}'",
-    "ontop" : "true",
-    "titlefont" : "shadow=true, size=28",
-    "messagefont" : "size=16",
-    "width" : "700",
-    "height" : "625"
-}
-'
+if [[ "$CurrentDeferralValue" -gt 0 ]]
+    then
+            # Reduce the timer by 1. The script will run again the next interval
+            let CurrTimer="$CurrentDeferralValue - 1"
+            setDeferralCount "$BundleIDDeferral" "$CurrTimer" "$DeferralPlist"
+            
+            PromtUser="$dialogBinary \
+            --bannerimage \"$BannerImage\" \
+            --title \"${UserInfoTitle}\" \
+            --message \"${UserInfoMessage}\" \
+            --icon \"${InfoboxIcon}\" \
+            --iconsize 198 \
+            --button1text \"${Install_Button_Custom}\" \
+            --button2text \"${Defer_Button_Custom}\" \
+            --timer \"${TimePromtUser}\" \
+            --infotext \"$scriptVersion\" \
+            --ontop \
+            --helpmessage \"${helpmessage}\" \
+            --titlefont 'shadow=true, size=${Dialog_update_titlefont}' \
+            --messagefont 'size=${Dialog_update_messagefont}' \
+            --width $Dialog_update_width \
+            --height $Dialog_update_height \ "
+    else
+            PromtUser="$dialogBinary \
+            --bannerimage \"$BannerImage\" \
+            --title \"${UserInfoTitle}\" \
+            --message \"${UserEnforceMessage}\" \
+            --icon \"${InfoboxIcon}\" \
+            --iconsize 198 \
+            --button1text \"${Install_Button_Custom}\" \
+            --infotext \"$scriptVersion\" \
+            --ontop \
+            --helpmessage \"${helpmessage}\" \
+            --titlefont 'shadow=true, size=${Dialog_update_titlefont}' \
+            --messagefont 'size=${Dialog_update_messagefont}' \
+            --width $Dialog_update_width \
+            --height $Dialog_update_height \ "
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1211,12 +863,11 @@ fi
 # "Patch Helper" dialog Title, Message, Icon and Overlay Icon
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 infobox="Analyzing input …"
-
-# Set initial icon based on whether the Mac is a desktop or laptop
-if system_profiler SPPowerDataType | grep -q "Battery Power"; then
-    icon="SF=laptopcomputer.and.arrow.down,weight=semibold,colour1=#ffffff,colour2=#2986cc"
-else
-    icon="SF=desktopcomputer.and.arrow.down,weight=semibold,colour1=#ffffff,colour2=#2986cc"
+if system_profiler SPPowerDataType | grep -q "Battery Power"
+    then
+        icon="SF=laptopcomputer.and.arrow.down,weight=semibold,colour1=#ffffff,colour2=#2986cc"
+    else
+        icon="SF=desktopcomputer.and.arrow.down,weight=semibold,colour1=#ffffff,colour2=#2986cc"
 fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -1224,65 +875,30 @@ fi
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 runUpdates="$dialogBinary \
 --bannerimage \"$BannerImage\" \
---title \"${!title}\" \
---message \"${!message}\" \
---helpmessage \"${!helpmessage}\" \
+--title \"${title}\" \
+--message \"${message}\" \
+--helpmessage \"${helpmessage}\" \
 --icon \"$icon\" \
 --infobox \"${infobox}\" \
 --progress \
---progresstext \"${!progresstext}\" \
---button1text \"${!button1text}\" \
+--progresstext \"${progresstext}\" \
+--button1text \"${button1text_wait}\" \
 --button1disabled \
 --infotext \"$scriptVersion\" \
---titlefont 'shadow=true, size=28' \
---messagefont 'size=14' \
---width '700' \
---height '625' \
---position 'centre' \
+--titlefont 'shadow=true, size=${Dialog_update_titlefont}' \
+--messagefont 'size=${Dialog_update_messagefont}' \
+--width $Dialog_update_width \
+--height $Dialog_update_height \
+--position '$RunUpdates_Dialog_position' \
 --moveable \
---overlayicon \"$overlayicon\" \
---quitkey k \
+--overlayicon \"$InfoboxIcon\" \
+--quitkey $Dialog_quitkey \
 --commandfile \"$PatchHelperCommandFile\" "
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-# Failure dialog
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# "Failure" dialog Title, Message and Icon
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-failureMessage="Placeholder message; update in the 'finalise' function"
-failureIcon="SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# "Failure" dialog Settings and Features
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-dialogFailureCMD="$dialogBinary \
---moveable \
---title \"${!failureTitle}\" \
---message \"$failureMessage\" \
---icon \"$failureIcon\" \
---iconsize 125 \
---width 625 \
---height 525 \
---position topright \
---button1text \"Close\" \
---infotext \"$scriptVersion\" \
---titlefont 'size=22' \
---messagefont 'size=14' \
---overlayicon \"$overlayicon\" \
---commandfile \"$failureCommandFile\" "
-
-#------------------------ With the execption of the `finalise` function, -------------------------#
-#------------------------ edits below these line are optional. -----------------------------------#
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Dynamically set `button1text` based on the value of `completionActionOption`
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 case ${completionActionOption} in
-
     "Quit" )
         button1textCompletionActionOption="Quit"
         progressTextCompletionAction=""
@@ -1296,15 +912,9 @@ case ${completionActionOption} in
 esac
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-# Functions
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Run command as logged-in user (thanks, @scriptingosx!)
 # shellcheck disable=SC2145
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 function runAsUser() {
     updateScriptLog "Run \"$@\" as \"$loggedInUserID\" … "
     launchctl asuser "$loggedInUserID" sudo -u "$loggedInUser" "$@"
@@ -1312,7 +922,6 @@ function runAsUser() {
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Update the "Welcome" dialog
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function dialogPatchHelper(){
     updateScriptLog "PROMT USER DIALOG: $1"
     echo "$1" >> "$CommandFile"
@@ -1320,7 +929,6 @@ function dialogPatchHelper(){
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Update the "Patch Helper" dialog
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function PatchHelper() {
     updateScriptLog "Patch Helper DIALOG: $1"
     echo "$1" >> "$PatchHelperCommandFile"
@@ -1328,7 +936,6 @@ function PatchHelper() {
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Update the "Failure" dialog
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function dialogUpdateFailure(){
     updateScriptLog "FAILURE DIALOG: $1"
     echo "$1" >> "$failureCommandFile"
@@ -1336,24 +943,29 @@ function dialogUpdateFailure(){
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Finalise User Experience
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function finalise(){
     
+    jamfProPolicyNameFailures=$(printf '%s\n' "$jamfProPolicyNameFailures")
+    
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     
     if [[ "${jamfProPolicyTriggerFailure}" == "failed" ]]; then
         
+        Failure_Info_Title=$(/usr/libexec/PlistBuddy -c "Print :Messages:Failure_Info_Title" "$Managed_Preferences" 2>/dev/null)
+        Failure_Info_Title="$(printf '%s\n' "$Failure_Info_Title" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/" | /usr/bin/sed "s/%UPDATE_COUNT%/${Update_Count}/")"
+        
+        Failure_Info_Progresstext=$(/usr/libexec/PlistBuddy -c "Print :Messages:Failure_Info_Progresstext" "$Managed_Preferences" 2>/dev/null)
+        Failure_Info_Progresstext="$(printf '%s\n' "$Failure_Info_Progresstext" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/" | /usr/bin/sed "s/%UPDATE_COUNT%/${Update_Count}/")"
+        
+        Failure_Info_Message=$(/usr/libexec/PlistBuddy -c "Print :Messages:Failure_Info_Message" "$Managed_Preferences" 2>/dev/null)
+        Failure_Info_Message="$(printf '%s\n' "$Failure_Info_Message" | /usr/bin/sed "s/%jamfProPolicyNameFailures%/${jamfProPolicyNameFailures}/" | /usr/bin/sed "s/%SUPPORT_EMAIL%/${Support_Email}/" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/")"
+        
         
         killProcess "caffeinate"
-        if [[ $Language = de* ]]
-            then
-                PatchHelper "title: Entschuldige ${loggedInUserFirstname}, etwas ist schiefgelaufen."
-                PatchHelper "progresstext: Fehler erkannt. Bitte klicke auf Ok, um Informationen zur Fehlerbehebung zu erhalten."
-            else
-                PatchHelper "title: Sorry ${loggedInUserFirstname}, something went wrong."
-                PatchHelper "progresstext: Error detected. Please click ok for troubleshooting information."
-        fi
+        
+        PatchHelper "title: $Failure_Info_Title"
+        PatchHelper "progresstext: $Failure_Info_Progresstext"
         
         PatchHelper "icon: SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"
         PatchHelper "button1text: OK"
@@ -1364,6 +976,22 @@ function finalise(){
         # Wait for user-acknowledgment due to detected failure
         wait
         
+        dialogFailureCMD="$dialogBinary \
+        --moveable \
+        --title \"${failureTitle}\" \
+        --message \"$Failure_Info_Message\" \
+        --icon \"$failureIcon\" \
+        --iconsize 125 \
+        --width $Dialog_update_width \
+        --height $Dialog_update_height \
+        --position $Faild_Dialog_position \
+        --button1text \"${Faild_Button_Custom}\" \
+        --infotext \"$scriptVersion\" \
+        --titlefont 'size=${Dialog_update_titlefont}' \
+        --messagefont 'size=${Dialog_update_messagefont}' \
+        --overlayicon \"$InfoboxIcon\" \
+        --commandfile \"$failureCommandFile\" "
+        
         PatchHelper "quit:"
         eval "${dialogFailureCMD}" & sleep 0.3
         
@@ -1371,14 +999,8 @@ function finalise(){
         updateScriptLog "Jamf Pro Policy Name Failures:"
         updateScriptLog "${jamfProPolicyNameFailures}"
         
-        if [[ $Language = de* ]]
-        then
-            dialogUpdateFailure "message: Es wurden Fehler festgestellt, ${loggedInUserFirstname}.  \n\nBei der Aktualisierung der Applikationen ist etwas schiefgelaufen.  \n\nFolgende Applikationen konnten nicht akualisiert werden:  \n${jamfProPolicyNameFailures}  \n\n\n\nWenn Du Hilfe benötigst, wenden Dich bitte an die Support Services unter \n${Support_Email} \n\nDu kannst  die Applikationen jederzeit aus dem Self Service wieder installieren."
-        else
-            dialogUpdateFailure "message: Errors were detected ${loggedInUserFirstname}.  \n\nPlease perform the following steps:\n1. Restart your Mac and log in again.  \n2. Start the Self Service \n3. Run all the failed policies listed below again \n\nThe following failed:  \n${jamfProPolicyNameFailures}  \n\n\nIf you need help, please contact the helpdesk, \n${Support_Email}"
-        fi
             
-        
+        #dialogUpdateFailure "message: $Failure_Info_Message"
         dialogUpdateFailure "icon: SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"
         dialogUpdateFailure "button1text: ${button1textCompletionActionOption}"
         
@@ -1390,8 +1012,8 @@ function finalise(){
         
     else
         
-        PatchHelper "title: ${!final_sucess_titel}"        
-        PatchHelper "progresstext: ${!final_sucess_progresstext}"
+        PatchHelper "title: ${final_sucess_titel}"        
+        PatchHelper "progresstext: ${final_sucess_progresstext}"
         
         PatchHelper "icon: SF=checkmark.circle.fill,weight=bold,colour1=#00ff44,colour2=#075c1e"
         PatchHelper "progress: complete"
@@ -1435,11 +1057,11 @@ function get_json_value_UserInformation() {
 function run_jamf_trigger() {
 
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     trigger="$1"
 
-    if [[ "${debugMode}" == "true" ]]; then
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
 
         updateScriptLog "Patch Helper DIALOG: DEBUG MODE: TRIGGER: $jamfBinary policy -id $trigger"
         if [[ "$trigger" == "recon" ]]; then
@@ -1463,11 +1085,10 @@ function run_jamf_trigger() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Confirm Policy Execution
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 function confirmPolicyExecution() {
 
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     trigger="${1}"
     validation="${2}"
@@ -1476,7 +1097,7 @@ function confirmPolicyExecution() {
     case ${validation} in
 
         */* ) # If the validation variable contains a forward slash (i.e., "/"), presume it's a path and check if that path exists on disk
-            if [[ "${debugMode}" == "true" ]]; then
+            if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
                 updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: DEBUG MODE: Skipping 'run_jamf_trigger ${trigger}'"
                 sleep 1
             elif [[ -f "${validation}" ]]; then
@@ -1498,7 +1119,7 @@ function confirmPolicyExecution() {
 
         "None" )
             updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: ${validation}"
-            if [[ "${debugMode}" == "true" ]]; then
+            if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
                 sleep 5
             else
                 run_jamf_trigger "${trigger}"
@@ -1524,7 +1145,7 @@ function confirmPolicyExecution() {
 function validatePolicyResult() {
     
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     
     trigger="${1}"
     validation="${2}"
@@ -1590,13 +1211,13 @@ function validatePolicyResult() {
                 
         "None" )
             # Output Line Number in `true` Debug Mode
-            if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+            if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
             updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: ${validation}"
             PatchHelper "listitem: index: $i, status: success, statustext: Installed"
             if [[ "${trigger}" == "recon" ]]; then
                 PatchHelper "listitem: index: $i, status: wait, statustext: Updating …, "
                 updateScriptLog "Patch Helper DIALOG: Updating computer inventory with the following reconOptions: \"${reconOptions}\" …"
-                if [[ "${debugMode}" == "true" ]]; then
+                if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
                     updateScriptLog "Patch Helper DIALOG: DEBUG MODE: eval ${jamfBinary} recon ${reconOptions}"
                 else
                     eval "${jamfBinary} recon ${reconOptions}"
@@ -1611,7 +1232,7 @@ function validatePolicyResult() {
         
         * )
             # Output Line Number in `true` Debug Mode
-            if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+            if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
             updateScriptLog "Patch Helper DIALOG: Validate Policy Results Catch-all: ${validation}"
             PatchHelper "listitem: index: $i, status: error, statustext: Error"
         ;;
@@ -1641,9 +1262,9 @@ function killProcess() {
 function completionAction() {
 
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
-    if [[ "${debugMode}" == "true" ]]; then
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
 
         # If Debug Mode is enabled, ignore specified `completionActionOption`, display simple dialog box and exit
         runAsUser osascript -e 'display dialog "Patch Helper is operating in Debug Mode.\r\r• completionActionOption == '"'${completionActionOption}'"'\r\r" with title "Patch Helper: Debug Mode" buttons {"Close"} with icon note'
@@ -1679,7 +1300,7 @@ function completionAction() {
 function quitScript() {
 
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     updateScriptLog "QUIT SCRIPT: Exiting …"
     updateScriptLog "QUIT SCRIPT: Revoke API Token"
@@ -1762,18 +1383,21 @@ fi
 if [[ "${UserInformation}" == "promtUserInfo" ]]; then
 
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
-    # Write Welcome JSON to disk
-    echo "$PromtUserJSON" > "$CommandFile"
-
-    welcomeResults=$( eval "${dialogApp} --jsonfile ${CommandFile} --json" )
-
-    if [[ -z "${welcomeResults}" ]]
+    eval "${PromtUser}" & sleep 0.3
+    
+    pid=$!
+    wait $pid 2>/dev/null && result=$? || result=2
+    
+    if [ $result -eq 2 ]
         then
             PromtUser="2"
+            echo "User has moved the update."
+            
         else
             PromtUser="0"
+            echo "User has clicked on install."
     fi
 
     case "${PromtUser}" in
@@ -1783,14 +1407,14 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
                         
             updateScriptLog "PROMT USER DIALOG: ${loggedInUser} has received the information and has clicked on Update "
 
-            Updates=$(get_json_value_UserInformation "$welcomeResults" "selectedValue")
+            # Updates=$(get_json_value_UserInformation "$welcomeResults" "selectedValue")
             updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
 
             eval "${runUpdates[*]}" & sleep 0.3
             PatchHelperProcessID=$!
             until pgrep -q -x "Dialog"; do
                 # Output Line Number in `true` Debug Mode
-                if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+                if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
                 updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
                 counter=0
                 while true; do
@@ -1829,14 +1453,14 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
             else
             updateScriptLog "PROMT USER DIALOG: ${loggedInUser} clicked Command Q at PROMT USER DIALOG"
             
-            Updates=$(get_json_value_UserInformation "$welcomeResults" "selectedValue")
+            # Updates=$(get_json_value_UserInformation "$welcomeResults" "selectedValue")
             updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
             
             eval "${runUpdates[*]}" & sleep 0.3
             PatchHelperProcessID=$!
             until pgrep -q -x "Dialog"; do
                 # Output Line Number in `true` Debug Mode
-                if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+                if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
                 updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
                 counter=0
                 while true; do
@@ -1876,8 +1500,8 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
 
 else
 
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-    Updates="Catch-all ('Welcome' dialog disabled)"
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    # Updates="Catch-all ('Welcome' dialog disabled)"
     # UpdateJSONConfiguration
     
     
@@ -1885,7 +1509,7 @@ else
     PatchHelperProcessID=$!
     until pgrep -q -x "Dialog"; do
         # Output Line Number in `true` Debug Mode
-        if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+        if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
         updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
         sleep 0.5
     done
@@ -1899,7 +1523,7 @@ fi
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Output Line Number in `true` Debug Mode
-if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 dialog_step_length=$(get_json_value "${policyJSON}" "steps.length")
 for (( i=0; i<dialog_step_length; i++ )); do
@@ -1914,7 +1538,7 @@ done
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Output Line Number in `true` Debug Mode
-if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 totalProgressSteps=$(get_json_value "${policyJSON}" "steps.length")
 progressIncrementValue=$(( 100 / totalProgressSteps ))
@@ -1928,7 +1552,7 @@ updateScriptLog "Patch Helper DIALOG: Progress Increment Value: ${progressIncrem
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Output Line Number in `true` Debug Mode
-if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 list_item_string=${list_item_array[*]/%/,}
 PatchHelper "list: ${list_item_string%?}"
@@ -1942,7 +1566,7 @@ PatchHelper "list: show"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Output Line Number in `true` Debug Mode
-if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 updateScriptLog "Patch Helper DIALOG: Initial progress bar"
 PatchHelper "progress: 1"
@@ -1952,7 +1576,7 @@ PatchHelper "progress: 1"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Output Line Number in `true` Debug Mode
-if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 dialogPatchHelper "quit:"
 
@@ -1961,22 +1585,14 @@ dialogPatchHelper "quit:"
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Output Line Number in `true` Debug Mode
-if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-
-if [[ "${Updates}" == *"Catch-all"* ]]; then
-    infoboxUpdates=""
-else
-    infoboxUpdates="${Updates}"
-fi
-    
+if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     
 computerName=$(scutil --get ComputerName)
 
 
 infobox=""
-
 if [[ -n ${computerName} ]]; then infobox+="**Computer Name:**  \n$computerName  \n\n" ; fi
-if [[ -n ${Update_Count} ]]; then infobox+="**Updates:** :$Update_Count  \n\n" ; fi
+if [[ -n ${Update_Count} ]]; then infobox+="**Updates:** $Update_Count  \n\n" ; fi
 
 PatchHelper "infobox: ${infobox}"
 
@@ -1986,7 +1602,7 @@ PatchHelper "infobox: ${infobox}"
 for (( i=0; i<dialog_step_length; i++ )); do 
 
     # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
     # Initialize SECONDS
     SECONDS="0"
@@ -2039,7 +1655,7 @@ done
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Output Line Number in `true` Debug Mode
-if [[ "${debugMode}" == "true" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 finalise
 quitScript
