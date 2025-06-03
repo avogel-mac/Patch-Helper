@@ -1,0 +1,260 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "it.next.PatchHelper",
+  "type": "object",
+  "properties": {
+    "ScriptLog": {
+      "description": "Default values",
+      "type": "object",
+      "properties": {
+        "scriptLog": {
+          "title": "Script Log File Path",
+          "default": "/var/log/it.next_patch_management.log",
+          "description": "The full path to the file where Patch Helper writes its runtime logs.",
+          "type": "string"
+        }
+      }
+    },
+    "Daemon_and_Deferral_Settings": {
+      "description": "Der Daemon wird erstellt, wenn der User das Update verschiebt. Hier kannst du die Werte anpassen.",
+      "type": "object",
+      "properties": {
+        "LaunchDaemonLabel": {
+          "title": "Launch Daemon Identifier",
+          "default": "it.next.UpdateEnforce",
+          "description": "The label used to identify the launchd daemon that enforces deferred updates.",
+          "type": "string"
+        },
+        "StartInterval": {
+          "title": "Daemon Check Interval",
+          "default": 3600,
+          "description": "Time interval in seconds between each invocation of the launchd daemon to check for deferred updates.",
+          "type": "number"
+        },
+        "DaemonEventTrigger": {
+          "title": "Daemon Trigger Event",
+          "default": "update",
+          "description": "Event name that triggers the launchd daemon to run (e.g., 'update').",
+          "type": "string"
+        },
+        "DeferralPlist": {
+          "title": "Deferral Settings Plist Path",
+          "default": "/Library/Application Support/JAMF/it.next.PatchHelper.deferral.plist",
+          "description": "The path to the plist file that stores user deferral data for the Patch Helper.",
+          "type": "string"
+        },
+        "BundleIDDeferral": {
+          "title": "Deferral Bundle ID",
+          "default": "it.next.PatchHelper",
+          "description": "The bundle identifier used for the deferral plist to ensure uniqueness.",
+          "type": "string"
+        }
+      }
+    },
+    "Dialog_Settings": {
+      "description": "Passe den Dialog individuell an.",
+      "type": "object",
+      "properties": {
+        "BannerImage": {
+          "title": "Dialog Banner Image URL",
+          "default": "https://ics.services.jamfcloud.com/icon/hash_cfbe99281c08b7ef85da92dcb56be11a6ff8562e37d24bb20ecf230495d617df",
+          "description": "URL of the image displayed at the top of the Patch Helper dialog window.",
+          "type": "string"
+        },
+        "InfoboxIcon": {
+          "title": "Information Box Icon URL",
+          "default": "https://ics.services.jamfcloud.com/icon/hash_0b3ab277243d56f8bbe486f3453ba6c4fa9ea53f50245597f7852b62624d2bc6",
+          "description": "URL of the icon shown next to informational messages within the dialog.",
+          "type": "string"
+        },
+        "button1text_wait": {
+          "title": "Wait Button Text",
+          "default": "Please wait",
+          "description": "Label displayed on the button that allows the user to postpone the update by waiting.",
+          "type": "string"
+        },
+        "Dialog_update_width": {
+          "title": "Dialog Width",
+          "default": 740,
+          "description": "Pixel width of the update dialog window.",
+          "type": "number"
+        },
+        "Dialog_update_height": {
+          "title": "Dialog Height",
+          "default": 540,
+          "description": "Pixel height of the update dialog window.",
+          "type": "number"
+        },
+        "Dialog_update_titlefont": {
+          "title": "Title Font Size",
+          "default": 20,
+          "description": "Font size (in points) for the title text in the update dialog.",
+          "type": "number"
+        },
+        "Dialog_update_messagefont": {
+          "title": "Message Font Size",
+          "default": 14,
+          "description": "Font size (in points) for the body message text in the update dialog.",
+          "type": "number"
+        },
+        "Install_Button_Custom": {
+          "title": "Install Button Text",
+          "default": "NOW",
+          "description": "Custom label for the button that begins the installation process immediately.",
+          "type": "string"
+        },
+        "Defer_Button_Custom": {
+          "title": "Defer Button Text",
+          "default": "LATER",
+          "description": "Custom label for the button that allows users to defer the update.",
+          "type": "string"
+        },
+        "Dialog_quitkey": {
+          "title": "Dialog Quit Key",
+          "default": "k",
+          "description": "Keyboard key that lets the user close or quit the dialog window.",
+          "type": "string"
+        },
+        "RunUpdates_Dialog_position": {
+          "title": "Dialog Position",
+          "default": "centre",
+          "description": "Screen position of the update dialog (e.g., 'centre', 'topright').",
+          "type": "string"
+        },
+        "TimePromtUser": {
+          "title": "User Prompt Timeout",
+          "default": 300,
+          "description": "Time in seconds before the dialog automatically proceeds if the user does not respond.",
+          "type": "number"
+        },
+        "Faild_Button_Custom": {
+          "title": "Failure Dialog Button Text",
+          "default": "Close",
+          "description": "Label for the button displayed when an error occurs, allowing the user to close the failure dialog.",
+          "type": "string"
+        },
+        "Faild_Dialog_position": {
+          "title": "Failure Dialog Position",
+          "default": "topright",
+          "description": "Screen position of the dialog shown when an error is detected (e.g., 'topright').",
+          "type": "string"
+        },
+        "UpdateDeferral_Value": {
+          "title": "Initial Deferral Duration",
+          "default": 4,
+          "description": "The number of times the user can postpone the update before being reminded again.",
+          "type": "number"
+        },
+        "Support_Telefon": {
+          "title": "Support Phone Number",
+          "default": "+49 12 3456 789",
+          "description": "Phone number displayed to users if they need assistance during the update process.",
+          "type": "string"
+        },
+        "Support_Email": {
+          "title": "Support Email Address",
+          "default": "support@nextenterprise.it",
+          "description": "Email address users can contact for support during the update process.",
+          "type": "string"
+        }
+      }
+    },
+    "Messages": {
+      "description": "Definition of messages and texts in the Patch Helper.",
+      "type": "object",
+      "properties": {
+        "UserInfoTitle_Multi": {
+          "title": "Multi-Update Greeting Title",
+          "default": "Hello %REAL_FIRSTNAME%, there are %UPDATE_COUNT% updates ready to be installed.",
+          "description": "Title message displayed when multiple updates are available for the user. Placeholders %REAL_FIRSTNAME% and %UPDATE_COUNT% are replaced with actual values from the script.",
+          "type": "string"
+        },
+        "UserInfoTitle_Single": {
+          "title": "Single-Update Greeting Title",
+          "default": "Hello %REAL_FIRSTNAME%, there is %UPDATE_COUNT% update ready to be installed.",
+          "description": "Title message displayed when exactly one update is available for the user. Placeholders %REAL_FIRSTNAME% and %UPDATE_COUNT% are replaced with actual values from the script.",
+          "type": "string"
+        },
+        "final_sucess_progresstext_Multi": {
+          "title": "Multi-Update Success Message",
+          "default": "All updates have been installed. Thank you for your patience, %REAL_FIRSTNAME%.",
+          "description": "Message displayed after successfully installing multiple updates, thanking the user. Placeholder %REAL_FIRSTNAME% is replaced with the user’s first name at runtime.",
+          "type": "string"
+        },
+        "final_sucess_progresstext_Single": {
+          "title": "Single-Update Success Message",
+          "default": "The update has been installed. Thank you for your patience, %REAL_FIRSTNAME%.",
+          "description": "Message displayed after successfully installing a single update, thanking the user. Placeholder %REAL_FIRSTNAME% is replaced with the user’s first name at runtime.",
+          "type": "string"
+        },
+        "UserInfoMessage": {
+          "title": "Update Information Message",
+          "default": "The following applications need to be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update to proceed with the update. \\n\\n\\n#### You can still postpone the process for: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nAs long as you don't install the updates, you will be reminded hourly with this dialog window until the count reaches 0.",
+          "description": "Detailed instructions informing the user about which applications require updates, how to proceed, and how long they can defer. Placeholders %joinedPolicyNames% and %CURRENT_DEFERRAL_VALUE% are replaced with actual values from the script.",
+          "type": "string"
+        },
+        "UserEnforceMessage": {
+          "title": "Forced Update Notification",
+          "default": "Hello %REAL_FIRSTNAME%, you have postponed the update window as many times as possible. \\n The following applications will now be updated: \\n\\n%NAMES_DISPLAY% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update now.",
+          "description": "Notification shown when the user has reached the maximum number of deferrals and updates must now be installed. Placeholders %REAL_FIRSTNAME% and %NAMES_DISPLAY% are replaced with actual values from the script.",
+          "type": "string"
+        },
+        "title": {
+          "title": "Installation In-Progress Title",
+          "default": "Update in progress…..",
+          "description": "Title displayed in the dialog while updates are actively being installed.",
+          "type": "string"
+        },
+        "message": {
+          "title": "Installation In-Progress Message",
+          "default": "Please wait while the following applications are being installed...",
+          "description": "Message displayed in the dialog while the update process is ongoing to inform the user to wait.",
+          "type": "string"
+        },
+        "failureTitle": {
+          "title": "Error Detected Title",
+          "default": "Error detected",
+          "description": "Title shown in the dialog when an error occurs during the update process.",
+          "type": "string"
+        },
+        "final_sucess_titel": {
+          "title": "Patch Helper Completion Title",
+          "default": "Patch Helper completed",
+          "description": "Title displayed when the Patch Helper finishes all tasks successfully.",
+          "type": "string"
+        },
+        "progresstext": {
+          "title": "Initialization Progress Text",
+          "default": "Initializing Patch Helper ...",
+          "description": "Text displayed while the Patch Helper is starting up and preparing to run.",
+          "type": "string"
+        },
+        "helpmessage": {
+          "title": "Support Information Message",
+          "default": "If you need help, please contact Support Services: \\n- Phone: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputer Information: \\n\\n- Operating System: %MACOSPRDICTVERSION% \\n- Serial Number: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Started: %TIME_STAMP%",
+          "description": "Provides contact details and system information for troubleshooting if the user encounters problems. Placeholders %SUPPORT_TELEFON%, %SUPPORT_EMAIL%, %MACOSPRDICTVERSION%, %SERIALNUMBER%, %DIALOG_VERSION%, and %TIME_STAMP% are replaced with actual values from the script.",
+          "type": "string"
+        },
+        "Failure_Info_Title": {
+          "title": "General Failure Title",
+          "default": "Sorry %REAL_FIRSTNAME%, something went wrong.",
+          "description": "Title displayed when a non-specific failure occurs during the update process. Placeholder %REAL_FIRSTNAME% is replaced with the user’s first name at runtime.",
+          "type": "string"
+        },
+        "Failure_Info_Progresstext": {
+          "title": "Failure Progress Text",
+          "default": "Error detected. Please click OK to get troubleshooting information.",
+          "description": "Message instructing the user to acknowledge the error and view further troubleshooting details.",
+          "type": "string"
+        },
+        "Failure_Info_Message": {
+          "title": "Error Message with Troubleshooting Steps",
+          "default": "Errors were detected, %REAL_FIRSTNAME%. \\n\\nPlease follow these steps: \\n1. Restart your Mac and log in again. \\n2. Open Self Service. \\n3. Re-run all failed policies listed below. \\n\\nThe following applications failed: \\n%jamfProPolicyNameFailures% \\n\\n\\nIf you need help, please contact the Helpdesk: \\n%SUPPORT_EMAIL%",
+          "description": "Shows the user an error message indicating which policies have failed, as well as a possible solution and where the user can go to report this. Placeholders %REAL_FIRSTNAME%, %jamfProPolicyNameFailures%, and %SUPPORT_EMAIL% are replaced with actual values from the script.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
