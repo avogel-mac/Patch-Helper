@@ -1,0 +1,1094 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # UserInfoTitle_Multi # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Hallo %REAL_FIRSTNAME%, es stehen %UPDATE_COUNT% Updates zur Aktualisierung bereit.
+
+🇬🇧 Englisch:
+Hello %REAL_FIRSTNAME%, there are %UPDATE_COUNT% updates ready to be installed.
+
+🇧🇬 Bulgarisch:
+Здравей, %REAL_FIRSTNAME%, налични са %UPDATE_COUNT% актуализации за инсталиране.
+
+🇭🇷 Kroatisch:
+Pozdrav %REAL_FIRSTNAME%, dostupno je %UPDATE_COUNT% ažuriranja za instalaciju.
+
+🇨🇿 Tschechisch:
+Ahoj %REAL_FIRSTNAME%, je připraveno %UPDATE_COUNT% aktualizací k instalaci.
+
+🇩🇰 Dänisch:
+Hej %REAL_FIRSTNAME%, der er %UPDATE_COUNT% opdateringer klar til installation.
+
+🇳🇱 Niederländisch:
+Hallo %REAL_FIRSTNAME%, er zijn %UPDATE_COUNT% updates beschikbaar om te installeren.
+
+🇪🇪 Estnisch:
+Tere, %REAL_FIRSTNAME%! Saadaval on %UPDATE_COUNT% värskendust.
+
+🇫🇮 Finnisch:
+Hei %REAL_FIRSTNAME%, %UPDATE_COUNT% päivitystä on valmiina asennettavaksi.
+
+🇫🇷 Französisch:
+Bonjour %REAL_FIRSTNAME%, %UPDATE_COUNT% mises à jour sont prêtes à être installées.
+
+🇬🇷 Griechisch:
+Γεια σου %REAL_FIRSTNAME%, υπάρχουν %UPDATE_COUNT% ενημερώσεις έτοιμες για εγκατάσταση.
+
+🇮🇪 Irisch (Gälisch):
+Dia dhuit %REAL_FIRSTNAME%, tá %UPDATE_COUNT% nuashonruithe ar fáil le suiteáil.
+
+🇮🇹 Italienisch:
+Ciao %REAL_FIRSTNAME%, ci sono %UPDATE_COUNT% aggiornamenti pronti per l'installazione.
+
+🇱🇻 Lettisch:
+Sveiki, %REAL_FIRSTNAME%! Ir pieejami %UPDATE_COUNT% atjauninājumi instalēšanai.
+
+🇱🇹 Litauisch:
+Sveiki, %REAL_FIRSTNAME%, paruošta %UPDATE_COUNT% atnaujinimų įdiegimui.
+
+🇲🇹 Maltesisch:
+Ħelow %REAL_FIRSTNAME%, hemm %UPDATE_COUNT% aġġornamenti lesti biex jiġu installati.
+
+🇵🇱 Polnisch:
+Cześć %REAL_FIRSTNAME%, dostępne są %UPDATE_COUNT% aktualizacje do zainstalowania.
+
+🇵🇹 Portugiesisch:
+Olá %REAL_FIRSTNAME%, há %UPDATE_COUNT% atualizações prontas para instalação.
+
+🇷🇴 Rumänisch:
+Salut %REAL_FIRSTNAME%, sunt %UPDATE_COUNT% actualizări disponibile pentru instalare.
+
+🇸🇰 Slowakisch:
+Ahoj %REAL_FIRSTNAME%, je pripravených %UPDATE_COUNT% aktualizácií na inštaláciu.
+
+🇸🇮 Slowenisch:
+Pozdravljen %REAL_FIRSTNAME%, na voljo je %UPDATE_COUNT% posodobitev za namestitev.
+
+🇪🇸 Spanisch:
+Hola %REAL_FIRSTNAME%, hay %UPDATE_COUNT% actualizaciones listas para instalarse.
+
+🇸🇪 Schwedisch:
+Hej %REAL_FIRSTNAME%, det finns %UPDATE_COUNT% uppdateringar redo att installeras.
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # #  UserInfoTitle_Single # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Hallo %REAL_FIRSTNAME%, es steht %UPDATE_COUNT% Update zur Aktualisierung bereit.
+
+🇬🇧 Englisch:
+Hello %REAL_FIRSTNAME%, there is %UPDATE_COUNT% update ready to be installed.
+
+🇧🇬 Bulgarisch:
+Здравей, %REAL_FIRSTNAME%, налична е %UPDATE_COUNT% актуализация за инсталиране.
+
+🇭🇷 Kroatisch:
+Pozdrav %REAL_FIRSTNAME%, dostupno je %UPDATE_COUNT% ažuriranje za instalaciju.
+
+🇨🇿 Tschechisch:
+Ahoj %REAL_FIRSTNAME%, je připravena %UPDATE_COUNT% aktualizace k instalaci.
+
+🇩🇰 Dänisch:
+Hej %REAL_FIRSTNAME%, der er %UPDATE_COUNT% opdatering klar til installation.
+
+🇳🇱 Niederländisch:
+Hallo %REAL_FIRSTNAME%, er is %UPDATE_COUNT% update beschikbaar om te installeren.
+
+🇪🇪 Estnisch:
+Tere, %REAL_FIRSTNAME%! Saadaval on %UPDATE_COUNT% värskendus.
+
+🇫🇮 Finnisch:
+Hei %REAL_FIRSTNAME%, %UPDATE_COUNT% päivitys on valmiina asennettavaksi.
+
+🇫🇷 Französisch:
+Bonjour %REAL_FIRSTNAME%, %UPDATE_COUNT% mise à jour est prête à être installée.
+
+🇬🇷 Griechisch:
+Γεια σου %REAL_FIRSTNAME%, υπάρχει %UPDATE_COUNT% ενημέρωση έτοιμη για εγκατάσταση.
+
+🇮🇪 Irisch (Gälisch):
+Dia dhuit %REAL_FIRSTNAME%, tá %UPDATE_COUNT% nuashonrú ar fáil le suiteáil.
+
+🇮🇹 Italienisch:
+Ciao %REAL_FIRSTNAME%, è disponibile %UPDATE_COUNT% aggiornamento da installare.
+
+🇱🇻 Lettisch:
+Sveiki, %REAL_FIRSTNAME%! Ir pieejams %UPDATE_COUNT% atjauninājums instalēšanai.
+
+🇱🇹 Litauisch:
+Sveiki, %REAL_FIRSTNAME%, paruoštas %UPDATE_COUNT% atnaujinimas įdiegimui.
+
+🇲🇹 Maltesisch:
+Ħelow %REAL_FIRSTNAME%, hemm %UPDATE_COUNT% aġġornament lest biex jiġi installat.
+
+🇵🇱 Polnisch:
+Cześć %REAL_FIRSTNAME%, dostępna jest %UPDATE_COUNT% aktualizacja do zainstalowania.
+
+🇵🇹 Portugiesisch:
+Olá %REAL_FIRSTNAME%, há %UPDATE_COUNT% atualização pronta para instalação.
+
+🇷🇴 Rumänisch:
+Salut %REAL_FIRSTNAME%, este disponibilă %UPDATE_COUNT% actualizare pentru instalare.
+
+🇸🇰 Slowakisch:
+Ahoj %REAL_FIRSTNAME%, je pripravená %UPDATE_COUNT% aktualizácia na inštaláciu.
+
+🇸🇮 Slowenisch:
+Pozdravljen %REAL_FIRSTNAME%, na voljo je %UPDATE_COUNT% posodobitev za namestitev.
+
+🇪🇸 Spanisch:
+Hola %REAL_FIRSTNAME%, hay %UPDATE_COUNT% actualización lista para instalarse.
+
+🇸🇪 Schwedisch:
+Hej %REAL_FIRSTNAME%, det finns %UPDATE_COUNT% uppdatering redo att installeras.
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # final_sucess_progresstext_Multi # # # # # # # # # # # # # #
+🇩🇪 German:
+Alle Updates wurden installiert. Danke für die Geduld %REAL_FIRSTNAME%.
+
+🇬🇧 Englisch:
+All updates have been installed. Thank you for your patience, %REAL_FIRSTNAME%.
+
+🇧🇬 Bulgarisch:
+Всички актуализации са инсталирани. Благодарим за търпението, %REAL_FIRSTNAME%.
+
+🇩🇰 Dänisch:
+Alle opdateringer er blevet installeret. Tak for din tålmodighed, %REAL_FIRSTNAME%.
+
+🇪🇪 Estnisch:
+Kõik värskendused on paigaldatud. Täname kannatlikkuse eest, %REAL_FIRSTNAME%.
+
+🇫🇮 Finnisch:
+Kaikki päivitykset on asennettu. Kiitos kärsivällisyydestäsi, %REAL_FIRSTNAME%.
+
+🇫🇷 Französisch:
+Toutes les mises à jour ont été installées. Merci pour votre patience, %REAL_FIRSTNAME%.
+
+🇬🇷 Griechisch:
+Όλες οι ενημερώσεις εγκαταστάθηκαν. Ευχαριστούμε για την υπομονή σας, %REAL_FIRSTNAME%.
+
+🇮🇪 Irisch (Gälisch):
+Tá na nuashonruithe go léir suiteáilte. Go raibh maith agat as do fhoighne, %REAL_FIRSTNAME%.
+
+🇮🇹 Italienisch:
+Tutti gli aggiornamenti sono stati installati. Grazie per la tua pazienza, %REAL_FIRSTNAME%.
+
+🇭🇷 Kroatisch:
+Sva ažuriranja su instalirana. Hvala na strpljenju, %REAL_FIRSTNAME%.
+
+🇱🇻 Lettisch:
+Visi atjauninājumi ir instalēti. Paldies par pacietību, %REAL_FIRSTNAME%.
+
+🇱🇹 Litauisch:
+Visi atnaujinimai įdiegti. Ačiū už kantrybę, %REAL_FIRSTNAME%.
+
+🇲🇹 Maltesisch:
+L-aġġornamenti kollha ġew installati. Grazzi għall-paċenzja tiegħek, %REAL_FIRSTNAME%.
+
+🇳🇱 Niederländisch:
+Alle updates zijn geïnstalleerd. Bedankt voor je geduld, %REAL_FIRSTNAME%.
+
+🇵🇱 Polnisch:
+Wszystkie aktualizacje zostały zainstalowane. Dziękujemy za cierpliwość, %REAL_FIRSTNAME%.
+
+🇵🇹 Portugiesisch:
+Todas as atualizações foram instaladas. Obrigado pela sua paciência, %REAL_FIRSTNAME%.
+
+🇷🇴 Rumänisch:
+Toate actualizările au fost instalate. Mulțumim pentru răbdare, %REAL_FIRSTNAME%.
+
+🇸🇪 Schwedisch:
+Alla uppdateringar har installerats. Tack för ditt tålamod, %REAL_FIRSTNAME%.
+
+🇸🇰 Slowakisch:
+Všetky aktualizácie boli nainštalované. Ďakujeme za trpezlivosť, %REAL_FIRSTNAME%.
+
+🇸🇮 Slowenisch:
+Vse posodobitve so bile nameščene. Hvala za potrpežljivost, %REAL_FIRSTNAME%.
+
+🇪🇸 Spanisch:
+Todas las actualizaciones se han instalado. Gracias por tu paciencia, %REAL_FIRSTNAME%.
+
+🇨🇿 Tschechisch:
+Všechny aktualizace byly nainstalovány. Děkujeme za trpělivost, %REAL_FIRSTNAME%.
+
+🇭🇺 Ungarisch:
+Minden frissítés telepítve lett. Köszönjük a türelmedet, %REAL_FIRSTNAME%.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # final_sucess_progresstext_Single  # # # # # # # # # # # # #
+
+🇩🇪 German:
+Das Update wurde installiert. Danke für die Geduld %REAL_FIRSTNAME%.
+
+🇬🇧 Englisch:
+The update has been installed. Thank you for your patience, %REAL_FIRSTNAME%.
+
+🇧🇬 Bulgarisch:
+Актуализацията беше инсталирана. Благодарим за търпението, %REAL_FIRSTNAME%.
+
+🇩🇰 Dänisch:
+Opdateringen er blevet installeret. Tak for din tålmodighed, %REAL_FIRSTNAME%.
+
+🇪🇪 Estnisch:
+Värskendus on paigaldatud. Täname kannatlikkuse eest, %REAL_FIRSTNAME%.
+
+🇫🇮 Finnisch:
+Päivitys on asennettu. Kiitos kärsivällisyydestäsi, %REAL_FIRSTNAME%.
+
+🇫🇷 Französisch:
+La mise à jour a été installée. Merci pour votre patience, %REAL_FIRSTNAME%.
+
+🇬🇷 Griechisch:
+Η ενημέρωση εγκαταστάθηκε. Ευχαριστούμε για την υπομονή σας, %REAL_FIRSTNAME%.
+
+🇮🇪 Irisch (Gälisch):
+Tá an nuashonrú suiteáilte. Go raibh maith agat as do fhoighne, %REAL_FIRSTNAME%.
+
+🇮🇹 Italienisch:
+L’aggiornamento è stato installato. Grazie per la tua pazienza, %REAL_FIRSTNAME%.
+
+🇭🇷 Kroatisch:
+Ažuriranje je instalirano. Hvala na strpljenju, %REAL_FIRSTNAME%.
+
+🇱🇻 Lettisch:
+Atjauninājums ir instalēts. Paldies par pacietību, %REAL_FIRSTNAME%.
+
+🇱🇹 Litauisch:
+Atnaujinimas įdiegtas. Ačiū už kantrybę, %REAL_FIRSTNAME%.
+
+🇲🇹 Maltesisch:
+L-aġġornament ġie installat. Grazzi għall-paċenzja tiegħek, %REAL_FIRSTNAME%.
+
+🇳🇱 Niederländisch:
+De update is geïnstalleerd. Bedankt voor je geduld, %REAL_FIRSTNAME%.
+
+🇵🇱 Polnisch:
+Aktualizacja została zainstalowana. Dziękujemy za cierpliwość, %REAL_FIRSTNAME%.
+
+🇵🇹 Portugiesisch:
+A atualização foi instalada. Obrigado pela sua paciência, %REAL_FIRSTNAME%.
+
+🇷🇴 Rumänisch:
+Actualizarea a fost instalată. Mulțumim pentru răbdare, %REAL_FIRSTNAME%.
+
+🇸🇪 Schwedisch:
+Uppdateringen har installerats. Tack för ditt tålamod, %REAL_FIRSTNAME%.
+
+🇸🇰 Slowakisch:
+Aktualizácia bola nainštalovaná. Ďakujeme za trpezlivosť, %REAL_FIRSTNAME%.
+
+🇸🇮 Slowenisch:
+Posodobitev je bila nameščena. Hvala za potrpežljivost, %REAL_FIRSTNAME%.
+
+🇪🇸 Spanisch:
+La actualización se ha instalado. Gracias por tu paciencia, %REAL_FIRSTNAME%.
+
+🇨🇿 Tschechisch:
+Aktualizace byla nainstalována. Děkujeme za trpělivost, %REAL_FIRSTNAME%.
+
+🇭🇺 Ungarisch:
+A frissítés telepítve lett. Köszönjük a türelmedet, %REAL_FIRSTNAME%.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # UserInfoMessage # # # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Die folgenden Anwendungen müssen aktualisiert werden: \\n\\n%joinedPolicyNames% \\n\\n--- \\nWährend der Installation werden die betroffenen Anwendungen geschlossen. Bitte klicken auf Update, um mit der Aktualisierung fortzufahren. \\n\\n\\n#### Du kannst den Prozess noch für: %CURRENT_DEFERRAL_VALUE% verscheiben. \\n\\n\\nSolange Du die Updates nicht installierst, wirst du Stündlich daran mit diesem Dislogfenster errinnert, bis die Anzahl 0 erreicht.
+
+🇬🇧 Englisch:
+The following applications need to be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update to proceed with the update. \\n\\n\\n#### You can still postpone the process for: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nAs long as you don't install the updates, you will be reminded hourly with this dialog window until the count reaches 0.
+
+🇬🇷 Griechisch:
+Οι παρακάτω εφαρμογές πρέπει να ενημερωθούν: \\n\\n%joinedPolicyNames% \\n\\n--- \\nΚατά την εγκατάσταση, οι επηρεαζόμενες εφαρμογές θα κλείσουν. Κάντε κλικ στο Update για να συνεχίσετε με την ενημέρωση. \\n\\n\\n#### Μπορείτε ακόμη να αναβάλετε τη διαδικασία για: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nΌσο δεν εγκαθιστάτε τις ενημερώσεις, αυτό το παράθυρο διαλόγου θα σας υπενθυμίζει κάθε ώρα, μέχρι να φτάσει το πλήθος στο 0.
+
+🇮🇪 Irisch (Gälisch):
+Ní mór na feidhmchláir seo a leanas a nuashonrú: \\n\\n%joinedPolicyNames% \\n\\n--- \\nLe linn an tsuiteála, dúnfar na feidhmchláir atá i gceist. Cliceáil ar Update chun leanúint ar aghaidh leis an nuashonrú. \\n\\n\\n#### Is féidir leat an próiseas a chur ar athló fós ar feadh: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nGo dtí go suiteálfaidh tú na nuashonruithe, cuirfidh an bosca dialóige seo i gcuimhne duit gach uair an chloig go dtí go sroichfidh an líon 0.
+
+🇮🇹 Italienisch:
+Le seguenti applicazioni devono essere aggiornate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante l'installazione, le applicazioni interessate verranno chiuse. Clicca su Update per continuare con l'aggiornamento. \\n\\n\\n#### Puoi ancora posticipare il processo per: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nFinché non installerai gli aggiornamenti, questa finestra di dialogo ti ricorderà ogni ora fino a quando il conteggio raggiungerà 0.
+
+🇱🇻 Lettisch:
+Tālāk norādītās lietotnes ir jāatjaunina: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstalēšanas laikā attiecīgās lietotnes tiks aizvērtas. Lūdzu, noklikšķiniet uz Update, lai turpinātu atjaunināšanu. \\n\\n\\n#### Jūs joprojām varat atlikt procesu uz: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nKamēr neatjaunināsiet, šis dialoglodziņš jūs katru stundu atgādinās, līdz skaits sasniedz 0.
+
+🇱🇹 Litauisch:
+Toliau nurodytos programos turi būti atnaujintos: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDiegiant atnaujinimą, paveiktos programos bus uždarytos. Spustelėkite Update, kad tęstumėte. \\n\\n\\n#### Dar galite atidėti procesą: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nKol neįdiegsite atnaujinimų, šis dialogo langas primins jums kas valandą, kol skaičius pasieks 0.
+
+🇲🇹 Maltesisch:
+L-applikazzjonijiet li ġejjin għandhom bżonn jiġu aġġornati: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMatul l-installazzjoni, l-applikazzjonijiet affettwati se jingħalqu. Ikklikkja Update biex tkompli bl-aġġornament. \\n\\n\\n#### Tista' għadek tittardja l-proċess għal: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nSakemm ma tinstallax l-aġġornamenti, dan il-pop-up ifakkrek kull siegħa sakemm in-numru jasal għal 0.
+
+🇳🇱 Niederländisch:
+De volgende toepassingen moeten worden bijgewerkt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijdens de installatie worden de getroffen toepassingen afgesloten. Klik op Update om door te gaan met de update. \\n\\n\\n#### Je kunt het proces nog uitstellen voor: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nZolang je de updates niet installeert, zal dit dialoogvenster je elk uur herinneren totdat het aantal 0 bereikt is.
+
+🇵🇱 Polnisch:
+Następujące aplikacje muszą zostać zaktualizowane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPodczas instalacji dotknięte aplikacje zostaną zamknięte. Kliknij Update, aby kontynuować aktualizację. \\n\\n\\n#### Nadal możesz odroczyć ten proces o: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nDopóki nie zainstalujesz aktualizacji, to okno dialogowe będzie przypominać Ci o tym co godzinę, aż liczba osiągnie 0.
+
+🇵🇹 Portugiesisch:
+As seguintes aplicações precisam ser atualizadas: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante a instalação, as aplicações afetadas serão encerradas. Clique em Update para continuar com a atualização. \\n\\n\\n#### Ainda pode adiar o processo por: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nEnquanto não instalar as atualizações, esta janela de diálogo irá lembrá-lo de hora a hora até que o número chegue a 0.
+
+🇷🇴 Rumänisch:
+Următoarele aplicații trebuie actualizate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nÎn timpul instalării, aplicațiile afectate vor fi închise. Faceți clic pe Update pentru a continua actualizarea. \\n\\n\\n#### Poți amâna procesul pentru încă: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nPână când instalezi actualizările, această fereastră de dialog îți va aminti de ele în fiecare oră până când numărul ajunge la 0.
+
+🇸🇰 Slowakisch:
+Nasledujúce aplikácie je potrebné aktualizovať: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPočas inštalácie budú dotknuté aplikácie zatvorené. Klikni na Update a pokračuj v aktualizácii. \\n\\n\\n#### Proces môžeš ešte odložiť o: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nPokiaľ neuskutočníš aktualizácie, toto dialógové okno ti to bude pripomínať každú hodinu, kým počet nedosiahne 0.
+
+🇸🇮 Slowenisch:
+Naslednje aplikacije je treba posodobiti: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMed namestitvijo bodo prizadete aplikacije zaprte. Kliknite Update, da nadaljujete s posodobitvijo. \\n\\n\\n#### Proces lahko še odložite za: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nDokler ne namestite posodobitev, vas bo to pogovorno okno vsako uro opomnilo, dokler število ne bo 0.
+
+🇪🇸 Spanisch:
+Las siguientes aplicaciones deben actualizarse: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante la instalación, las aplicaciones afectadas se cerrarán. Haz clic en Update para continuar con la actualización. \\n\\n\\n#### Puedes posponer el proceso durante: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nMientras no instales las actualizaciones, esta ventana de diálogo te lo recordará cada hora hasta que el número llegue a 0.
+
+🇸🇪 Schwedisch:
+Följande program behöver uppdateras: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen kommer de berörda programmen att stängas. Klicka på Update för att fortsätta med uppdateringen. \\n\\n\\n#### Du kan fortfarande skjuta upp processen i: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nSå länge du inte installerar uppdateringarna kommer det här dialogfönstret att påminna dig varje timme tills antalet når 0.
+
+🇭🇺 Ungarisch:
+A következő alkalmazásokat frissíteni kell: \\n\\n%joinedPolicyNames% \\n\\n--- \\nA telepítés során az érintett alkalmazások bezárásra kerülnek. Kattints a Update gombra a frissítés folytatásához. \\n\\n\\n#### A folyamatot még elhalaszthatod: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nAmíg nem telepíted a frissítéseket, ez az ablak óránként emlékeztetni fog, amíg a szám el nem éri a 0-t.
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # UserEnforceMessage  # # # # # # # # # # # # # # # # # # # # 
+
+🇩🇪 German:
+Hallo %REAL_FIRSTNAME%, du hast das Updatefenster so oft wie nur möglich verschoben. \\n Die folgenden Anwendungen werden nun aktualisiert: \\n\\n%joinedPolicyNames% \\n\\n--- \\nWährend der Installation werden die betroffenen Anwendungen geschlossen. Bitte klicke nun auf Update.
+
+🇬🇧 Englisch:
+Hello %REAL_FIRSTNAME%, you have postponed the update window as many times as possible. \\n The following applications will now be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update now.
+
+🇧🇬 Bulgarisch:
+Здравей, %REAL_FIRSTNAME%, отложи прозореца за актуализация толкова пъти, колкото беше възможно. \\n Следните приложения ще бъдат актуализирани: \\n\\n%joinedPolicyNames% \\n\\n--- \\nПо време на инсталацията засегнатите приложения ще бъдат затворени. Моля, щракнете сега върху Update.
+
+🇭🇷 Kroatisch:
+Pozdrav %REAL_FIRSTNAME%, odgađao si prozor za ažuriranje koliko god je bilo moguće. \\n Sljedeće aplikacije će sada biti ažurirane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijekom instalacije pogođene aplikacije bit će zatvorene. Klikni sada na Update.
+
+🇨🇿 Tschechisch:
+Ahoj %REAL_FIRSTNAME%, odkládal jsi okno s aktualizací, jak jen to šlo. \\n Následující aplikace budou nyní aktualizovány: \\n\\n%joinedPolicyNames% \\n\\n--- \\nBěhem instalace budou dotčené aplikace uzavřeny. Nyní klikni na Update.
+
+🇩🇰 Dänisch:
+Hej %REAL_FIRSTNAME%, du har udskudt opdateringsvinduet så mange gange som muligt. \\n Følgende programmer vil nu blive opdateret: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen lukkes de berørte programmer. Klik venligst nu på Update.
+
+🇳🇱 Niederländisch:
+Hallo %REAL_FIRSTNAME%, je hebt het updatevenster zo vaak mogelijk uitgesteld. \\n De volgende toepassingen worden nu bijgewerkt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijdens de installatie worden de betrokken toepassingen gesloten. Klik nu op Update.
+
+🇪🇪 Estnisch:
+Tere %REAL_FIRSTNAME%, oled värskenduste akna nii tihti edasi lükanud kui võimalik. \\n Järgnevad rakendused uuendatakse nüüd: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstallimise ajal suletakse mõjutatud rakendused. Palun klõpsa nüüd Update.
+
+🇫🇮 Finnisch:
+Hei %REAL_FIRSTNAME%, olet siirtänyt päivitysikkunaa niin monta kertaa kuin mahdollista. \\n Seuraavat sovellukset päivitetään nyt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nAsennuksen aikana asianomaiset sovellukset suljetaan. Napsauta nyt Update.
+
+🇫🇷 Französisch:
+Bonjour %REAL_FIRSTNAME%, vous avez reporté la fenêtre de mise à jour autant de fois que possible. \\n Les applications suivantes vont maintenant être mises à jour : \\n\\n%joinedPolicyNames% \\n\\n--- \\nPendant l’installation, les applications concernées seront fermées. Veuillez maintenant cliquer sur Update.
+
+🇬🇷 Griechisch:
+Γεια σου %REAL_FIRSTNAME%, ανέβαλες το παράθυρο ενημέρωσης όσες φορές ήταν δυνατό. \\n Οι παρακάτω εφαρμογές θα ενημερωθούν τώρα: \\n\\n%joinedPolicyNames% \\n\\n--- \\nΚατά την εγκατάσταση, οι επηρεαζόμενες εφαρμογές θα κλείσουν. Παρακαλώ κάνε τώρα κλικ στο Update.
+
+🇮🇪 Irisch (Gälisch):
+A %REAL_FIRSTNAME%, chuir tú siar an fhuinneog nuashonraithe an oiread agus ab fhéidir. \\n Déanfar na feidhmchláir seo a leanas a nuashonrú anois: \\n\\n%joinedPolicyNames% \\n\\n--- \\nLe linn na suiteála, dúnfar na feidhmchláir lena mbaineann. Cliceáil ar Update anois.
+
+🇮🇹 Italienisch:
+Ciao %REAL_FIRSTNAME%, hai rimandato la finestra di aggiornamento il più possibile. \\n Le seguenti applicazioni saranno ora aggiornate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante l’installazione, le applicazioni interessate verranno chiuse. Clicca ora su Update.
+
+🇱🇻 Lettisch:
+Sveiki, %REAL_FIRSTNAME%, jūs esat atlicis atjaunināšanas logu tik bieži, cik vien iespējams. \\n Tagad tiks atjauninātas šādas lietotnes: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstalēšanas laikā attiecīgās lietotnes tiks aizvērtas. Lūdzu, noklikšķiniet tagad uz Update.
+
+🇱🇹 Litauisch:
+Sveiki, %REAL_FIRSTNAME%, atidėjote naujinimo langą tiek kartų, kiek buvo įmanoma. \\n Dabar bus atnaujintos šios programos: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDiegiant atnaujinimus paveiktos programos bus uždarytos. Spustelėkite dabar Update.
+
+🇲🇹 Maltesisch:
+Ħelow %REAL_FIRSTNAME%, posponejt it-tieqa tal-aġġornament kemm setgħu. \\n L-applikazzjonijiet li ġejjin se jiġu aġġornati issa: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMatul l-installazzjoni, l-applikazzjonijiet affettwati se jingħalqu. Ikklikkja issa fuq Update.
+
+🇵🇱 Polnisch:
+Cześć %REAL_FIRSTNAME%, odkładałeś okno aktualizacji tak często, jak to możliwe. \\n Następujące aplikacje zostaną teraz zaktualizowane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPodczas instalacji aplikacje zostaną zamknięte. Kliknij teraz Update.
+
+🇵🇹 Portugiesisch:
+Olá %REAL_FIRSTNAME%, adiou a janela de atualização tantas vezes quanto possível. \\n As seguintes aplicações serão agora atualizadas: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante a instalação, as aplicações afetadas serão encerradas. Clique agora em Update.
+
+🇷🇴 Rumänisch:
+Salut %REAL_FIRSTNAME%, ai amânat fereastra de actualizare de câte ori ai putut. \\n Următoarele aplicații vor fi acum actualizate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nÎn timpul instalării, aplicațiile afectate vor fi închise. Te rugăm să faci acum clic pe Update.
+
+🇸🇰 Slowakisch:
+Ahoj %REAL_FIRSTNAME%, odkladal si okno s aktualizáciou, ako len bolo možné. \\n Nasledujúce aplikácie budú teraz aktualizované: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPočas inštalácie budú dotknuté aplikácie zatvorené. Teraz klikni na Update.
+
+🇸🇮 Slowenisch:
+Pozdravljen %REAL_FIRSTNAME%, okno za posodobitev si odložil kolikor se je le dalo. \\n Naslednje aplikacije bodo zdaj posodobljene: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMed namestitvijo bodo prizadete aplikacije zaprte. Klikni zdaj na Update.
+
+🇪🇸 Spanisch:
+Hola %REAL_FIRSTNAME%, has pospuesto la ventana de actualización tantas veces como ha sido posible. \\n Las siguientes aplicaciones se actualizarán ahora: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante la instalación se cerrarán las aplicaciones afectadas. Haz clic ahora en Update.
+
+🇸🇪 Schwedisch:
+Hej %REAL_FIRSTNAME%, du har skjutit upp uppdateringsfönstret så många gånger som möjligt. \\n Följande program kommer nu att uppdateras: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen kommer de berörda programmen att stängas. Klicka nu på Update.
+
+🇭🇺 Ungarisch:
+Szia %REAL_FIRSTNAME%, a frissítési ablakot annyiszor halasztottad el, ahányszor csak lehetett. \\n A következő alkalmazások most frissülni fognak: \\n\\n%joinedPolicyNames% \\n\\n--- \\nA telepítés során az érintett alkalmazások bezárásra kerülnek. Kattints most a Update gombra.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # title # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Aktualisierung im Gange…..
+
+🇬🇧 Englisch: 
+Update in progress…..
+
+🇧🇬 Bulgarisch: 
+Актуализацията е в ход…..
+
+🇭🇷 Kroatisch: 
+Ažuriranje u tijeku…..
+
+🇨🇿 Tschechisch: 
+Probíhá aktualizace…..
+
+🇩🇰 Dänisch: 
+Opdatering i gang…..
+
+🇳🇱 Niederländisch: 
+Bezig met bijwerken…..
+
+🇪🇪 Estnisch: 
+Värskendus käib…..
+
+🇫🇮 Finnisch: 
+Päivitys käynnissä…..
+
+🇫🇷 Französisch: 
+Mise à jour en cours…..
+
+🇬🇷 Griechisch: 
+Ενημέρωση σε εξέλιξη…..
+
+🇮🇪 Irisch (Gälisch): 
+Nuashonrú ar siúl…..
+
+🇮🇹 Italienisch: 
+Aggiornamento in corso…..
+
+🇱🇻 Lettisch: 
+Notiek atjaunināšana…..
+
+🇱🇹 Litauisch: 
+Vyksta atnaujinimas…..
+
+🇲🇹 Maltesisch: 
+Aġġornament għaddej…..
+
+🇵🇱 Polnisch: 
+Trwa aktualizacja…..
+
+🇵🇹 Portugiesisch: 
+Atualização em curso…..
+
+🇷🇴 Rumänisch: 
+Actualizare în desfășurare…..
+
+🇸🇰 Slowakisch: 
+Prebieha aktualizácia…..
+
+🇸🇮 Slowenisch: 
+Posodobitev poteka…..
+
+🇪🇸 Spanisch: 
+Actualización en curso…..
+
+🇸🇪 Schwedisch: 
+Uppdatering pågår…..
+
+🇭🇺 Ungarisch: 
+Frissítés folyamatban…..
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # message # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Bitte warten, während die folgenden Anwendungen installiert werden...
+
+🇬🇧 Englisch: 
+Please wait while the following applications are being installed...
+
+🇧🇬 Bulgarisch: 
+Моля, изчакайте, докато се инсталират следните приложения...
+
+🇭🇷 Kroatisch: 
+Pričekajte dok se instaliraju sljedeće aplikacije...
+
+🇨🇿 Tschechisch: 
+Počkejte, než se nainstalují následující aplikace...
+
+🇩🇰 Dänisch: 
+Vent venligst, mens følgende programmer installeres...
+
+🇳🇱 Niederländisch: 
+Even geduld terwijl de volgende toepassingen worden geïnstalleerd...
+
+🇪🇪 Estnisch: 
+Palun oodake, kuni järgmised rakendused on paigaldatud...
+
+🇫🇮 Finnisch: 
+Odota, kun seuraavat sovellukset asennetaan...
+
+🇫🇷 Französisch: 
+Veuillez patienter pendant l’installation des applications suivantes...
+
+🇬🇷 Griechisch: 
+Παρακαλώ περιμένετε ενώ εγκαθίστανται οι παρακάτω εφαρμογές...
+
+🇮🇪 Irisch (Gälisch): 
+Fan le do thoil agus na feidhmchláir seo a leanas á suiteáil...
+
+🇮🇹 Italienisch: 
+Attendere mentre vengono installate le seguenti applicazioni...
+
+🇱🇻 Lettisch: 
+Lūdzu, uzgaidiet, kamēr tiek instalētas šādas lietotnes...
+
+🇱🇹 Litauisch: 
+Palaukite, kol bus įdiegtos šios programos...
+
+🇲🇹 Maltesisch: 
+Jekk jogħġbok stenna waqt li jiġu installati l-applikazzjonijiet li ġejjin...
+
+🇵🇱 Polnisch: 
+Proszę czekać, trwa instalacja następujących aplikacji...
+
+🇵🇹 Portugiesisch: 
+Aguarde enquanto as seguintes aplicações estão a ser instaladas...
+
+🇷🇴 Rumänisch: 
+Vă rugăm să așteptați în timp ce sunt instalate următoarele aplicații...
+
+🇸🇰 Slowakisch: 
+Počkajte, kým sa nainštalujú nasledujúce aplikácie...
+
+🇸🇮 Slowenisch: 
+Počakajte, medtem ko se nameščajo naslednje aplikacije...
+
+🇪🇸 Spanisch: 
+Espere mientras se instalan las siguientes aplicaciones...
+
+🇸🇪 Schwedisch: 
+Vänta medan följande program installeras...
+
+🇭🇺 Ungarisch: 
+Kérjük, várjon, amíg a következő alkalmazások telepítésre kerülnek...
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # failureTitle  # # # # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Fehler erkannt
+
+🇬🇧 Englisch: 
+Error detected
+
+🇧🇬 Bulgarisch: 
+Открита е грешка
+
+🇭🇷 Kroatisch: 
+Otkrivena je pogreška
+
+🇨🇿 Tschechisch: 
+Zjištěna chyba
+
+🇩🇰 Dänisch: 
+Fejl opdaget
+
+🇳🇱 Niederländisch: 
+Fout ontdekt
+
+🇪🇪 Estnisch: 
+Viga tuvastatud
+
+🇫🇮 Finnisch: 
+Virhe havaittu
+
+🇫🇷 Französisch: 
+Erreur détectée
+
+🇬🇷 Griechisch: 
+Εντοπίστηκε σφάλμα
+
+🇮🇪 Irisch (Gälisch): 
+Earráid braite
+
+🇮🇹 Italienisch: 
+Errore rilevato
+
+🇱🇻 Lettisch: 
+ļūda konstatēta
+
+🇱🇹 Litauisch: 
+Aptikta klaida
+
+🇲🇹 Maltesisch: 
+Żball identifikat
+
+🇵🇱 Polnisch: 
+Wykryto błąd
+
+🇵🇹 Portugiesisch: 
+Erro detectado
+
+🇷🇴 Rumänisch: 
+Eroare detectată
+
+🇸🇰 Slowakisch: 
+Zistená chyba
+
+🇸🇮 Slowenisch: 
+Napaka zaznana
+
+🇪🇸 Spanisch: 
+Error detectado
+
+🇸🇪 Schwedisch: 
+Fel upptäckt
+
+🇭🇺 Ungarisch: 
+Hiba észlelve
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # final_sucess_titel  # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Patch Helper abgeschlossen
+
+🇬🇧 Englisch: 
+Patch Helper completed
+
+🇧🇬 Bulgarisch: 
+Помощникът за пачове е завършен
+
+🇭🇷 Kroatisch: 
+Patch Helper dovršen
+
+🇨🇿 Tschechisch: 
+Patch Helper dokončen
+
+🇩🇰 Dänisch: 
+Patch Helper fuldført
+
+🇳🇱 Niederländisch: 
+Patch Helper voltooid
+
+🇪🇪 Estnisch: 
+Patch Helper on lõpetatud
+
+🇫🇮 Finnisch: 
+Patch Helper suoritettu
+
+🇫🇷 Französisch: 
+Patch Helper terminé
+
+🇬🇷 Griechisch: 
+Ο Patch Helper ολοκληρώθηκε
+
+🇮🇪 Irisch (Gälisch): 
+Críochnaíodh an Patch Helper
+
+🇮🇹 Italienisch: 
+Patch Helper completato
+
+🇱🇻 Lettisch: 
+Patch Helper pabeigts
+
+🇱🇹 Litauisch: 
+Patch Helper užbaigtas
+
+🇲🇹 Maltesisch: 
+Patch Helper komplut
+
+🇵🇱 Polnisch: 
+Patch Helper zakończony
+
+🇵🇹 Portugiesisch: 
+Patch Helper concluído
+
+🇷🇴 Rumänisch: 
+Patch Helper finalizat
+
+🇸🇰 Slowakisch: 
+Patch Helper dokončený
+
+🇸🇮 Slowenisch: 
+Patch Helper zaključen
+
+🇪🇸 Spanisch: 
+Patch Helper completado
+
+🇸🇪 Schwedisch: 
+Patch Helper slutförd
+
+🇭🇺 Ungarisch: 
+Patch Helper befejeződött
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # progresstext  # # # # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Initialisiere Patch Helper ...
+
+🇬🇧 Englisch: 
+Initializing Patch Helper ...
+
+🇧🇬 Bulgarisch: 
+Инициализиране на Patch Helper ...
+
+🇭🇷 Kroatisch: 
+Inicijalizacija Patch Helpera ...
+
+🇨🇿 Tschechisch: 
+Inicializuji Patch Helper ...
+
+🇩🇰 Dänisch: 
+Initialiserer Patch Helper ...
+
+🇳🇱 Niederländisch: 
+Initialiseren van Patch Helper ...
+
+🇪🇪 Estnisch: 
+Algatatakse Patch Helper ...
+
+🇫🇮 Finnisch: 
+Käynnistetään Patch Helper ...
+
+🇫🇷 Französisch: 
+Initialisation de Patch Helper ...
+
+🇬🇷 Griechisch: 
+Εκκίνηση του Patch Helper ...
+
+🇮🇪 Irisch (Gälisch): 
+Patch Helper á thúsú ...
+
+🇮🇹 Italienisch: 
+Inizializzazione di Patch Helper ...
+
+🇱🇻 Lettisch: 
+Tiek inicializēts Patch Helper ...
+
+🇱🇹 Litauisch: 
+Inicializuojamas Patch Helper ...
+
+🇲🇹 Maltesisch: 
+Inizjalizzazzjoni ta’ Patch Helper ...
+
+🇵🇱 Polnisch: 
+Inicjowanie Patch Helper ...
+
+🇵🇹 Portugiesisch: 
+A inicializar o Patch Helper ...
+
+🇷🇴 Rumänisch: 
+Se inițializează Patch Helper ...
+
+🇸🇰 Slowakisch: 
+Inicializácia Patch Helper ...
+
+🇸🇮 Slowenisch: 
+Inicializacija Patch Helper ...
+
+🇪🇸 Spanisch: 
+Inicializando Patch Helper ...
+
+🇸🇪 Schwedisch: 
+Initierar Patch Helper ...
+
+🇭🇺 Ungarisch: 
+Patch Helper inicializálása ...
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # helpmessage # # # # # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Wenn Du Hilfe benötigst, wende Dich bitte an die Support Services: \\n- Telefon: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputer Information: \\n\\n- Betriebssystem: %MACOSPRDICTVERSION% \\n- Seriennummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Started: %TIME_STAMP%
+
+🇬🇧 Englisch:
+If you need help, please contact Support Services: \\n- Phone: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputer Information: \\n\\n- Operating System: %MACOSPRDICTVERSION% \\n- Serial Number: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Started: %TIME_STAMP%
+
+🇧🇬 Bulgarisch:
+Ако имате нужда от помощ, моля свържете се с поддръжката: \\n- Телефон: %SUPPORT_TELEFON% \\n- Имейл: %SUPPORT_EMAIL% \\n\\nИнформация за компютъра: \\n\\n- Операционна система: %MACOSPRDICTVERSION% \\n- Сериен номер: %SERIALNUMBER% \\n- Диалог: %DIALOG_VERSION% \\n- Стартирано: %TIME_STAMP%
+
+🇭🇷 Kroatisch:
+Ako trebate pomoć, obratite se korisničkoj podršci: \\n- Telefon: %SUPPORT_TELEFON% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nInformacije o računalu: \\n\\n- Operativni sustav: %MACOSPRDICTVERSION% \\n- Serijski broj: %SERIALNUMBER% \\n- Dijalog: %DIALOG_VERSION% \\n- Pokrenuto: %TIME_STAMP%
+
+🇨🇿 Tschechisch:
+Pokud potřebujete pomoc, kontaktujte prosím podporu: \\n- Telefon: %SUPPORT_TELEFON% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nInformace o počítači: \\n\\n- Operační systém: %MACOSPRDICTVERSION% \\n- Sériové číslo: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Zahájeno: %TIME_STAMP%
+
+🇩🇰 Dänisch:
+Hvis du har brug for hjælp, bedes du kontakte supporten: \\n- Telefon: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputeroplysninger: \\n\\n- Styresystem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Startet: %TIME_STAMP%
+
+🇳🇱 Niederländisch:
+Als je hulp nodig hebt, neem dan contact op met de ondersteuning: \\n- Telefoon: %SUPPORT_TELEFON% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nComputerinformatie: \\n\\n- Besturingssysteem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialoog: %DIALOG_VERSION% \\n- Gestart: %TIME_STAMP%
+
+🇪🇪 Estnisch:
+Kui vajate abi, võtke ühendust tugiteenustega: \\n- Telefon: %SUPPORT_TELEFON% \\n- E-post: %SUPPORT_EMAIL% \\n\\nArvuti info: \\n\\n- Operatsioonisüsteem: %MACOSPRDICTVERSION% \\n- Seerianumber: %SERIALNUMBER% \\n- Dialoog: %DIALOG_VERSION% \\n- Alustatud: %TIME_STAMP%
+
+🇫🇮 Finnisch:
+Jos tarvitset apua, ota yhteyttä tukeen: \\n- Puhelin: %SUPPORT_TELEFON% \\n- Sähköposti: %SUPPORT_EMAIL% \\n\\nTietokonetiedot: \\n\\n- Käyttöjärjestelmä: %MACOSPRDICTVERSION% \\n- Sarjanumero: %SERIALNUMBER% \\n- Dialogi: %DIALOG_VERSION% \\n- Aloitettu: %TIME_STAMP%
+
+🇫🇷 Französisch:
+Si vous avez besoin d’aide, veuillez contacter le support : \\n- Téléphone : %SUPPORT_TELEFON% \\n- Email : %SUPPORT_EMAIL% \\n\\nInformations sur l’ordinateur : \\n\\n- Système d’exploitation : %MACOSPRDICTVERSION% \\n- Numéro de série : %SERIALNUMBER% \\n- Dialogue : %DIALOG_VERSION% \\n- Démarré : %TIME_STAMP%
+
+🇬🇷 Griechisch:
+Αν χρειάζεστε βοήθεια, παρακαλούμε επικοινωνήστε με την υποστήριξη: \\n- Τηλέφωνο: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nΠληροφορίες υπολογιστή: \\n\\n- Λειτουργικό σύστημα: %MACOSPRDICTVERSION% \\n- Σειριακός αριθμός: %SERIALNUMBER% \\n- Διάλογος: %DIALOG_VERSION% \\n- Έναρξη: %TIME_STAMP%
+
+🇮🇪 Irisch (Gälisch):
+Más gá duit cúnamh, téigh i dteagmháil leis an tseirbhís tacaíochta: \\n- Guthán: %SUPPORT_TELEFON% \\n- Ríomhphost: %SUPPORT_EMAIL% \\n\\nEolas ar an ríomhaire: \\n\\n- Córas oibriúcháin: %MACOSPRDICTVERSION% \\n- Uimhir sraithe: %SERIALNUMBER% \\n- Dialóg: %DIALOG_VERSION% \\n- Tosaithe: %TIME_STAMP%
+
+🇮🇹 Italienisch:
+Se hai bisogno di aiuto, contatta il supporto: \\n- Telefono: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformazioni sul computer: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Numero di serie: %SERIALNUMBER% \\n- Dialogo: %DIALOG_VERSION% \\n- Avviato: %TIME_STAMP%
+
+🇱🇻 Lettisch:
+Ja nepieciešama palīdzība, lūdzu, sazinieties ar atbalsta dienestu: \\n- Tālrunis: %SUPPORT_TELEFON% \\n- E-pasts: %SUPPORT_EMAIL% \\n\\nDatora informācija: \\n\\n- Operētājsistēma: %MACOSPRDICTVERSION% \\n- Sērijas numurs: %SERIALNUMBER% \\n- Dialogs: %DIALOG_VERSION% \\n- Sākts: %TIME_STAMP%
+
+🇱🇹 Litauisch:
+Jei reikia pagalbos, susisiekite su pagalbos tarnyba: \\n- Telefonas: %SUPPORT_TELEFON% \\n- El. paštas: %SUPPORT_EMAIL% \\n\\nKompiuterio informacija: \\n\\n- Operacinė sistema: %MACOSPRDICTVERSION% \\n- Serijos numeris: %SERIALNUMBER% \\n- Dialogas: %DIALOG_VERSION% \\n- Pradėta: %TIME_STAMP%
+
+🇲🇹 Maltesisch:
+Jekk għandek bżonn għajnuna, jekk jogħġbok ikkuntattja lis-servizzi ta’ appoġġ: \\n- Telefon: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformazzjoni dwar il-kompjuter: \\n\\n- Sistema operattiva: %MACOSPRDICTVERSION% \\n- Numru tas-serje: %SERIALNUMBER% \\n- Djalogu: %DIALOG_VERSION% \\n- Beda: %TIME_STAMP%
+
+🇵🇱 Polnisch:
+Jeśli potrzebujesz pomocy, skontaktuj się z pomocą techniczną: \\n- Telefon: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformacje o komputerze: \\n\\n- System operacyjny: %MACOSPRDICTVERSION% \\n- Numer seryjny: %SERIALNUMBER% \\n- Okno dialogowe: %DIALOG_VERSION% \\n- Uruchomiono: %TIME_STAMP%
+
+🇵🇹 Portugiesisch:
+Se precisares de ajuda, contacta os serviços de suporte: \\n- Telefone: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformações do computador: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Número de série: %SERIALNUMBER% \\n- Janela de diálogo: %DIALOG_VERSION% \\n- Iniciado: %TIME_STAMP%
+
+🇷🇴 Rumänisch:
+Dacă aveți nevoie de ajutor, contactați serviciile de asistență: \\n- Telefon: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformații despre computer: \\n\\n- Sistem de operare: %MACOSPRDICTVERSION% \\n- Număr de serie: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Pornit: %TIME_STAMP%
+
+🇸🇰 Slowakisch:
+Ak potrebujete pomoc, kontaktujte podporu: \\n- Telefón: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformácie o počítači: \\n\\n- Operačný systém: %MACOSPRDICTVERSION% \\n- Sériové číslo: %SERIALNUMBER% \\n- Dialóg: %DIALOG_VERSION% \\n- Spustené: %TIME_STAMP%
+
+🇸🇮 Slowenisch:
+Če potrebujete pomoč, se obrnite na podporo: \\n- Telefon: %SUPPORT_TELEFON% \\n- E-pošta: %SUPPORT_EMAIL% \\n\\nPodatki o računalniku: \\n\\n- Operacijski sistem: %MACOSPRDICTVERSION% \\n- Serijska številka: %SERIALNUMBER% \\n- Pogovorno okno: %DIALOG_VERSION% \\n- Zagnano: %TIME_STAMP%
+
+🇪🇸 Spanisch:
+Si necesitas ayuda, contacta con el soporte técnico: \\n- Teléfono: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformación del equipo: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Número de serie: %SERIALNUMBER% \\n- Diálogo: %DIALOG_VERSION% \\n- Inicio: %TIME_STAMP%
+
+🇸🇪 Schwedisch:
+Om du behöver hjälp, kontakta supporten: \\n- Telefon: %SUPPORT_TELEFON% \\n- E-post: %SUPPORT_EMAIL% \\n\\nDatorinformation: \\n\\n- Operativsystem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Starttid: %TIME_STAMP%
+
+🇭🇺 Ungarisch:
+Ha segítségre van szükséged, kérjük, lépj kapcsolatba az ügyfélszolgálattal: \\n- Telefon: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nSzámítógépes információk: \\n\\n- Operációs rendszer: %MACOSPRDICTVERSION% \\n- Sorozatszám: %SERIALNUMBER% \\n- Párbeszédpanel: %DIALOG_VERSION% \\n- Indítás időpontja: %TIME_STAMP%
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # Failure_Info_Title  # # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Entschuldige %REAL_FIRSTNAME%, da ist etwas schief gelaufen.
+
+🇬🇧 Englisch: 
+Sorry %REAL_FIRSTNAME%, something went wrong.
+
+🇧🇬 Bulgarisch: 
+Извинявай, %REAL_FIRSTNAME%, нещо се обърка.
+
+🇭🇷 Kroatisch: 
+Oprosti, %REAL_FIRSTNAME%, nešto je pošlo po zlu.
+
+🇨🇿 Tschechisch: 
+Promiň, %REAL_FIRSTNAME%, něco se pokazilo.
+
+🇩🇰 Dänisch: 
+Undskyld, %REAL_FIRSTNAME%, der gik noget galt.
+
+🇳🇱 Niederländisch: 
+Sorry %REAL_FIRSTNAME%, er is iets misgegaan.
+
+🇪🇪 Estnisch: 
+Vabandust, %REAL_FIRSTNAME%, midagi läks valesti.
+
+🇫🇮 Finnisch: 
+Anteeksi %REAL_FIRSTNAME%, jokin meni pieleen.
+
+🇫🇷 Französisch: 
+Désolé %REAL_FIRSTNAME%, quelque chose s’est mal passé.
+
+🇬🇷 Griechisch: 
+Συγγνώμη %REAL_FIRSTNAME%, κάτι πήγε στραβά.
+
+🇮🇪 Irisch (Gälisch): 
+Tá brón orm %REAL_FIRSTNAME%, chuaigh rud éigin mícheart.
+
+🇮🇹 Italienisch: 
+Scusa %REAL_FIRSTNAME%, qualcosa è andato storto.
+
+🇱🇻 Lettisch: 
+Piedod, %REAL_FIRSTNAME%, kaut kas nogāja greizi.
+
+🇱🇹 Litauisch: 
+Atsiprašau, %REAL_FIRSTNAME%, kažkas nutiko ne taip.
+
+🇲🇹 Maltesisch: 
+Skużani %REAL_FIRSTNAME%, xi ħaġa marret ħażin.
+
+🇵🇱 Polnisch: 
+Przepraszam %REAL_FIRSTNAME%, coś poszło nie tak.
+
+🇵🇹 Portugiesisch: 
+Desculpa %REAL_FIRSTNAME%, algo correu mal.
+
+🇷🇴 Rumänisch: 
+Ne pare rău, %REAL_FIRSTNAME%, ceva n-a mers bine.
+
+🇸🇰 Slowakisch: 
+Prepáč, %REAL_FIRSTNAME%, niečo sa pokazilo.
+
+🇸🇮 Slowenisch: 
+Oprosti, %REAL_FIRSTNAME%, nekaj je šlo narobe.
+
+🇪🇸 Spanisch: 
+Lo siento %REAL_FIRSTNAME%, algo salió mal.
+
+🇸🇪 Schwedisch: 
+Förlåt %REAL_FIRSTNAME%, något gick fel.
+
+🇭🇺 Ungarisch: 
+Bocsánat %REAL_FIRSTNAME%, valami hiba történt.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # Failure_Info_Progresstext # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Fehler entdeckt. Bitte klicke auf OK, um Informationen zur Fehlerbehebung zu erhalten.
+
+🇬🇧 Englisch: 
+Error detected. Please click OK to get troubleshooting information.
+
+🇧🇬 Bulgarisch: 
+Открита е грешка. Моля, щракни върху OK, за да получиш информация за отстраняването ѝ.
+
+🇭🇷 Kroatisch: 
+Otkrivena je pogreška. Klikni na OK za informacije o otklanjanju pogreške.
+
+🇨🇿 Tschechisch: 
+Byla zjištěna chyba. Klikni na OK pro informace o jejím odstranění.
+
+🇩🇰 Dänisch: 
+Fejl opdaget. Klik på OK for at få information om fejlfinding.
+
+🇳🇱 Niederländisch: 
+Fout ontdekt. Klik op OK om informatie over probleemoplossing te krijgen.
+
+🇪🇪 Estnisch: 
+Viga tuvastatud. Klõpsa OK, et saada teavet vea kõrvaldamise kohta.
+
+🇫🇮 Finnisch: 
+Virhe havaittu. Napsauta OK saadaksesi tietoa vianmäärityksestä.
+
+🇫🇷 Französisch: 
+Une erreur a été détectée. Clique sur OK pour obtenir des informations de dépannage.
+
+🇬🇷 Griechisch: 
+Εντοπίστηκε σφάλμα. Κάνε κλικ στο OK για πληροφορίες επίλυσης προβλημάτων.
+
+🇮🇪 Irisch (Gälisch): 
+Aimsíodh earráid. Cliceáil OK chun eolas a fháil faoi réiteach fabhtanna.
+
+🇮🇹 Italienisch: 
+Errore rilevato. Fai clic su OK per ottenere informazioni sulla risoluzione del problema.
+
+🇱🇻 Lettisch: 
+Konstatēta kļūda. Noklikšķini uz OK, lai iegūtu informāciju par problēmas novēršanu.
+
+🇱🇹 Litauisch: 
+Aptikta klaida. Spustelėk OK, kad gautum informacijos apie problemos sprendimą.
+
+🇲🇹 Maltesisch: 
+Instab żball. Ikklikkja OK biex tikseb aktar informazzjoni dwar is-soluzzjoni.
+
+🇵🇱 Polnisch: 
+Wykryto błąd. Kliknij OK, aby uzyskać informacje o rozwiązaniu problemu.
+
+🇵🇹 Portugiesisch: 
+Erro detetado. Clica em OK para obter informações sobre como resolver o problema.
+
+🇷🇴 Rumänisch: 
+A fost detectată o eroare. Apasă pe OK pentru informații despre rezolvare.
+
+🇸🇰 Slowakisch: 
+Bola zistená chyba. Klikni na OK pre informácie o jej odstránení.
+
+🇸🇮 Slowenisch: 
+Napaka zaznana. Klikni na OK za informacije o odpravi napake.
+
+🇪🇸 Spanisch: 
+Se ha detectado un error. Haz clic en OK para obtener información sobre cómo solucionarlo.
+
+🇸🇪 Schwedisch: 
+Fel upptäckt. Klicka på OK för att få information om hur du löser det.
+
+🇭🇺 Ungarisch: 
+Hibát észleltünk. Kattints az OK gombra a hiba megoldásához szükséges információkért.
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # Failure_Info_Message  # # # # # # # # # # # # # # # # # # #
+
+🇩🇪 German:
+Es wurden Fehler entdeckt, %REAL_FIRSTNAME%. \\n\\nBitte führe die folgenden Schritte aus: \\n1. Starte deinen Mac neu und melde dich erneut an. \\n2. Öffne den Self Service. \\n3. Führe alle unten aufgeführten fehlgeschlagenen Richtlinien erneut aus. \\n\\nDie folgenden Applikationen sind fehlgeschlagen: \\n%jamfProPolicyNameFailures% \\n\\n\\nWenn du Hilfe benötigst, wende dich bitte an den Helpdesk: \\n%SUPPORT_EMAIL%
+
+🇬🇧 Englisch:
+Errors were detected, %REAL_FIRSTNAME%. \\n\\nPlease follow these steps: \\n1. Restart your Mac and log in again. \\n2. Open Self Service. \\n3. Re-run all failed policies listed below. \\n\\nThe following applications failed: \\n%jamfProPolicyNameFailures% \\n\\n\\nIf you need help, please contact the Helpdesk: \\n%SUPPORT_EMAIL%
+
+🇫🇷 Französisch:
+Des erreurs ont été détectées, %REAL_FIRSTNAME%. \\n\\nVeuillez suivre les étapes suivantes : \\n1. Redémarre ton Mac et reconnecte-toi. \\n2. Ouvre Self Service. \\n3. Relance toutes les politiques ayant échoué listées ci-dessous. \\n\\nLes applications suivantes ont échoué : \\n%jamfProPolicyNameFailures% \\n\\n\\nSi tu as besoin d’aide, contacte le Helpdesk : \\n%SUPPORT_EMAIL%
+
+🇪🇸 Spanisch:
+Se han detectado errores, %REAL_FIRSTNAME%. \\n\\nSigue estos pasos: \\n1. Reinicia tu Mac e inicia sesión de nuevo. \\n2. Abre Self Service. \\n3. Ejecuta nuevamente todas las políticas fallidas que aparecen abajo. \\n\\nLas siguientes aplicaciones han fallado: \\n%jamfProPolicyNameFailures% \\n\\n\\nSi necesitas ayuda, contacta con el Helpdesk: \\n%SUPPORT_EMAIL%
+
+🇮🇹 Italienisch:
+Sono stati rilevati degli errori, %REAL_FIRSTNAME%. \\n\\nSegui questi passaggi: \\n1. Riavvia il Mac e accedi di nuovo. \\n2. Apri Self Service. \\n3. Esegui nuovamente tutte le policy fallite elencate sotto. \\n\\nLe seguenti applicazioni non sono riuscite: \\n%jamfProPolicyNameFailures% \\n\\n\\nSe hai bisogno di aiuto, contatta il Helpdesk: \\n%SUPPORT_EMAIL%
+
+🇳🇱 Niederländisch:
+Er zijn fouten ontdekt, %REAL_FIRSTNAME%. \\n\\nVolg deze stappen: \\n1. Herstart je Mac en log opnieuw in. \\n2. Open de Self Service. \\n3. Voer opnieuw alle mislukte beleidsregels hieronder uit. \\n\\nDe volgende applicaties zijn mislukt: \\n%jamfProPolicyNameFailures% \\n\\n\\nHeb je hulp nodig? Neem dan contact op met de helpdesk: \\n%SUPPORT_EMAIL%
+
+🇵🇱 Polnisch:
+Wykryto błędy, %REAL_FIRSTNAME%. \\n\\nWykonaj następujące kroki: \\n1. Uruchom ponownie Maca i zaloguj się. \\n2. Otwórz Self Service. \\n3. Uruchom ponownie wszystkie nieudane polityki wymienione poniżej. \\n\\nNiepowiodły się następujące aplikacje: \\n%jamfProPolicyNameFailures% \\n\\n\\nJeśli potrzebujesz pomocy, skontaktuj się z pomocą techniczną: \\n%SUPPORT_EMAIL%
+
+
+🇧🇬 Bulgarisch:
+Открити са грешки, %REAL_FIRSTNAME%. \\n\\nМоля, следвай тези стъпки: \\n1. Рестартирай своя Mac и влез отново. \\n2. Отвори Self Service. \\n3. Изпълни отново всички неуспешни политики, изброени по-долу. \\n\\nСледните приложения не се изпълниха успешно: \\n%jamfProPolicyNameFailures% \\n\\n\\nАко имаш нужда от помощ, свържи се с Helpdesk: \\n%SUPPORT_EMAIL%
+
+🇭🇷 Kroatisch:
+Otkrivene su pogreške, %REAL_FIRSTNAME%. \\n\\nSlijedi ove korake: \\n1. Ponovno pokreni svoj Mac i prijavi se. \\n2. Otvori Self Service. \\n3. Ponovno pokreni sve neuspjele politike u nastavku. \\n\\nSljedeće aplikacije nisu uspjele: \\n%jamfProPolicyNameFailures% \\n\\n\\nAko ti treba pomoć, obrati se Helpdesku: \\n%SUPPORT_EMAIL%
+
+🇨🇿 Tschechisch:
+Byly zjištěny chyby, %REAL_FIRSTNAME%. \\n\\nPostupuj takto: \\n1. Restartuj svůj Mac a znovu se přihlas. \\n2. Otevři Self Service. \\n3. Spusť znovu všechny neúspěšné politiky níže. \\n\\nNásledující aplikace selhaly: \\n%jamfProPolicyNameFailures% \\n\\n\\nPokud potřebuješ pomoc, obrať se na Helpdesk: \\n%SUPPORT_EMAIL%
+
+🇩🇰 Dänisch:
+Der blev fundet fejl, %REAL_FIRSTNAME%. \\n\\nFølg disse trin: \\n1. Genstart din Mac og log ind igen. \\n2. Åbn Self Service. \\n3. Kør alle mislykkede politikker nedenfor igen. \\n\\nFølgende apps mislykkedes: \\n%jamfProPolicyNameFailures% \\n\\n\\nHvis du har brug for hjælp, så kontakt Helpdesk: \\n%SUPPORT_EMAIL%
+
+🇪🇪 Estnisch:
+Tuvastati vigu, %REAL_FIRSTNAME%. \\n\\nPalun toimi järgmiselt: \\n1. Taaskäivita oma Mac ja logi uuesti sisse. \\n2. Ava Self Service. \\n3. Käivita uuesti kõik allpool loetletud ebaõnnestunud poliitikad. \\n\\nJärgmised rakendused nurjusid: \\n%jamfProPolicyNameFailures% \\n\\n\\nKui vajad abi, pöördu Helpdeski poole: \\n%SUPPORT_EMAIL%
+
+🇫🇮 Finnisch:
+Virheitä havaittu, %REAL_FIRSTNAME%. \\n\\nToimi näin: \\n1. Käynnistä Mac uudelleen ja kirjaudu sisään. \\n2. Avaa Self Service. \\n3. Suorita kaikki epäonnistuneet toiminnot uudelleen alta. \\n\\nSeuraavat sovellukset epäonnistuivat: \\n%jamfProPolicyNameFailures% \\n\\n\\nJos tarvitset apua, ota yhteyttä Helpdeskiin: \\n%SUPPORT_EMAIL%
+
+🇬🇷 Griechisch:
+Εντοπίστηκαν σφάλματα, %REAL_FIRSTNAME%. \\n\\nΑκολούθησε αυτά τα βήματα: \\n1. Κάνε επανεκκίνηση του Mac και συνδέσου ξανά. \\n2. Άνοιξε το Self Service. \\n3. Εκτέλεσε ξανά όλες τις αποτυχημένες πολιτικές που αναφέρονται παρακάτω. \\n\\nΟι παρακάτω εφαρμογές απέτυχαν: \\n%jamfProPolicyNameFailures% \\n\\n\\nΑν χρειάζεσαι βοήθεια, επικοινώνησε με το Helpdesk: \\n%SUPPORT_EMAIL%
+
+🇭🇺 Ungarisch:
+Hibák észlelve, %REAL_FIRSTNAME%. \\n\\nKövesd ezeket a lépéseket: \\n1. Indítsd újra a Macet, és jelentkezz be újra. \\n2. Nyisd meg a Self Service-t. \\n3. Futtasd újra az összes alább felsorolt sikertelen házirendet. \\n\\nA következő alkalmazások sikertelenek voltak: \\n%jamfProPolicyNameFailures% \\n\\n\\nHa segítségre van szükséged, vedd fel a kapcsolatot a Helpdeskkel: \\n%SUPPORT_EMAIL%
