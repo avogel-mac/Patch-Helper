@@ -1,0 +1,1163 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "it.next.PatchHelper",
+  "type": "object",
+  "properties": {
+    "ScriptLog": {
+      "description": "Default values",
+      "type": "object",
+      "properties": {
+        "scriptLog": {
+          "title": "Script Log File Path",
+          "default": "/var/log/it.next_patch_management.log",
+          "description": "The full path to the file where Patch Helper writes its runtime logs.",
+          "type": "string"
+        }
+      }
+    },
+    "Daemon_and_Deferral_Settings": {
+      "description": "The daemon is created when the user pushes the update. You can adjust the values here.",
+      "type": "object",
+      "properties": {
+        "LaunchDaemonLabel": {
+          "title": "Launch Daemon Identifier",
+          "default": "it.next.UpdateEnforce",
+          "description": "The label used to identify the launchd daemon that enforces deferred updates.",
+          "type": "string"
+        },
+        "StartInterval": {
+          "title": "Daemon Check Interval",
+          "default": 3600,
+          "description": "Time interval in seconds between each invocation of the launchd daemon to check for deferred updates.",
+          "type": "number"
+        },
+        "DaemonEventTrigger": {
+          "title": "Daemon Trigger Event",
+          "default": "update",
+          "description": "Event name that triggers the launchd daemon to run (e.g., 'update').",
+          "type": "string"
+        },
+        "DeferralPlist": {
+          "title": "Deferral Settings Plist Path",
+          "default": "/Library/Application Support/JAMF/it.next.PatchHelper.deferral.plist",
+          "description": "The path to the plist file that stores user deferral data for the Patch Helper.",
+          "type": "string"
+        },
+        "BundleIDDeferral": {
+          "title": "Deferral Bundle ID",
+          "default": "it.next.PatchHelper",
+          "description": "The bundle identifier used for the deferral plist to ensure uniqueness.",
+          "type": "string"
+        }
+      }
+    },
+    "Dialog_Settings": {
+      "description": "Passe den Dialog individuell an.",
+      "type": "object",
+      "properties": {
+        "BannerImage": {
+          "title": "Dialog Banner Image URL",
+          "default": "https://ics.services.jamfcloud.com/icon/hash_cfbe99281c08b7ef85da92dcb56be11a6ff8562e37d24bb20ecf230495d617df",
+          "description": "URL of the image displayed at the top of the Patch Helper dialog window.",
+          "type": "string"
+        },
+        "InfoboxIcon": {
+          "title": "Information Box Icon URL",
+          "default": "https://ics.services.jamfcloud.com/icon/hash_0b3ab277243d56f8bbe486f3453ba6c4fa9ea53f50245597f7852b62624d2bc6",
+          "description": "URL of the icon shown next to informational messages within the dialog.",
+          "type": "string"
+        },
+        "button1text_wait": {
+          "title": "Wait Button Text",
+          "default": "Please wait",
+          "description": "Label displayed on the button that allows the user to postpone the update by waiting.",
+          "type": "string"
+        },
+        "Dialog_update_width": {
+          "title": "Dialog Width",
+          "default": 740,
+          "description": "Pixel width of the update dialog window.",
+          "type": "number"
+        },
+        "Dialog_update_height": {
+          "title": "Dialog Height",
+          "default": 540,
+          "description": "Pixel height of the update dialog window.",
+          "type": "number"
+        },
+        "Dialog_update_titlefont": {
+          "title": "Title Font Size",
+          "default": 20,
+          "description": "Font size (in points) for the title text in the update dialog.",
+          "type": "number"
+        },
+        "Dialog_update_messagefont": {
+          "title": "Message Font Size",
+          "default": 14,
+          "description": "Font size (in points) for the body message text in the update dialog.",
+          "type": "number"
+        },
+        "Install_Button_Custom": {
+          "title": "Install Button Text",
+          "default": "NOW",
+          "description": "Custom label for the button that begins the installation process immediately.",
+          "type": "string"
+        },
+        "Defer_Button_Custom": {
+          "title": "Defer Button Text",
+          "default": "LATER",
+          "description": "Custom label for the button that allows users to defer the update.",
+          "type": "string"
+        },
+        "Dialog_quitkey": {
+          "title": "Dialog Quit Key",
+          "default": "k",
+          "description": "Keyboard key that lets the user close or quit the dialog window.",
+          "type": "string"
+        },
+        "RunUpdates_Dialog_position": {
+          "title": "Dialog Position",
+          "default": "centre",
+          "description": "Screen position of the update dialog (e.g., 'centre', 'topright').",
+          "type": "string"
+        },
+        "TimePromtUser": {
+          "title": "User Prompt Timeout",
+          "default": 300,
+          "description": "Time in seconds before the dialog automatically proceeds if the user does not respond.",
+          "type": "number"
+        },
+        "Faild_Button_Custom": {
+          "title": "Failure Dialog Button Text",
+          "default": "Close",
+          "description": "Label for the button displayed when an error occurs, allowing the user to close the failure dialog.",
+          "type": "string"
+        },
+        "Faild_Dialog_position": {
+          "title": "Failure Dialog Position",
+          "default": "topright",
+          "description": "Screen position of the dialog shown when an error is detected (e.g., 'topright').",
+          "type": "string"
+        },
+        "UpdateDeferral_Value": {
+          "title": "Initial Deferral Duration",
+          "default": 4,
+          "description": "The number of times the user can postpone the update before being reminded again.",
+          "type": "number"
+        },
+        "Support_Telefon": {
+          "title": "Support Phone Number",
+          "default": "+49 12 3456 789",
+          "description": "Phone number displayed to users if they need assistance during the update process.",
+          "type": "string"
+        },
+        "Support_Email": {
+          "title": "Support Email Address",
+          "default": "support@nextenterprise.it",
+          "description": "Email address users can contact for support during the update process.",
+          "type": "string"
+        }
+      }
+    },
+    "Messages": {
+      "description": "Definition of messages and texts in the Patch Helper.",
+      "type": "object",
+      "properties": {
+        "UserInfoTitle_Multi": {
+          "title": "Multi-Update Greeting Title",
+          "description": "Title message displayed when multiple updates are available for the user. Placeholders %REAL_FIRSTNAME% and %UPDATE_COUNT% are replaced with actual values from the script.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Hallo %REAL_FIRSTNAME%, es stehen %UPDATE_COUNT% Updates zur Aktualisierung bereit.",
+                "Hello %REAL_FIRSTNAME%, there are %UPDATE_COUNT% updates ready to be installed.",
+                "Здравей, %REAL_FIRSTNAME%, налични са %UPDATE_COUNT% актуализации за инсталиране.",
+                "Pozdrav %REAL_FIRSTNAME%, dostupno je %UPDATE_COUNT% ažuriranja za instalaciju.",
+                "Ahoj %REAL_FIRSTNAME%, je připraveno %UPDATE_COUNT% aktualizací k instalaci.",
+                "Hej %REAL_FIRSTNAME%, der er %UPDATE_COUNT% opdateringer klar til installation.",
+                "Hallo %REAL_FIRSTNAME%, er zijn %UPDATE_COUNT% updates beschikbaar om te installeren.",
+                "Tere, %REAL_FIRSTNAME%! Saadaval on %UPDATE_COUNT% värskendust.",
+                "Hei %REAL_FIRSTNAME%, %UPDATE_COUNT% päivitystä on valmiina asennettavaksi.",
+                "Bonjour %REAL_FIRSTNAME%, %UPDATE_COUNT% mises à jour sont prêtes à être installées.",
+                "Γεια σου %REAL_FIRSTNAME%, υπάρχουν %UPDATE_COUNT% ενημερώσεις έτοιμες για εγκατάσταση.",
+                "Dia dhuit %REAL_FIRSTNAME%, tá %UPDATE_COUNT% nuashonruithe ar fáil le suiteáil.",
+                "Ciao %REAL_FIRSTNAME%, ci sono %UPDATE_COUNT% aggiornamenti pronti per l'installazione.",
+                "Sveiki, %REAL_FIRSTNAME%! Ir pieejami %UPDATE_COUNT% atjauninājumi instalēšanai.",
+                "Sveiki, %REAL_FIRSTNAME%, paruošta %UPDATE_COUNT% atnaujinimų įdiegimui.",
+                "Ħelow %REAL_FIRSTNAME%, hemm %UPDATE_COUNT% aġġornamenti lesti biex jiġu installati.",
+                "Cześć %REAL_FIRSTNAME%, dostępne są %UPDATE_COUNT% aktualizacje do zainstalowania.",
+                "Olá %REAL_FIRSTNAME%, há %UPDATE_COUNT% atualizações prontas para instalação.",
+                "Salut %REAL_FIRSTNAME%, sunt %UPDATE_COUNT% actualizări disponibile pentru instalare.",
+                "Ahoj %REAL_FIRSTNAME%, je pripravených %UPDATE_COUNT% aktualizácií na inštaláciu.",
+                "Pozdravljen %REAL_FIRSTNAME%, na voljo je %UPDATE_COUNT% posodobitev za namestitev.",
+                "Hola %REAL_FIRSTNAME%, hay %UPDATE_COUNT% actualizaciones listas para instalarse.",
+                "Hej %REAL_FIRSTNAME%, det finns %UPDATE_COUNT% uppdateringar redo att installeras.",
+                "Wszystkie aktualizacje zostały zainstalowane. Dziękujemy za cierpliwość, %REAL_FIRSTNAME%.",
+                "Minden frissítés telepítve lett. Köszönjük a türelmedet, %REAL_FIRSTNAME%."
+              ],
+              "default": "Hello %REAL_FIRSTNAME%, there are %UPDATE_COUNT% updates ready to be installed."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Hallo %REAL_FIRSTNAME%, es stehen %UPDATE_COUNT% Updates zur Aktualisierung bereit.",
+                  "Hello %REAL_FIRSTNAME%, there are %UPDATE_COUNT% updates ready to be installed.",
+                  "Здравей, %REAL_FIRSTNAME%, налични са %UPDATE_COUNT% актуализации за инсталиране.",
+                  "Pozdrav %REAL_FIRSTNAME%, dostupno je %UPDATE_COUNT% ažuriranja za instalaciju.",
+                  "Ahoj %REAL_FIRSTNAME%, je připraveno %UPDATE_COUNT% aktualizací k instalaci.",
+                  "Hej %REAL_FIRSTNAME%, der er %UPDATE_COUNT% opdateringer klar til installation.",
+                  "Hallo %REAL_FIRSTNAME%, er zijn %UPDATE_COUNT% updates beschikbaar om te installeren.",
+                  "Tere, %REAL_FIRSTNAME%! Saadaval on %UPDATE_COUNT% värskendust.",
+                  "Hei %REAL_FIRSTNAME%, %UPDATE_COUNT% päivitystä on valmiina asennettavaksi.",
+                  "Bonjour %REAL_FIRSTNAME%, %UPDATE_COUNT% mises à jour sont prêtes à être installées.",
+                  "Γεια σου %REAL_FIRSTNAME%, υπάρχουν %UPDATE_COUNT% ενημερώσεις έτοιμες για εγκατάσταση.",
+                  "Dia dhuit %REAL_FIRSTNAME%, tá %UPDATE_COUNT% nuashonruithe ar fáil le suiteáil.",
+                  "Ciao %REAL_FIRSTNAME%, ci sono %UPDATE_COUNT% aggiornamenti pronti per l'installazione.",
+                  "Sveiki, %REAL_FIRSTNAME%! Ir pieejami %UPDATE_COUNT% atjauninājumi instalēšanai.",
+                  "Sveiki, %REAL_FIRSTNAME%, paruošta %UPDATE_COUNT% atnaujinimų įdiegimui.",
+                  "Ħelow %REAL_FIRSTNAME%, hemm %UPDATE_COUNT% aġġornamenti lesti biex jiġu installati.",
+                  "Cześć %REAL_FIRSTNAME%, dostępne są %UPDATE_COUNT% aktualizacje do zainstalowania.",
+                  "Olá %REAL_FIRSTNAME%, há %UPDATE_COUNT% atualizações prontas para instalação.",
+                  "Salut %REAL_FIRSTNAME%, sunt %UPDATE_COUNT% actualizări disponibile pentru instalare.",
+                  "Ahoj %REAL_FIRSTNAME%, je pripravených %UPDATE_COUNT% aktualizácií na inštaláciu.",
+                  "Pozdravljen %REAL_FIRSTNAME%, na voljo je %UPDATE_COUNT% posodobitev za namestitev.",
+                  "Hola %REAL_FIRSTNAME%, hay %UPDATE_COUNT% actualizaciones listas para instalarse.",
+                  "Hej %REAL_FIRSTNAME%, det finns %UPDATE_COUNT% uppdateringar redo att installeras.",
+                  "Wszystkie aktualizacje zostały zainstalowane. Dziękujemy za cierpliwość, %REAL_FIRSTNAME%.",
+                  "Minden frissítés telepítve lett. Köszönjük a türelmedet, %REAL_FIRSTNAME%."
+                ]
+              }
+            }
+          ]
+        },
+        "UserInfoTitle_Single": {
+          "title": "Single-Update Greeting Title",
+          "description": "Title message displayed when exactly one update is available for the user. Placeholders %REAL_FIRSTNAME% and %UPDATE_COUNT% are replaced with actual values from the script.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Hallo %REAL_FIRSTNAME%, es steht %UPDATE_COUNT% Update zur Aktualisierung bereit.",
+                "Hello %REAL_FIRSTNAME%, there is %UPDATE_COUNT% update ready to be installed.",
+                "Здравей, %REAL_FIRSTNAME%, налична е %UPDATE_COUNT% актуализация за инсталиране.",
+                "Pozdrav %REAL_FIRSTNAME%, dostupno je %UPDATE_COUNT% ažuriranje za instalaciju.",
+                "Ahoj %REAL_FIRSTNAME%, je připravena %UPDATE_COUNT% aktualizace k instalaci.",
+                "Hej %REAL_FIRSTNAME%, der er %UPDATE_COUNT% opdatering klar til installation.",
+                "Hallo %REAL_FIRSTNAME%, er is %UPDATE_COUNT% update beschikbaar om te installeren.",
+                "Tere, %REAL_FIRSTNAME%! Saadaval on %UPDATE_COUNT% värskendus.",
+                "Hei %REAL_FIRSTNAME%, %UPDATE_COUNT% päivitys on valmiina asennettavaksi.",
+                "Bonjour %REAL_FIRSTNAME%, %UPDATE_COUNT% mise à jour est prête à être installée.",
+                "Γεια σου %REAL_FIRSTNAME%, υπάρχει %UPDATE_COUNT% ενημέρωση έτοιμη για εγκατάσταση.",
+                "Dia dhuit %REAL_FIRSTNAME%, tá %UPDATE_COUNT% nuashonrú ar fáil le suiteáil.",
+                "Ciao %REAL_FIRSTNAME%, è disponibile %UPDATE_COUNT% aggiornamento da installare.",
+                "Sveiki, %REAL_FIRSTNAME%! Ir pieejams %UPDATE_COUNT% atjauninājums instalēšanai.",
+                "Sveiki, %REAL_FIRSTNAME%, paruoštas %UPDATE_COUNT% atnaujinimas įdiegimui.",
+                "Ħelow %REAL_FIRSTNAME%, hemm %UPDATE_COUNT% aġġornament lest biex jiġi installat.",
+                "Cześć %REAL_FIRSTNAME%, dostępna jest %UPDATE_COUNT% aktualizacja do zainstalowania.",
+                "Olá %REAL_FIRSTNAME%, há %UPDATE_COUNT% atualização pronta para instalação.",
+                "Salut %REAL_FIRSTNAME%, este disponibilă %UPDATE_COUNT% actualizare pentru instalare.",
+                "Ahoj %REAL_FIRSTNAME%, je pripravená %UPDATE_COUNT% aktualizácia na inštaláciu.",
+                "Pozdravljen %REAL_FIRSTNAME%, na voljo je %UPDATE_COUNT% posodobitev za namestitev.",
+                "Hola %REAL_FIRSTNAME%, hay %UPDATE_COUNT% actualización lista para instalarse.",
+                "Hej %REAL_FIRSTNAME%, det finns %UPDATE_COUNT% uppdatering redo att installeras."
+              ],
+              "default": "Hello %REAL_FIRSTNAME%, there is %UPDATE_COUNT% update ready to be installed."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Hallo %REAL_FIRSTNAME%, es steht %UPDATE_COUNT% Update zur Aktualisierung bereit.",
+                  "Hello %REAL_FIRSTNAME%, there is %UPDATE_COUNT% update ready to be installed.",
+                  "Здравей, %REAL_FIRSTNAME%, налична е %UPDATE_COUNT% актуализация за инсталиране.",
+                  "Pozdrav %REAL_FIRSTNAME%, dostupno je %UPDATE_COUNT% ažuriranje za instalaciju.",
+                  "Ahoj %REAL_FIRSTNAME%, je připravena %UPDATE_COUNT% aktualizace k instalaci.",
+                  "Hej %REAL_FIRSTNAME%, der er %UPDATE_COUNT% opdatering klar til installation.",
+                  "Hallo %REAL_FIRSTNAME%, er is %UPDATE_COUNT% update beschikbaar om te installeren.",
+                  "Tere, %REAL_FIRSTNAME%! Saadaval on %UPDATE_COUNT% värskendus.",
+                  "Hei %REAL_FIRSTNAME%, %UPDATE_COUNT% päivitys on valmiina asennettavaksi.",
+                  "Bonjour %REAL_FIRSTNAME%, %UPDATE_COUNT% mise à jour est prête à être installée.",
+                  "Γεια σου %REAL_FIRSTNAME%, υπάρχει %UPDATE_COUNT% ενημέρωση έτοιμη για εγκατάσταση.",
+                  "Dia dhuit %REAL_FIRSTNAME%, tá %UPDATE_COUNT% nuashonrú ar fáil le suiteáil.",
+                  "Ciao %REAL_FIRSTNAME%, è disponibile %UPDATE_COUNT% aggiornamento da installare.",
+                  "Sveiki, %REAL_FIRSTNAME%! Ir pieejams %UPDATE_COUNT% atjauninājums instalēšanai.",
+                  "Sveiki, %REAL_FIRSTNAME%, paruoštas %UPDATE_COUNT% atnaujinimas įdiegimui.",
+                  "Ħelow %REAL_FIRSTNAME%, hemm %UPDATE_COUNT% aġġornament lest biex jiġi installat.",
+                  "Cześć %REAL_FIRSTNAME%, dostępna jest %UPDATE_COUNT% aktualizacja do zainstalowania.",
+                  "Olá %REAL_FIRSTNAME%, há %UPDATE_COUNT% atualização pronta para instalação.",
+                  "Salut %REAL_FIRSTNAME%, este disponibilă %UPDATE_COUNT% actualizare pentru instalare.",
+                  "Ahoj %REAL_FIRSTNAME%, je pripravená %UPDATE_COUNT% aktualizácia na inštaláciu.",
+                  "Pozdravljen %REAL_FIRSTNAME%, na voljo je %UPDATE_COUNT% posodobitev za namestitev.",
+                  "Hola %REAL_FIRSTNAME%, hay %UPDATE_COUNT% actualización lista para instalarse.",
+                  "Hej %REAL_FIRSTNAME%, det finns %UPDATE_COUNT% uppdatering redo att installeras."
+                ]
+              }
+            }
+          ]
+        },
+        "final_sucess_progresstext_Multi": {
+          "title": "Multi-Update Success Message",
+          "description": "Message displayed after successfully installing multiple updates, thanking the user. Placeholder %REAL_FIRSTNAME% is replaced with the user’s first name at runtime.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Alle Updates wurden installiert. Danke für die Geduld %REAL_FIRSTNAME%.",
+                "All updates have been installed. Thank you for your patience, %REAL_FIRSTNAME%.",
+                "Всички актуализации са инсталирани. Благодарим за търпението, %REAL_FIRSTNAME%.",
+                "Alle opdateringer er blevet installeret. Tak for din tålmodighed, %REAL_FIRSTNAME%.",
+                "Kõik värskendused on paigaldatud. Täname kannatlikkuse eest, %REAL_FIRSTNAME%.",
+                "Kaikki päivitykset on asennettu. Kiitos kärsivällisyydestäsi, %REAL_FIRSTNAME%.",
+                "Toutes les mises à jour ont été installées. Merci pour votre patience, %REAL_FIRSTNAME%.",
+                "Όλες οι ενημερώσεις εγκαταστάθηκαν. Ευχαριστούμε για την υπομονή σας, %REAL_FIRSTNAME%.",
+                "Tá na nuashonruithe go léir suiteáilte. Go raibh maith agat as do fhoighne, %REAL_FIRSTNAME%.",
+                "Tutti gli aggiornamenti sono stati installati. Grazie per la tua pazienza, %REAL_FIRSTNAME%.",
+                "Sva ažuriranja su instalirana. Hvala na strpljenju, %REAL_FIRSTNAME%.",
+                "Visi atjauninājumi ir instalēti. Paldies par pacietību, %REAL_FIRSTNAME%.",
+                "Visi atnaujinimai įdiegti. Ačiū už kantrybę, %REAL_FIRSTNAME%.",
+                "L-aġġornamenti kollha ġew installati. Grazzi għall-paċenzja tiegħek, %REAL_FIRSTNAME%.",
+                "Alle updates zijn geïnstalleerd. Bedankt voor je geduld, %REAL_FIRSTNAME%.",
+                "Wszystkie aktualizacje zostały zainstalowane. Dziękujemy za cierpliwość, %REAL_FIRSTNAME%.",
+                "Todas as atualizações foram instaladas. Obrigado pela sua paciência, %REAL_FIRSTNAME%.",
+                "Toate actualizările au fost instalate. Mulțumim pentru răbdare, %REAL_FIRSTNAME%.",
+                "Alla uppdateringar har installerats. Tack för ditt tålamod, %REAL_FIRSTNAME%.",
+                "Všetky aktualizácie boli nainštalované. Ďakujeme za trpezlivosť, %REAL_FIRSTNAME%.",
+                "Vse posodobitve so bile nameščene. Hvala za potrpežljivost, %REAL_FIRSTNAME%.",
+                "Todas las actualizaciones se han instalado. Gracias por tu paciencia, %REAL_FIRSTNAME%.",
+                "Všechny aktualizace byly nainstalovány. Děkujeme za trpělivost, %REAL_FIRSTNAME%.",
+                "Minden frissítés telepítve lett. Köszönjük a türelmedet, %REAL_FIRSTNAME%."
+              ],
+              "default": "All updates have been installed. Thank you for your patience, %REAL_FIRSTNAME%."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Alle Updates wurden installiert. Danke für die Geduld %REAL_FIRSTNAME%.",
+                  "All updates have been installed. Thank you for your patience, %REAL_FIRSTNAME%.",
+                  "Всички актуализации са инсталирани. Благодарим за търпението, %REAL_FIRSTNAME%.",
+                  "Alle opdateringer er blevet installeret. Tak for din tålmodighed, %REAL_FIRSTNAME%.",
+                  "Kõik värskendused on paigaldatud. Täname kannatlikkuse eest, %REAL_FIRSTNAME%.",
+                  "Kaikki päivitykset on asennettu. Kiitos kärsivällisyydestäsi, %REAL_FIRSTNAME%.",
+                  "Toutes les mises à jour ont été installées. Merci pour votre patience, %REAL_FIRSTNAME%.",
+                  "Όλες οι ενημερώσεις εγκαταστάθηκαν. Ευχαριστούμε για την υπομονή σας, %REAL_FIRSTNAME%.",
+                  "Tá na nuashonruithe go léir suiteáilte. Go raibh maith agat as do fhoighne, %REAL_FIRSTNAME%.",
+                  "Tutti gli aggiornamenti sono stati installati. Grazie per la tua pazienza, %REAL_FIRSTNAME%.",
+                  "Sva ažuriranja su instalirana. Hvala na strpljenju, %REAL_FIRSTNAME%.",
+                  "Visi atjauninājumi ir instalēti. Paldies par pacietību, %REAL_FIRSTNAME%.",
+                  "Visi atnaujinimai įdiegti. Ačiū už kantrybę, %REAL_FIRSTNAME%.",
+                  "L-aġġornamenti kollha ġew installati. Grazzi għall-paċenzja tiegħek, %REAL_FIRSTNAME%.",
+                  "Alle updates zijn geïnstalleerd. Bedankt voor je geduld, %REAL_FIRSTNAME%.",
+                  "Wszystkie aktualizacje zostały zainstalowane. Dziękujemy za cierpliwość, %REAL_FIRSTNAME%.",
+                  "Todas as atualizações foram instaladas. Obrigado pela sua paciência, %REAL_FIRSTNAME%.",
+                  "Toate actualizările au fost instalate. Mulțumim pentru răbdare, %REAL_FIRSTNAME%.",
+                  "Alla uppdateringar har installerats. Tack för ditt tålamod, %REAL_FIRSTNAME%.",
+                  "Všetky aktualizácie boli nainštalované. Ďakujeme za trpezlivosť, %REAL_FIRSTNAME%.",
+                  "Vse posodobitve so bile nameščene. Hvala za potrpežljivost, %REAL_FIRSTNAME%.",
+                  "Todas las actualizaciones se han instalado. Gracias por tu paciencia, %REAL_FIRSTNAME%.",
+                  "Všechny aktualizace byly nainstalovány. Děkujeme za trpělivost, %REAL_FIRSTNAME%.",
+                  "Minden frissítés telepítve lett. Köszönjük a türelmedet, %REAL_FIRSTNAME%."
+                ]
+              }
+            }
+          ]
+        },
+        "final_sucess_progresstext_Single": {
+          "title": "Single-Update Success Message",
+          "description": "Message displayed after successfully installing a single update, thanking the user. Placeholder %REAL_FIRSTNAME% is replaced with the user’s first name at runtime.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Das Update wurde installiert. Danke für die Geduld %REAL_FIRSTNAME%.",
+                "The update has been installed. Thank you for your patience, %REAL_FIRSTNAME%.",
+                "Актуализацията беше инсталирана. Благодарим за търпението, %REAL_FIRSTNAME%.",
+                "Opdateringen er blevet installeret. Tak for din tålmodighed, %REAL_FIRSTNAME%.",
+                "Värskendus on paigaldatud. Täname kannatlikkuse eest, %REAL_FIRSTNAME%.",
+                "Päivitys on asennettu. Kiitos kärsivällisyydestäsi, %REAL_FIRSTNAME%.",
+                "La mise à jour a été installée. Merci pour votre patience, %REAL_FIRSTNAME%.",
+                "Η ενημέρωση εγκαταστάθηκε. Ευχαριστούμε για την υπομονή σας, %REAL_FIRSTNAME%.",
+                "Tá an nuashonrú suiteáilte. Go raibh maith agat as do fhoighne, %REAL_FIRSTNAME%.",
+                "L’aggiornamento è stato installato. Grazie per la tua pazienza, %REAL_FIRSTNAME%.",
+                "Ažuriranje je instalirano. Hvala na strpljenju, %REAL_FIRSTNAME%.",
+                "Atjauninājums ir instalēts. Paldies par pacietību, %REAL_FIRSTNAME%.",
+                "Atnaujinimas įdiegtas. Ačiū už kantrybę, %REAL_FIRSTNAME%.",
+                "L-aġġornament ġie installat. Grazzi għall-paċenzja tiegħek, %REAL_FIRSTNAME%.",
+                "De update is geïnstalleerd. Bedankt voor je geduld, %REAL_FIRSTNAME%.",
+                "Aktualizacja została zainstalowana. Dziękujemy za cierpliwość, %REAL_FIRSTNAME%.",
+                "A atualização foi instalada. Obrigado pela sua paciência, %REAL_FIRSTNAME%.",
+                "Actualizarea a fost instalată. Mulțumim pentru răbdare, %REAL_FIRSTNAME%.",
+                "Uppdateringen har installerats. Tack för ditt tålamod, %REAL_FIRSTNAME%.",
+                "Aktualizácia bola nainštalovaná. Ďakujeme za trpezlivosť, %REAL_FIRSTNAME%.",
+                "Posodobitev je bila nameščena. Hvala za potrpežljivost, %REAL_FIRSTNAME%.",
+                "La actualización se ha instalado. Gracias por tu paciencia, %REAL_FIRSTNAME%.",
+                "Aktualizace byla nainstalována. Děkujeme za trpělivost, %REAL_FIRSTNAME%.",
+                "A frissítés telepítve lett. Köszönjük a türelmedet, %REAL_FIRSTNAME%."
+              ],
+              "default": "The update has been installed. Thank you for your patience, %REAL_FIRSTNAME%."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Das Update wurde installiert. Danke für die Geduld %REAL_FIRSTNAME%.",
+                  "The update has been installed. Thank you for your patience, %REAL_FIRSTNAME%.",
+                  "Актуализацията беше инсталирана. Благодарим за търпението, %REAL_FIRSTNAME%.",
+                  "Opdateringen er blevet installeret. Tak for din tålmodighed, %REAL_FIRSTNAME%.",
+                  "Värskendus on paigaldatud. Täname kannatlikkuse eest, %REAL_FIRSTNAME%.",
+                  "Päivitys on asennettu. Kiitos kärsivällisyydestäsi, %REAL_FIRSTNAME%.",
+                  "La mise à jour a été installée. Merci pour votre patience, %REAL_FIRSTNAME%.",
+                  "Η ενημέρωση εγκαταστάθηκε. Ευχαριστούμε για την υπομονή σας, %REAL_FIRSTNAME%.",
+                  "Tá an nuashonrú suiteáilte. Go raibh maith agat as do fhoighne, %REAL_FIRSTNAME%.",
+                  "L’aggiornamento è stato installato. Grazie per la tua pazienza, %REAL_FIRSTNAME%.",
+                  "Ažuriranje je instalirano. Hvala na strpljenju, %REAL_FIRSTNAME%.",
+                  "Atjauninājums ir instalēts. Paldies par pacietību, %REAL_FIRSTNAME%.",
+                  "Atnaujinimas įdiegtas. Ačiū už kantrybę, %REAL_FIRSTNAME%.",
+                  "L-aġġornament ġie installat. Grazzi għall-paċenzja tiegħek, %REAL_FIRSTNAME%.",
+                  "De update is geïnstalleerd. Bedankt voor je geduld, %REAL_FIRSTNAME%.",
+                  "Aktualizacja została zainstalowana. Dziękujemy za cierpliwość, %REAL_FIRSTNAME%.",
+                  "A atualização foi instalada. Obrigado pela sua paciência, %REAL_FIRSTNAME%.",
+                  "Actualizarea a fost instalată. Mulțumim pentru răbdare, %REAL_FIRSTNAME%.",
+                  "Uppdateringen har installerats. Tack för ditt tålamod, %REAL_FIRSTNAME%.",
+                  "Aktualizácia bola nainštalovaná. Ďakujeme za trpezlivosť, %REAL_FIRSTNAME%.",
+                  "Posodobitev je bila nameščena. Hvala za potrpežljivost, %REAL_FIRSTNAME%.",
+                  "La actualización se ha instalado. Gracias por tu paciencia, %REAL_FIRSTNAME%.",
+                  "Aktualizace byla nainstalována. Děkujeme za trpělivost, %REAL_FIRSTNAME%.",
+                  "A frissítés telepítve lett. Köszönjük a türelmedet, %REAL_FIRSTNAME%."
+                ]
+              }
+            }
+          ]
+        },
+        "UserInfoMessage": {
+          "title": "Update Information Message",
+          "description": "Detailed instructions informing the user about which applications require updates, how to proceed, and how long they can defer. Placeholders %joinedPolicyNames% and %CURRENT_DEFERRAL_VALUE% are replaced with actual values from the script.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Die folgenden Anwendungen müssen aktualisiert werden: \\n\\n%joinedPolicyNames% \\n\\n--- \\nWährend der Installation werden die betroffenen Anwendungen geschlossen. Bitte klicken auf Update, um mit der Aktualisierung fortzufahren. \\n\\n\\n#### Du kannst den Prozess noch für: %CURRENT_DEFERRAL_VALUE% verscheiben. \\n\\n\\nSolange Du die Updates nicht installierst, wirst du Stündlich daran mit diesem Dislogfenster errinnert, bis die Anzahl 0 erreicht.",
+                "The following applications need to be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update to proceed with the update. \\n\\n\\n#### You can still postpone the process for: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nAs long as you don't install the updates, you will be reminded hourly with this dialog window until the count reaches 0.",
+                "Οι παρακάτω εφαρμογές πρέπει να ενημερωθούν: \\n\\n%joinedPolicyNames% \\n\\n--- \\nΚατά την εγκατάσταση, οι επηρεαζόμενες εφαρμογές θα κλείσουν. Κάντε κλικ στο Update για να συνεχίσετε με την ενημέρωση. \\n\\n\\n#### Μπορείτε ακόμη να αναβάλετε τη διαδικασία για: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nΌσο δεν εγκαθιστάτε τις ενημερώσεις, αυτό το παράθυρο διαλόγου θα σας υπενθυμίζει κάθε ώρα, μέχρι να φτάσει το πλήθος στο 0.",
+                "Ní mór na feidhmchláir seo a leanas a nuashonrú: \\n\\n%joinedPolicyNames% \\n\\n--- \\nLe linn an tsuiteála, dúnfar na feidhmchláir atá i gceist. Cliceáil ar Update chun leanúint ar aghaidh leis an nuashonrú. \\n\\n\\n#### Is féidir leat an próiseas a chur ar athló fós ar feadh: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nGo dtí go suiteálfaidh tú na nuashonruithe, cuirfidh an bosca dialóige seo i gcuimhne duit gach uair an chloig go dtí go sroichfidh an líon 0.",
+                "Le seguenti applicazioni devono essere aggiornate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante l'installazione, le applicazioni interessate verranno chiuse. Clicca su Update per continuare con l'aggiornamento. \\n\\n\\n#### Puoi ancora posticipare il processo per: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nFinché non installerai gli aggiornamenti, questa finestra di dialogo ti ricorderà ogni ora fino a quando il conteggio raggiungerà 0.",
+                "Tālāk norādītās lietotnes ir jāatjaunina: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstalēšanas laikā attiecīgās lietotnes tiks aizvērtas. Lūdzu, noklikšķiniet uz Update, lai turpinātu atjaunināšanu. \\n\\n\\n#### Jūs joprojām varat atlikt procesu uz: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nKamēr neatjaunināsiet, šis dialoglodziņš jūs katru stundu atgādinās, līdz skaits sasniedz 0.",
+                "Toliau nurodytos programos turi būti atnaujintos: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDiegiant atnaujinimą, paveiktos programos bus uždarytos. Spustelėkite Update, kad tęstumėte. \\n\\n\\n#### Dar galite atidėti procesą: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nKol neįdiegsite atnaujinimų, šis dialogo langas primins jums kas valandą, kol skaičius pasieks 0.",
+                "L-applikazzjonijiet li ġejjin għandhom bżonn jiġu aġġornati: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMatul l-installazzjoni, l-applikazzjonijiet affettwati se jingħalqu. Ikklikkja Update biex tkompli bl-aġġornament. \\n\\n\\n#### Tista' għadek tittardja l-proċess għal: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nSakemm ma tinstallax l-aġġornamenti, dan il-pop-up ifakkrek kull siegħa sakemm in-numru jasal għal 0.",
+                "De volgende toepassingen moeten worden bijgewerkt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijdens de installatie worden de getroffen toepassingen afgesloten. Klik op Update om door te gaan met de update. \\n\\n\\n#### Je kunt het proces nog uitstellen voor: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nZolang je de updates niet installeert, zal dit dialoogvenster je elk uur herinneren totdat het aantal 0 bereikt is.",
+                "Następujące aplikacje muszą zostać zaktualizowane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPodczas instalacji dotknięte aplikacje zostaną zamknięte. Kliknij Update, aby kontynuować aktualizację. \\n\\n\\n#### Nadal możesz odroczyć ten proces o: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nDopóki nie zainstalujesz aktualizacji, to okno dialogowe będzie przypominać Ci o tym co godzinę, aż liczba osiągnie 0.",
+                "As seguintes aplicações precisam ser atualizadas: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante a instalação, as aplicações afetadas serão encerradas. Clique em Update para continuar com a atualização. \\n\\n\\n#### Ainda pode adiar o processo por: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nEnquanto não instalar as atualizações, esta janela de diálogo irá lembrá-lo de hora a hora até que o número chegue a 0.",
+                "Următoarele aplicații trebuie actualizate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nÎn timpul instalării, aplicațiile afectate vor fi închise. Faceți clic pe Update pentru a continua actualizarea. \\n\\n\\n#### Poți amâna procesul pentru încă: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nPână când instalezi actualizările, această fereastră de dialog îți va aminti de ele în fiecare oră până când numărul ajunge la 0.",
+                "Nasledujúce aplikácie je potrebné aktualizovať: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPočas inštalácie budú dotknuté aplikácie zatvorené. Klikni na Update a pokračuj v aktualizácii. \\n\\n\\n#### Proces môžeš ešte odložiť o: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nPokiaľ neuskutočníš aktualizácie, toto dialógové okno ti to bude pripomínať každú hodinu, kým počet nedosiahne 0.",
+                "Naslednje aplikacije je treba posodobiti: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMed namestitvijo bodo prizadete aplikacije zaprte. Kliknite Update, da nadaljujete s posodobitvijo. \\n\\n\\n#### Proces lahko še odložite za: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nDokler ne namestite posodobitev, vas bo to pogovorno okno vsako uro opomnilo, dokler število ne bo 0.",
+                "Las siguientes aplicaciones deben actualizarse: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante la instalación, las aplicaciones afectadas se cerrarán. Haz clic en Update para continuar con la actualización. \\n\\n\\n#### Puedes posponer el proceso durante: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nMientras no instales las actualizaciones, esta ventana de diálogo te lo recordará cada hora hasta que el número llegue a 0.",
+                "Följande program behöver uppdateras: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen kommer de berörda programmen att stängas. Klicka på Update för att fortsätta med uppdateringen. \\n\\n\\n#### Du kan fortfarande skjuta upp processen i: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nSå länge du inte installerar uppdateringarna kommer det här dialogfönstret att påminna dig varje timme tills antalet når 0.",
+                "A következő alkalmazásokat frissíteni kell: \\n\\n%joinedPolicyNames% \\n\\n--- \\nA telepítés során az érintett alkalmazások bezárásra kerülnek. Kattints a Update gombra a frissítés folytatásához. \\n\\n\\n#### A folyamatot még elhalaszthatod: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nAmíg nem telepíted a frissítéseket, ez az ablak óránként emlékeztetni fog, amíg a szám el nem éri a 0-t."
+              ],
+              "default": "The following applications need to be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update to proceed with the update. \\n\\n\\n#### You can still postpone the process for: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nAs long as you don't install the updates, you will be reminded hourly with this dialog window until the count reaches 0."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Die folgenden Anwendungen müssen aktualisiert werden: \\n\\n%joinedPolicyNames% \\n\\n--- \\nWährend der Installation werden die betroffenen Anwendungen geschlossen. Bitte klicken auf Update, um mit der Aktualisierung fortzufahren. \\n\\n\\n#### Du kannst den Prozess noch für: %CURRENT_DEFERRAL_VALUE% verscheiben. \\n\\n\\nSolange Du die Updates nicht installierst, wirst du Stündlich daran mit diesem Dislogfenster errinnert, bis die Anzahl 0 erreicht.",
+                  "The following applications need to be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update to proceed with the update. \\n\\n\\n#### You can still postpone the process for: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nAs long as you don't install the updates, you will be reminded hourly with this dialog window until the count reaches 0.",
+                  "Οι παρακάτω εφαρμογές πρέπει να ενημερωθούν: \\n\\n%joinedPolicyNames% \\n\\n--- \\nΚατά την εγκατάσταση, οι επηρεαζόμενες εφαρμογές θα κλείσουν. Κάντε κλικ στο Update για να συνεχίσετε με την ενημέρωση. \\n\\n\\n#### Μπορείτε ακόμη να αναβάλετε τη διαδικασία για: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nΌσο δεν εγκαθιστάτε τις ενημερώσεις, αυτό το παράθυρο διαλόγου θα σας υπενθυμίζει κάθε ώρα, μέχρι να φτάσει το πλήθος στο 0.",
+                  "Ní mór na feidhmchláir seo a leanas a nuashonrú: \\n\\n%joinedPolicyNames% \\n\\n--- \\nLe linn an tsuiteála, dúnfar na feidhmchláir atá i gceist. Cliceáil ar Update chun leanúint ar aghaidh leis an nuashonrú. \\n\\n\\n#### Is féidir leat an próiseas a chur ar athló fós ar feadh: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nGo dtí go suiteálfaidh tú na nuashonruithe, cuirfidh an bosca dialóige seo i gcuimhne duit gach uair an chloig go dtí go sroichfidh an líon 0.",
+                  "Le seguenti applicazioni devono essere aggiornate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante l'installazione, le applicazioni interessate verranno chiuse. Clicca su Update per continuare con l'aggiornamento. \\n\\n\\n#### Puoi ancora posticipare il processo per: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nFinché non installerai gli aggiornamenti, questa finestra di dialogo ti ricorderà ogni ora fino a quando il conteggio raggiungerà 0.",
+                  "Tālāk norādītās lietotnes ir jāatjaunina: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstalēšanas laikā attiecīgās lietotnes tiks aizvērtas. Lūdzu, noklikšķiniet uz Update, lai turpinātu atjaunināšanu. \\n\\n\\n#### Jūs joprojām varat atlikt procesu uz: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nKamēr neatjaunināsiet, šis dialoglodziņš jūs katru stundu atgādinās, līdz skaits sasniedz 0.",
+                  "Toliau nurodytos programos turi būti atnaujintos: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDiegiant atnaujinimą, paveiktos programos bus uždarytos. Spustelėkite Update, kad tęstumėte. \\n\\n\\n#### Dar galite atidėti procesą: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nKol neįdiegsite atnaujinimų, šis dialogo langas primins jums kas valandą, kol skaičius pasieks 0.",
+                  "L-applikazzjonijiet li ġejjin għandhom bżonn jiġu aġġornati: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMatul l-installazzjoni, l-applikazzjonijiet affettwati se jingħalqu. Ikklikkja Update biex tkompli bl-aġġornament. \\n\\n\\n#### Tista' għadek tittardja l-proċess għal: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nSakemm ma tinstallax l-aġġornamenti, dan il-pop-up ifakkrek kull siegħa sakemm in-numru jasal għal 0.",
+                  "De volgende toepassingen moeten worden bijgewerkt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijdens de installatie worden de getroffen toepassingen afgesloten. Klik op Update om door te gaan met de update. \\n\\n\\n#### Je kunt het proces nog uitstellen voor: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nZolang je de updates niet installeert, zal dit dialoogvenster je elk uur herinneren totdat het aantal 0 bereikt is.",
+                  "Następujące aplikacje muszą zostać zaktualizowane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPodczas instalacji dotknięte aplikacje zostaną zamknięte. Kliknij Update, aby kontynuować aktualizację. \\n\\n\\n#### Nadal możesz odroczyć ten proces o: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nDopóki nie zainstalujesz aktualizacji, to okno dialogowe będzie przypominać Ci o tym co godzinę, aż liczba osiągnie 0.",
+                  "As seguintes aplicações precisam ser atualizadas: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante a instalação, as aplicações afetadas serão encerradas. Clique em Update para continuar com a atualização. \\n\\n\\n#### Ainda pode adiar o processo por: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nEnquanto não instalar as atualizações, esta janela de diálogo irá lembrá-lo de hora a hora até que o número chegue a 0.",
+                  "Următoarele aplicații trebuie actualizate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nÎn timpul instalării, aplicațiile afectate vor fi închise. Faceți clic pe Update pentru a continua actualizarea. \\n\\n\\n#### Poți amâna procesul pentru încă: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nPână când instalezi actualizările, această fereastră de dialog îți va aminti de ele în fiecare oră până când numărul ajunge la 0.",
+                  "Nasledujúce aplikácie je potrebné aktualizovať: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPočas inštalácie budú dotknuté aplikácie zatvorené. Klikni na Update a pokračuj v aktualizácii. \\n\\n\\n#### Proces môžeš ešte odložiť o: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nPokiaľ neuskutočníš aktualizácie, toto dialógové okno ti to bude pripomínať každú hodinu, kým počet nedosiahne 0.",
+                  "Naslednje aplikacije je treba posodobiti: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMed namestitvijo bodo prizadete aplikacije zaprte. Kliknite Update, da nadaljujete s posodobitvijo. \\n\\n\\n#### Proces lahko še odložite za: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nDokler ne namestite posodobitev, vas bo to pogovorno okno vsako uro opomnilo, dokler število ne bo 0.",
+                  "Las siguientes aplicaciones deben actualizarse: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante la instalación, las aplicaciones afectadas se cerrarán. Haz clic en Update para continuar con la actualización. \\n\\n\\n#### Puedes posponer el proceso durante: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nMientras no instales las actualizaciones, esta ventana de diálogo te lo recordará cada hora hasta que el número llegue a 0.",
+                  "Följande program behöver uppdateras: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen kommer de berörda programmen att stängas. Klicka på Update för att fortsätta med uppdateringen. \\n\\n\\n#### Du kan fortfarande skjuta upp processen i: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nSå länge du inte installerar uppdateringarna kommer det här dialogfönstret att påminna dig varje timme tills antalet når 0.",
+                  "A következő alkalmazásokat frissíteni kell: \\n\\n%joinedPolicyNames% \\n\\n--- \\nA telepítés során az érintett alkalmazások bezárásra kerülnek. Kattints a Update gombra a frissítés folytatásához. \\n\\n\\n#### A folyamatot még elhalaszthatod: %CURRENT_DEFERRAL_VALUE% \\n\\n\\nAmíg nem telepíted a frissítéseket, ez az ablak óránként emlékeztetni fog, amíg a szám el nem éri a 0-t."
+                ]
+              }
+            }
+          ]
+        },
+        "UserEnforceMessage": {
+          "title": "Forced Update Notification",
+          "description": "Notification shown when the user has reached the maximum number of deferrals and updates must now be installed. Placeholders %REAL_FIRSTNAME% and %joinedPolicyNames% are replaced with actual values from the script.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Hallo %REAL_FIRSTNAME%, du hast das Updatefenster so oft wie nur möglich verschoben. \\n Die folgenden Anwendungen werden nun aktualisiert: \\n\\n%joinedPolicyNames% \\n\\n--- \\nWährend der Installation werden die betroffenen Anwendungen geschlossen. Bitte klicke nun auf Update.",
+                "Hello %REAL_FIRSTNAME%, you have postponed the update window as many times as possible. \\n The following applications will now be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update now.",
+                "Здравей, %REAL_FIRSTNAME%, отложи прозореца за актуализация толкова пъти, колкото беше възможно. \\n Следните приложения ще бъдат актуализирани: \\n\\n%joinedPolicyNames% \\n\\n--- \\nПо време на инсталацията засегнатите приложения ще бъдат затворени. Моля, щракнете сега върху Update.",
+                "Pozdrav %REAL_FIRSTNAME%, odgađao si prozor za ažuriranje koliko god je bilo moguće. \\n Sljedeće aplikacije će sada biti ažurirane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijekom instalacije pogođene aplikacije bit će zatvorene. Klikni sada na Update.",
+                "Ahoj %REAL_FIRSTNAME%, odkládal jsi okno s aktualizací, jak jen to šlo. \\n Následující aplikace budou nyní aktualizovány: \\n\\n%joinedPolicyNames% \\n\\n--- \\nBěhem instalace budou dotčené aplikace uzavřeny. Nyní klikni na Update.",
+                "Hej %REAL_FIRSTNAME%, du har udskudt opdateringsvinduet så mange gange som muligt. \\n Følgende programmer vil nu blive opdateret: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen lukkes de berørte programmer. Klik venligst nu på Update.",
+                "Hallo %REAL_FIRSTNAME%, je hebt het updatevenster zo vaak mogelijk uitgesteld. \\n De volgende toepassingen worden nu bijgewerkt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijdens de installatie worden de betrokken toepassingen gesloten. Klik nu op Update.",
+                "Tere %REAL_FIRSTNAME%, oled värskenduste akna nii tihti edasi lükanud kui võimalik. \\n Järgnevad rakendused uuendatakse nüüd: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstallimise ajal suletakse mõjutatud rakendused. Palun klõpsa nüüd Update.",
+                "Hei %REAL_FIRSTNAME%, olet siirtänyt päivitysikkunaa niin monta kertaa kuin mahdollista. \\n Seuraavat sovellukset päivitetään nyt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nAsennuksen aikana asianomaiset sovellukset suljetaan. Napsauta nyt Update.",
+                "Bonjour %REAL_FIRSTNAME%, vous avez reporté la fenêtre de mise à jour autant de fois que possible. \\n Les applications suivantes vont maintenant être mises à jour : \\n\\n%joinedPolicyNames% \\n\\n--- \\nPendant l’installation, les applications concernées seront fermées. Veuillez maintenant cliquer sur Update.",
+                "Γεια σου %REAL_FIRSTNAME%, ανέβαλες το παράθυρο ενημέρωσης όσες φορές ήταν δυνατό. \\n Οι παρακάτω εφαρμογές θα ενημερωθούν τώρα: \\n\\n%joinedPolicyNames% \\n\\n--- \\nΚατά την εγκατάσταση, οι επηρεαζόμενες εφαρμογές θα κλείσουν. Παρακαλώ κάνε τώρα κλικ στο Update.",
+                "A %REAL_FIRSTNAME%, chuir tú siar an fhuinneog nuashonraithe an oiread agus ab fhéidir. \\n Déanfar na feidhmchláir seo a leanas a nuashonrú anois: \\n\\n%joinedPolicyNames% \\n\\n--- \\nLe linn na suiteála, dúnfar na feidhmchláir lena mbaineann. Cliceáil ar Update anois.",
+                "Ciao %REAL_FIRSTNAME%, hai rimandato la finestra di aggiornamento il più possibile. \\n Le seguenti applicazioni saranno ora aggiornate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante l’installazione, le applicazioni interessate verranno chiuse. Clicca ora su Update.",
+                "Sveiki, %REAL_FIRSTNAME%, jūs esat atlicis atjaunināšanas logu tik bieži, cik vien iespējams. \\n Tagad tiks atjauninātas šādas lietotnes: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstalēšanas laikā attiecīgās lietotnes tiks aizvērtas. Lūdzu, noklikšķiniet tagad uz Update.",
+                "Sveiki, %REAL_FIRSTNAME%, atidėjote naujinimo langą tiek kartų, kiek buvo įmanoma. \\n Dabar bus atnaujintos šios programos: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDiegiant atnaujinimus paveiktos programos bus uždarytos. Spustelėkite dabar Update.",
+                "Ħelow %REAL_FIRSTNAME%, posponejt it-tieqa tal-aġġornament kemm setgħu. \\n L-applikazzjonijiet li ġejjin se jiġu aġġornati issa: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMatul l-installazzjoni, l-applikazzjonijiet affettwati se jingħalqu. Ikklikkja issa fuq Update.",
+                "Cześć %REAL_FIRSTNAME%, odkładałeś okno aktualizacji tak często, jak to możliwe. \\n Następujące aplikacje zostaną teraz zaktualizowane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPodczas instalacji aplikacje zostaną zamknięte. Kliknij teraz Update.",
+                "Olá %REAL_FIRSTNAME%, adiou a janela de atualização tantas vezes quanto possível. \\n As seguintes aplicações serão agora atualizadas: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante a instalação, as aplicações afetadas serão encerradas. Clique agora em Update.",
+                "Salut %REAL_FIRSTNAME%, ai amânat fereastra de actualizare de câte ori ai putut. \\n Următoarele aplicații vor fi acum actualizate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nÎn timpul instalării, aplicațiile afectate vor fi închise. Te rugăm să faci acum clic pe Update.",
+                "Ahoj %REAL_FIRSTNAME%, odkladal si okno s aktualizáciou, ako len bolo možné. \\n Nasledujúce aplikácie budú teraz aktualizované: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPočas inštalácie budú dotknuté aplikácie zatvorené. Teraz klikni na Update.",
+                "Pozdravljen %REAL_FIRSTNAME%, okno za posodobitev si odložil kolikor se je le dalo. \\n Naslednje aplikacije bodo zdaj posodobljene: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMed namestitvijo bodo prizadete aplikacije zaprte. Klikni zdaj na Update.",
+                "Hola %REAL_FIRSTNAME%, has pospuesto la ventana de actualización tantas veces como ha sido posible. \\n Las siguientes aplicaciones se actualizarán ahora: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante la instalación se cerrarán las aplicaciones afectadas. Haz clic ahora en Update.",
+                "Hej %REAL_FIRSTNAME%, du har skjutit upp uppdateringsfönstret så många gånger som möjligt. \\n Följande program kommer nu att uppdateras: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen kommer de berörda programmen att stängas. Klicka nu på Update.",
+                "Szia %REAL_FIRSTNAME%, a frissítési ablakot annyiszor halasztottad el, ahányszor csak lehetett. \\n A következő alkalmazások most frissülni fognak: \\n\\n%joinedPolicyNames% \\n\\n--- \\nA telepítés során az érintett alkalmazások bezárásra kerülnek. Kattints most a Update gombra."
+              ],
+              "default": "Hello %REAL_FIRSTNAME%, you have postponed the update window as many times as possible. \\n The following applications will now be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update now."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Hallo %REAL_FIRSTNAME%, du hast das Updatefenster so oft wie nur möglich verschoben. \\n Die folgenden Anwendungen werden nun aktualisiert: \\n\\n%joinedPolicyNames% \\n\\n--- \\nWährend der Installation werden die betroffenen Anwendungen geschlossen. Bitte klicke nun auf Update.",
+                  "Hello %REAL_FIRSTNAME%, you have postponed the update window as many times as possible. \\n The following applications will now be updated: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDuring installation, the affected applications will be closed. Please click Update now.",
+                  "Здравей, %REAL_FIRSTNAME%, отложи прозореца за актуализация толкова пъти, колкото беше възможно. \\n Следните приложения ще бъдат актуализирани: \\n\\n%joinedPolicyNames% \\n\\n--- \\nПо време на инсталацията засегнатите приложения ще бъдат затворени. Моля, щракнете сега върху Update.",
+                  "Pozdrav %REAL_FIRSTNAME%, odgađao si prozor za ažuriranje koliko god je bilo moguće. \\n Sljedeće aplikacije će sada biti ažurirane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijekom instalacije pogođene aplikacije bit će zatvorene. Klikni sada na Update.",
+                  "Ahoj %REAL_FIRSTNAME%, odkládal jsi okno s aktualizací, jak jen to šlo. \\n Následující aplikace budou nyní aktualizovány: \\n\\n%joinedPolicyNames% \\n\\n--- \\nBěhem instalace budou dotčené aplikace uzavřeny. Nyní klikni na Update.",
+                  "Hej %REAL_FIRSTNAME%, du har udskudt opdateringsvinduet så mange gange som muligt. \\n Følgende programmer vil nu blive opdateret: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen lukkes de berørte programmer. Klik venligst nu på Update.",
+                  "Hallo %REAL_FIRSTNAME%, je hebt het updatevenster zo vaak mogelijk uitgesteld. \\n De volgende toepassingen worden nu bijgewerkt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nTijdens de installatie worden de betrokken toepassingen gesloten. Klik nu op Update.",
+                  "Tere %REAL_FIRSTNAME%, oled värskenduste akna nii tihti edasi lükanud kui võimalik. \\n Järgnevad rakendused uuendatakse nüüd: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstallimise ajal suletakse mõjutatud rakendused. Palun klõpsa nüüd Update.",
+                  "Hei %REAL_FIRSTNAME%, olet siirtänyt päivitysikkunaa niin monta kertaa kuin mahdollista. \\n Seuraavat sovellukset päivitetään nyt: \\n\\n%joinedPolicyNames% \\n\\n--- \\nAsennuksen aikana asianomaiset sovellukset suljetaan. Napsauta nyt Update.",
+                  "Bonjour %REAL_FIRSTNAME%, vous avez reporté la fenêtre de mise à jour autant de fois que possible. \\n Les applications suivantes vont maintenant être mises à jour : \\n\\n%joinedPolicyNames% \\n\\n--- \\nPendant l’installation, les applications concernées seront fermées. Veuillez maintenant cliquer sur Update.",
+                  "Γεια σου %REAL_FIRSTNAME%, ανέβαλες το παράθυρο ενημέρωσης όσες φορές ήταν δυνατό. \\n Οι παρακάτω εφαρμογές θα ενημερωθούν τώρα: \\n\\n%joinedPolicyNames% \\n\\n--- \\nΚατά την εγκατάσταση, οι επηρεαζόμενες εφαρμογές θα κλείσουν. Παρακαλώ κάνε τώρα κλικ στο Update.",
+                  "A %REAL_FIRSTNAME%, chuir tú siar an fhuinneog nuashonraithe an oiread agus ab fhéidir. \\n Déanfar na feidhmchláir seo a leanas a nuashonrú anois: \\n\\n%joinedPolicyNames% \\n\\n--- \\nLe linn na suiteála, dúnfar na feidhmchláir lena mbaineann. Cliceáil ar Update anois.",
+                  "Ciao %REAL_FIRSTNAME%, hai rimandato la finestra di aggiornamento il più possibile. \\n Le seguenti applicazioni saranno ora aggiornate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante l’installazione, le applicazioni interessate verranno chiuse. Clicca ora su Update.",
+                  "Sveiki, %REAL_FIRSTNAME%, jūs esat atlicis atjaunināšanas logu tik bieži, cik vien iespējams. \\n Tagad tiks atjauninātas šādas lietotnes: \\n\\n%joinedPolicyNames% \\n\\n--- \\nInstalēšanas laikā attiecīgās lietotnes tiks aizvērtas. Lūdzu, noklikšķiniet tagad uz Update.",
+                  "Sveiki, %REAL_FIRSTNAME%, atidėjote naujinimo langą tiek kartų, kiek buvo įmanoma. \\n Dabar bus atnaujintos šios programos: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDiegiant atnaujinimus paveiktos programos bus uždarytos. Spustelėkite dabar Update.",
+                  "Ħelow %REAL_FIRSTNAME%, posponejt it-tieqa tal-aġġornament kemm setgħu. \\n L-applikazzjonijiet li ġejjin se jiġu aġġornati issa: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMatul l-installazzjoni, l-applikazzjonijiet affettwati se jingħalqu. Ikklikkja issa fuq Update.",
+                  "Cześć %REAL_FIRSTNAME%, odkładałeś okno aktualizacji tak często, jak to możliwe. \\n Następujące aplikacje zostaną teraz zaktualizowane: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPodczas instalacji aplikacje zostaną zamknięte. Kliknij teraz Update.",
+                  "Olá %REAL_FIRSTNAME%, adiou a janela de atualização tantas vezes quanto possível. \\n As seguintes aplicações serão agora atualizadas: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante a instalação, as aplicações afetadas serão encerradas. Clique agora em Update.",
+                  "Salut %REAL_FIRSTNAME%, ai amânat fereastra de actualizare de câte ori ai putut. \\n Următoarele aplicații vor fi acum actualizate: \\n\\n%joinedPolicyNames% \\n\\n--- \\nÎn timpul instalării, aplicațiile afectate vor fi închise. Te rugăm să faci acum clic pe Update.",
+                  "Ahoj %REAL_FIRSTNAME%, odkladal si okno s aktualizáciou, ako len bolo možné. \\n Nasledujúce aplikácie budú teraz aktualizované: \\n\\n%joinedPolicyNames% \\n\\n--- \\nPočas inštalácie budú dotknuté aplikácie zatvorené. Teraz klikni na Update.",
+                  "Pozdravljen %REAL_FIRSTNAME%, okno za posodobitev si odložil kolikor se je le dalo. \\n Naslednje aplikacije bodo zdaj posodobljene: \\n\\n%joinedPolicyNames% \\n\\n--- \\nMed namestitvijo bodo prizadete aplikacije zaprte. Klikni zdaj na Update.",
+                  "Hola %REAL_FIRSTNAME%, has pospuesto la ventana de actualización tantas veces como ha sido posible. \\n Las siguientes aplicaciones se actualizarán ahora: \\n\\n%joinedPolicyNames% \\n\\n--- \\nDurante la instalación se cerrarán las aplicaciones afectadas. Haz clic ahora en Update.",
+                  "Hej %REAL_FIRSTNAME%, du har skjutit upp uppdateringsfönstret så många gånger som möjligt. \\n Följande program kommer nu att uppdateras: \\n\\n%joinedPolicyNames% \\n\\n--- \\nUnder installationen kommer de berörda programmen att stängas. Klicka nu på Update.",
+                  "Szia %REAL_FIRSTNAME%, a frissítési ablakot annyiszor halasztottad el, ahányszor csak lehetett. \\n A következő alkalmazások most frissülni fognak: \\n\\n%joinedPolicyNames% \\n\\n--- \\nA telepítés során az érintett alkalmazások bezárásra kerülnek. Kattints most a Update gombra."
+                ]
+              }
+            }
+          ]
+        },
+        "title": {
+          "title": "Installation In-Progress Title",
+          "description": "Title displayed in the dialog while updates are actively being installed.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Aktualisierung im Gange…..",
+                "Update in progress…..",
+                "Актуализацията е в ход…..",
+                "Ažuriranje u tijeku…..",
+                "Probíhá aktualizace…..",
+                "Opdatering i gang…..",
+                "Bezig met bijwerken…..",
+                "Värskendus käib…..",
+                "Päivitys käynnissä…..",
+                "Mise à jour en cours…..",
+                "Ενημέρωση σε εξέλιξη…..",
+                "Nuashonrú ar siúl…..",
+                "Aggiornamento in corso…..",
+                "Notiek atjaunināšana…..",
+                "Vyksta atnaujinimas…..",
+                "Aġġornament għaddej…..",
+                "Trwa aktualizacja…..",
+                "Atualização em curso…..",
+                "Actualizare în desfășurare…..",
+                "Prebieha aktualizácia…..",
+                "Posodobitev poteka…..",
+                "Actualización en curso…..",
+                "Uppdatering pågår…..",
+                "Frissítés folyamatban….."
+              ],
+              "default": "Update in progress….."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Aktualisierung im Gange…..",
+                  "Update in progress…..",
+                  "Актуализацията е в ход…..",
+                  "Ažuriranje u tijeku…..",
+                  "Probíhá aktualizace…..",
+                  "Opdatering i gang…..",
+                  "Bezig met bijwerken…..",
+                  "Värskendus käib…..",
+                  "Päivitys käynnissä…..",
+                  "Mise à jour en cours…..",
+                  "Ενημέρωση σε εξέλιξη…..",
+                  "Nuashonrú ar siúl…..",
+                  "Aggiornamento in corso…..",
+                  "Notiek atjaunināšana…..",
+                  "Vyksta atnaujinimas…..",
+                  "Aġġornament għaddej…..",
+                  "Trwa aktualizacja…..",
+                  "Atualização em curso…..",
+                  "Actualizare în desfășurare…..",
+                  "Prebieha aktualizácia…..",
+                  "Posodobitev poteka…..",
+                  "Actualización en curso…..",
+                  "Uppdatering pågår…..",
+                  "Frissítés folyamatban….."
+                ]
+              }
+            }
+          ]
+        },
+        "message": {
+          "title": "Installation In-Progress Message",
+          "description": "Message displayed in the dialog while the update process is ongoing to inform the user to wait.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Bitte warten, während die folgenden Anwendungen installiert werden...",
+                "Please wait while the following applications are being installed...",
+                "Моля, изчакайте, докато се инсталират следните приложения...",
+                "Pričekajte dok se instaliraju sljedeće aplikacije...",
+                "Počkejte, než se nainstalují následující aplikace...",
+                "Vent venligst, mens følgende programmer installeres...",
+                "Even geduld terwijl de volgende toepassingen worden geïnstalleerd...",
+                "Palun oodake, kuni järgmised rakendused on paigaldatud...",
+                "Odota, kun seuraavat sovellukset asennetaan...",
+                "Veuillez patienter pendant l’installation des applications suivantes...",
+                "Παρακαλώ περιμένετε ενώ εγκαθίστανται οι παρακάτω εφαρμογές...",
+                "Fan le do thoil agus na feidhmchláir seo a leanas á suiteáil...",
+                "Attendere mentre vengono installate le seguenti applicazioni...",
+                "Lūdzu, uzgaidiet, kamēr tiek instalētas šādas lietotnes...",
+                "Palaukite, kol bus įdiegtos šios programos...",
+                "Jekk jogħġbok stenna waqt li jiġu installati l-applikazzjonijiet li ġejjin...",
+                "Proszę czekać, trwa instalacja następujących aplikacji...",
+                "Aguarde enquanto as seguintes aplicações estão a ser instaladas...",
+                "Vă rugăm să așteptați în timp ce sunt instalate următoarele aplicații...",
+                "Počkajte, kým sa nainštalujú nasledujúce aplikácie...",
+                "Počakajte, medtem ko se nameščajo naslednje aplikacije...",
+                "Espere mientras se instalan las siguientes aplicaciones...",
+                "Vänta medan följande program installeras...",
+                "Kérjük, várjon, amíg a következő alkalmazások telepítésre kerülnek..."
+              ],
+              "default": "Please wait while the following applications are being installed..."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Bitte warten, während die folgenden Anwendungen installiert werden...",
+                  "Please wait while the following applications are being installed...",
+                  "Моля, изчакайте, докато се инсталират следните приложения...",
+                  "Pričekajte dok se instaliraju sljedeće aplikacije...",
+                  "Počkejte, než se nainstalují následující aplikace...",
+                  "Vent venligst, mens følgende programmer installeres...",
+                  "Even geduld terwijl de volgende toepassingen worden geïnstalleerd...",
+                  "Palun oodake, kuni järgmised rakendused on paigaldatud...",
+                  "Odota, kun seuraavat sovellukset asennetaan...",
+                  "Veuillez patienter pendant l’installation des applications suivantes...",
+                  "Παρακαλώ περιμένετε ενώ εγκαθίστανται οι παρακάτω εφαρμογές...",
+                  "Fan le do thoil agus na feidhmchláir seo a leanas á suiteáil...",
+                  "Attendere mentre vengono installate le seguenti applicazioni...",
+                  "Lūdzu, uzgaidiet, kamēr tiek instalētas šādas lietotnes...",
+                  "Palaukite, kol bus įdiegtos šios programos...",
+                  "Jekk jogħġbok stenna waqt li jiġu installati l-applikazzjonijiet li ġejjin...",
+                  "Proszę czekać, trwa instalacja następujących aplikacji...",
+                  "Aguarde enquanto as seguintes aplicações estão a ser instaladas...",
+                  "Vă rugăm să așteptați în timp ce sunt instalate următoarele aplicații...",
+                  "Počkajte, kým sa nainštalujú nasledujúce aplikácie...",
+                  "Počakajte, medtem ko se nameščajo naslednje aplikacije...",
+                  "Espere mientras se instalan las siguientes aplicaciones...",
+                  "Vänta medan följande program installeras...",
+                  "Kérjük, várjon, amíg a következő alkalmazások telepítésre kerülnek..."
+                ]
+              }
+            }
+          ]
+        },
+        "failureTitle": {
+          "title": "Error Detected Title",
+          "description": "Title shown in the dialog when an error occurs during the update process.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Fehler erkannt",
+                "Error detected",
+                "Открита е грешка",
+                "Otkrivena je pogreška",
+                "Zjištěna chyba",
+                "Fejl opdaget",
+                "Fout ontdekt",
+                "Viga tuvastatud",
+                "Virhe havaittu",
+                "Erreur détectée",
+                "Εντοπίστηκε σφάλμα",
+                "Earráid braite",
+                "Errore rilevato",
+                "ļūda konstatēta",
+                "Aptikta klaida",
+                "Żball identifikat",
+                "Wykryto błąd",
+                "Erro detectado",
+                "Eroare detectată",
+                "Zistená chyba",
+                "Napaka zaznana",
+                "Error detectado",
+                "Fel upptäckt",
+                "Hiba észlelve"
+              ],
+              "default": "Error detected"
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Fehler erkannt",
+                  "Error detected",
+                  "Открита е грешка",
+                  "Otkrivena je pogreška",
+                  "Zjištěna chyba",
+                  "Fejl opdaget",
+                  "Fout ontdekt",
+                  "Viga tuvastatud",
+                  "Virhe havaittu",
+                  "Erreur détectée",
+                  "Εντοπίστηκε σφάλμα",
+                  "Earráid braite",
+                  "Errore rilevato",
+                  "ļūda konstatēta",
+                  "Aptikta klaida",
+                  "Żball identifikat",
+                  "Wykryto błąd",
+                  "Erro detectado",
+                  "Eroare detectată",
+                  "Zistená chyba",
+                  "Napaka zaznana",
+                  "Error detectado",
+                  "Fel upptäckt",
+                  "Hiba észlelve"
+                ]
+              }
+            }
+          ]
+        },
+        "final_sucess_titel": {
+          "title": "Patch Helper Completion Title",
+          "description": "Title displayed when the Patch Helper finishes all tasks successfully.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Patch Helper abgeschlossen",
+                "Patch Helper completed",
+                "Помощникът за пачове е завършен",
+                "Patch Helper dovršen",
+                "Patch Helper dokončen",
+                "Patch Helper fuldført",
+                "Patch Helper voltooid",
+                "Patch Helper on lõpetatud",
+                "Patch Helper suoritettu",
+                "Patch Helper terminé",
+                "Ο Patch Helper ολοκληρώθηκε",
+                "Críochnaíodh an Patch Helper",
+                "Patch Helper completato",
+                "Patch Helper pabeigts",
+                "Patch Helper užbaigtas",
+                "Patch Helper komplut",
+                "Patch Helper zakończony",
+                "Patch Helper concluído",
+                "Patch Helper finalizat",
+                "Patch Helper slutförd",
+                "Patch Helper dokončený",
+                "Patch Helper zaključen",
+                "Patch Helper completado",
+                "Patch Helper slutförd",
+                "Patch Helper befejeződött"
+              ],
+              "default": "Patch Helper completed"
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Patch Helper abgeschlossen",
+                  "Patch Helper completed",
+                  "Помощникът за пачове е завършен",
+                  "Patch Helper dovršen",
+                  "Patch Helper dokončen",
+                  "Patch Helper fuldført",
+                  "Patch Helper voltooid",
+                  "Patch Helper on lõpetatud",
+                  "Patch Helper suoritettu",
+                  "Patch Helper terminé",
+                  "Ο Patch Helper ολοκληρώθηκε",
+                  "Críochnaíodh an Patch Helper",
+                  "Patch Helper completato",
+                  "Patch Helper pabeigts",
+                  "Patch Helper užbaigtas",
+                  "Patch Helper komplut",
+                  "Patch Helper zakończony",
+                  "Patch Helper concluído",
+                  "Patch Helper finalizat",
+                  "Patch Helper slutförd",
+                  "Patch Helper dokončený",
+                  "Patch Helper zaključen",
+                  "Patch Helper completado",
+                  "Patch Helper slutförd",
+                  "Patch Helper befejeződött"
+                ]
+              }
+            }
+          ]
+        },
+        "progresstext": {
+          "title": "Initialization Progress Text",
+          "description": "Text displayed while the Patch Helper is starting up and preparing to run.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Initialisiere Patch Helper ...",
+                "Initializing Patch Helper ...",
+                "Инициализиране на Patch Helper ...",
+                "Inicijalizacija Patch Helpera ...",
+                "Inicializuji Patch Helper ...",
+                "Initialiserer Patch Helper ...",
+                "Initialiseren van Patch Helper ...",
+                "Algatatakse Patch Helper ...",
+                "Käynnistetään Patch Helper ...",
+                "Initialisation de Patch Helper ...",
+                "Εκκίνηση του Patch Helper ...",
+                "Patch Helper á thúsú ...",
+                "Inizializzazione di Patch Helper ...",
+                "Tiek inicializēts Patch Helper ...",
+                "Inicializuojamas Patch Helper ...",
+                "Inizjalizzazzjoni ta’ Patch Helper ...",
+                "Inicjowanie Patch Helper ...",
+                "A inicializar o Patch Helper ...",
+                "Se inițializează Patch Helper ...",
+                "Inicializácia Patch Helper ...",
+                "Inicializacija Patch Helper ...",
+                "Inicializando Patch Helper ...",
+                "Initierar Patch Helper ...",
+                "Patch Helper inicializálása ..."
+              ],
+              "default": "Initializing Patch Helper ..."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Initialisiere Patch Helper ...",
+                  "Initializing Patch Helper ...",
+                  "Инициализиране на Patch Helper ...",
+                  "Inicijalizacija Patch Helpera ...",
+                  "Inicializuji Patch Helper ...",
+                  "Initialiserer Patch Helper ...",
+                  "Initialiseren van Patch Helper ...",
+                  "Algatatakse Patch Helper ...",
+                  "Käynnistetään Patch Helper ...",
+                  "Initialisation de Patch Helper ...",
+                  "Εκκίνηση του Patch Helper ...",
+                  "Patch Helper á thúsú ...",
+                  "Inizializzazione di Patch Helper ...",
+                  "Tiek inicializēts Patch Helper ...",
+                  "Inicializuojamas Patch Helper ...",
+                  "Inizjalizzazzjoni ta’ Patch Helper ...",
+                  "Inicjowanie Patch Helper ...",
+                  "A inicializar o Patch Helper ...",
+                  "Se inițializează Patch Helper ...",
+                  "Inicializácia Patch Helper ...",
+                  "Inicializacija Patch Helper ...",
+                  "Inicializando Patch Helper ...",
+                  "Initierar Patch Helper ...",
+                  "Patch Helper inicializálása ..."
+                ]
+              }
+            }
+          ]
+        },
+        "helpmessage": {
+          "title": "Support Information Message",
+          "description": "Provides contact details and system information for troubleshooting if the user encounters problems. Placeholders %SUPPORT_TELEFON%, %SUPPORT_EMAIL%, %MACOSPRDICTVERSION%, %SERIALNUMBER%, %DIALOG_VERSION%, and %TIME_STAMP% are replaced with actual values from the script.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Wenn Du Hilfe benötigst, wende Dich bitte an die Support Services: \\n- Telefon: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputer Information: \\n\\n- Betriebssystem: %MACOSPRDICTVERSION% \\n- Seriennummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Started: %TIME_STAMP%",
+                "If you need help, please contact Support Services: \\n- Phone: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputer Information: \\n\\n- Operating System: %MACOSPRDICTVERSION% \\n- Serial Number: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Started: %TIME_STAMP%",
+                "Ако имате нужда от помощ, моля свържете се с поддръжката: \\n- Телефон: %SUPPORT_TELEFОН% \\n- Имейл: %SUPPORT_EMAIL% \\n\\nИнформация за компютъра: \\n\\n- Операционна система: %MACOSPRDICTVERSION% \\n- Сериен номер: %SERIALNUMBER% \\n- Диалог: %DIALOG_VERSION% \\n- Стартирано: %TIME_STAMP%",
+                "Ako trebate pomoć, obratite se korisničkoj podršci: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nInformacije o računalu: \\n\\n- Operativni sustav: %MACOSPRDICTVERSION% \\n- Serijski broj: %SERIALNUMBER% \\n- Dijalog: %DIALOG_VERSION% \\n- Pokrenuto: %TIME_STAMP%",
+                "Pokud potřebujete pomoc, kontaktujte prosím podporu: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nInformace o počítači: \\n\\n- Operační systém: %MACOSPRDICTVERSION% \\n- Sériové číslo: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Zahájeno: %TIME_STAMP%",
+                "Hvis du har brug for hjælp, bedes du kontakte supporten: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputeroplysninger: \\n\\n- Styresystem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Startet: %TIME_STAMP%",
+                "Als je hulp nodig hebt, neem dan contact op met de ondersteuning: \\n- Telefoon: %SUPPORT_TELEFОН% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nComputerinformatie: \\n\\n- Besturingssysteem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialoog: %DIALOG_VERSION% \\n- Gestart: %TIME_STAMP%",
+                "Kui vajate abi, võtke ühendust tugiteenustega: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-post: %SUPPORT_EMAIL% \\n\\nArvuti info: \\n\\n- Operatsioonisüsteem: %MACOSPRDICTVERSION% \\n- Seerianumber: %SERIALNUMBER% \\n- Dialoog: %DIALOG_VERSION% \\n- Alustatud: %TIME_STAMP%",
+                "Jos tarvitset apua, ota yhteyttä tukeen: \\n- Puhelin: %SUPPORT_TELEFОН% \\n- Sähköposti: %SUPPORT_EMAIL% \\n\\nTietokonetiedot: \\n\\n- Käyttöjärjestelmä: %MACOSPRDICTVERSION% \\n- Sarjanumero: %SERIALNUMBER% \\n- Dialogi: %DIALOG_VERSION% \\n- Aloitettu: %TIME_STAMP%",
+                "Si vous avez besoin d’aide, veuillez contacter le support : \\n- Téléphone : %SUPPORT_TELEFОН% \\n- Email : %SUPPORT_EMAIL% \\n\\nInformations sur l’ordinateur : \\n\\n- Système d’exploitation : %MACOSPRDICTVERSION% \\n- Numéro de série : %SERIALNUMBER% \\n- Dialogue : %DIALOG_VERSION% \\n- Démarré : %TIME_STAMP%",
+                "Αν χρειάζεστε βοήθεια, παρακαλούμε επικοινωνήστε με την υποστήριξη: \\n- Τηλέφωνο: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nΠληροφορίες υπολογιστή: \\n\\n- Λειτουργικό σύστημα: %MACOSPRDICTVERSION% \\n- Σειριακός αριθμός: %SERIALNUMBER% \\n- Διάλογος: %DIALOG_VERSION% \\n- Έναρξη: %TIME_STAMP%",
+                "Más gá duit cúnamh, téigh i dteagmháil leis an tseirbhís tacaíochta: \\n- Guthán: %SUPPORT_TELEFОН% \\n- Ríomhphost: %SUPPORT_EMAIL% \\n\\nEolas ar an ríomhaire: \\n\\n- Córas oibriúcháin: %MACOSPRDICTVERSION% \\n- Uimhir sraithe: %SERIALNUMBER% \\n- Dialóg: %DIALOG_VERSION% \\n- Tosaithe: %TIME_STAMP%",
+                "Se hai bisogno di aiuto, contatta il supporto: \\n- Telefono: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformazioni sul computer: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Numero di serie: %SERIALNUMBER% \\n- Dialogo: %DIALOG_VERSION% \\n- Avviato: %TIME_STAMP%",
+                "Ja nepieciešama palīdzība, lūdzu, sazinieties ar atbalsta dienestu: \\n- Tālrunis: %SUPPORT_TELEFОН% \\n- E-pasts: %SUPPORT_EMAIL% \\n\\nDatora informācija: \\n\\n- Operētājsistēma: %MACOSPRDICTVERSION% \\n- Sērijas numurs: %SERIALNUMBER% \\n- Dialogs: %DIALOG_VERSION% \\n- Sākts: %TIME_STAMP%",
+                "Jei reikia pagalbos, susisiekite su pagalbos tarnyba: \\n- Telefonas: %SUPPORT_TELEFОН% \\n- El. paštas: %SUPPORT_EMAIL% \\n\\nKompiuterio informacija: \\n\\n- Operacinė sistema: %MACOSPRDICTVERSION% \\n- Serijos numeris: %SERIALNUMBER% \\n- Dialogas: %DIALOG_VERSION% \\n- Pradėta: %TIME_STAMP%",
+                "Jekk għandek bżonn għajnuna, jekk jogħġbok ikkuntattja lis-servizzi ta’ appoġġ: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformazzjoni dwar il-kompjuter: \\n\\n- Sistema operattiva: %MACOSPRDICTVERSION% \\n- Numru tas-serje: %SERIALNUMBER% \\n- Djalogu: %DIALOG_VERSION% \\n- Beda: %TIME_STAMP%",
+                "Jeśli potrzebujesz pomocy, skontaktuj się z pomocą techniczną: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformacje o komputerze: \\n\\n- System operacyjny: %MACOSPRDICTVERSION% \\n- Numer seryjny: %SERIALNUMBER% \\n- Okno dialogowe: %DIALOG_VERSION% \\n- Uruchomiono: %TIME_STAMP%",
+                "Se precisares de ajuda, contacta os serviços de suporte: \\n- Telefone: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformações do computador: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Número de série: %SERIALNUMBER% \\n- Janela de diálogo: %DIALOG_VERSION% \\n- Iniciado: %TIME_STAMP%",
+                "Dacă aveți nevoie de ajutor, contactați serviciile de asistență: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformații despre computer: \\n\\n- Sistem de operare: %MACOSPRDICTVERSION% \\n- Număr de serie: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Pornit: %TIME_STAMP%",
+                "Ak potrebujete pomoc, kontaktujte podporu: \\n- Telefón: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformácie o počítači: \\n\\n- Operačný systém: %MACOSPRDICTVERSION% \\n- Sériové číslo: %SERIALNUMBER% \\n- Dialóg: %DIALOG_VERSION% \\n- Spustené: %TIME_STAMP%",
+                "Če potrebujete pomoč, se obrnite na podporo: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-pošta: %SUPPORT_EMAIL% \\n\\nPodatki o računalniku: \\n\\n- Operacijski sistem: %MACOSPRDICTVERSION% \\n- Serijska številka: %SERIALNUMBER% \\n- Pogovorno okno: %DIALOG_VERSION% \\n- Zagnano: %TIME_STAMP%",
+                "Si necesitas ayuda, contacta con el soporte técnico: \\n- Teléfono: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformación del equipo: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Número de serie: %SERIALNUMBER% \\n- Diálogo: %DIALOG_VERSION% \\n- Inicio: %TIME_STAMP%",
+                "Om du behöver hjälp, kontakta supporten: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-post: %SUPPORT_EMAIL% \\n\\nDatorinformation: \\n\\n- Operativsystem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Starttid: %TIME_STAMP%",
+                "Ha segítségre van szükséged, kérjük, lépj kapcsolatba az ügyfélszolgálattal: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nSzámítógépes információk: \\n\\n- Operációs rendszer: %MACOSPRDICTVERSION% \\n- Sorozatszám: %SERIALNUMBER% \\n- Párbeszédpanel: %DIALOG_VERSION% \\n- Indítás időpontja: %TIME_STAMP%"
+              ],
+              "default": "If you need help, please contact Support Services: \\n- Phone: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputer Information: \\n\\n- Operating System: %MACOSPRDICTVERSION% \\n- Serial Number: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Started: %TIME_STAMP%"
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Wenn Du Hilfe benötigst, wende Dich bitte an die Support Services: \\n- Telefon: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputer Information: \\n\\n- Betriebssystem: %MACOSPRDICTVERSION% \\n- Seriennummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Started: %TIME_STAMP%",
+                  "If you need help, please contact Support Services: \\n- Phone: %SUPPORT_TELEFON% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputer Information: \\n\\n- Operating System: %MACOSPRDICTVERSION% \\n- Serial Number: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Started: %TIME_STAMP%",
+                  "Ако имате нужда от помощ, моля свържете се с поддръжката: \\n- Телефон: %SUPPORT_TELEFОН% \\n- Имейл: %SUPPORT_EMAIL% \\n\\nИнформация за компютъра: \\n\\n- Операционна система: %MACOSPRDICTVERSION% \\n- Сериен номер: %SERIALNUMBER% \\n- Диалог: %DIALOG_VERSION% \\n- Стартирано: %TIME_STAMP%",
+                  "Ako trebate pomoć, obratite se korisničkoj podršci: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nInformacije o računalu: \\n\\n- Operativni sustav: %MACOSPRDICTVERSION% \\n- Serijski broj: %SERIALNUMBER% \\n- Dijalog: %DIALOG_VERSION% \\n- Pokrenuto: %TIME_STAMP%",
+                  "Pokud potřebujete pomoc, kontaktujte prosím podporu: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nInformace o počítači: \\n\\n- Operační systém: %MACOSPRDICTVERSION% \\n- Sériové číslo: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Zahájeno: %TIME_STAMP%",
+                  "Hvis du har brug for hjælp, bedes du kontakte supporten: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nComputeroplysninger: \\n\\n- Styresystem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Startet: %TIME_STAMP%",
+                  "Als je hulp nodig hebt, neem dan contact op met de ondersteuning: \\n- Telefoon: %SUPPORT_TELEFОН% \\n- E-mail: %SUPPORT_EMAIL% \\n\\nComputerinformatie: \\n\\n- Besturingssysteem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialoog: %DIALOG_VERSION% \\n- Gestart: %TIME_STAMP%",
+                  "Kui vajate abi, võtke ühendust tugiteenustega: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-post: %SUPPORT_EMAIL% \\n\\nArvuti info: \\n\\n- Operatsioonisüsteem: %MACOSPRDICTVERSION% \\n- Seerianumber: %SERIALNUMBER% \\n- Dialoog: %DIALOG_VERSION% \\n- Alustatud: %TIME_STAMP%",
+                  "Jos tarvitset apua, ota yhteyttä tukeen: \\n- Puhelin: %SUPPORT_TELEFОН% \\n- Sähköposti: %SUPPORT_EMAIL% \\n\\nTietokonetiedot: \\n\\n- Käyttöjärjestelmä: %MACOSPRDICTVERSION% \\n- Sarjanumero: %SERIALNUMBER% \\n- Dialogi: %DIALOG_VERSION% \\n- Aloitettu: %TIME_STAMP%",
+                  "Si vous avez besoin d’aide, veuillez contacter le support : \\n- Téléphone : %SUPPORT_TELEFОН% \\n- Email : %SUPPORT_EMAIL% \\n\\nInformations sur l’ordinateur : \\n\\n- Système d’exploitation : %MACOSPRDICTVERSION% \\n- Numéro de série : %SERIALNUMBER% \\n- Dialogue : %DIALOG_VERSION% \\n- Démarré : %TIME_STAMP%",
+                  "Αν χρειάζεστε βοήθεια, παρακαλούμε επικοινωνήστε με την υποστήριξη: \\n- Τηλέφωνο: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nΠληροφορίες υπολογιστή: \\n\\n- Λειτουργικό σύστημα: %MACOSPRDICTVERSION% \\n- Σειριακός αριθμός: %SERIALNUMBER% \\n- Διάλογος: %DIALOG_VERSION% \\n- Έναρξη: %TIME_STAMP%",
+                  "Más gá duit cúnamh, téigh i dteagmháil leis an tseirbhís tacaíochta: \\n- Guthán: %SUPPORT_TELEFОН% \\n- Ríomhphost: %SUPPORT_EMAIL% \\n\\nEolas ar an ríomhaire: \\n\\n- Córas oibriúcháin: %MACOSPRDICTVERSION% \\n- Uimhir sraithe: %SERIALNUMBER% \\n- Dialóg: %DIALOG_VERSION% \\n- Tosaithe: %TIME_STAMP%",
+                  "Se hai bisogno di aiuto, contatta il supporto: \\n- Telefono: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformazioni sul computer: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Numero di serie: %SERIALNUMBER% \\n- Dialogo: %DIALOG_VERSION% \\n- Avviato: %TIME_STAMP%",
+                  "Ja nepieciešama palīdzība, lūdzu, sazinieties ar atbalsta dienestu: \\n- Tālrunis: %SUPPORT_TELEFОН% \\n- E-pasts: %SUPPORT_EMAIL% \\n\\nDatora informācija: \\n\\n- Operētājsistēma: %MACOSPRDICTVERSION% \\n- Sērijas numurs: %SERIALNUMBER% \\n- Dialogs: %DIALOG_VERSION% \\n- Sākts: %TIME_STAMP%",
+                  "Jei reikia pagalbos, susisiekite su pagalbos tarnyba: \\n- Telefonas: %SUPPORT_TELEFОН% \\n- El. paštas: %SUPPORT_EMAIL% \\n\\nKompiuterio informacija: \\n\\n- Operacinė sistema: %MACOSPRDICTVERSION% \\n- Serijos numeris: %SERIALNUMBER% \\n- Dialogas: %DIALOG_VERSION% \\n- Pradėta: %TIME_STAMP%",
+                  "Jekk għandek bżonn għajnuna, jekk jogħġbok ikkuntattja lis-servizzi ta’ appoġġ: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformazzjoni dwar il-kompjuter: \\n\\n- Sistema operattiva: %MACOSPRDICTVERSION% \\n- Numru tas-serje: %SERIALNUMBER% \\n- Djalogu: %DIALOG_VERSION% \\n- Beda: %TIME_STAMP%",
+                  "Jeśli potrzebujesz pomocy, skontaktuj się z pomocą techniczną: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformacje o komputerze: \\n\\n- System operacyjny: %MACOSPRDICTVERSION% \\n- Numer seryjny: %SERIALNUMBER% \\n- Okno dialogowe: %DIALOG_VERSION% \\n- Uruchomiono: %TIME_STAMP%",
+                  "Se precisares de ajuda, contacta os serviços de suporte: \\n- Telefone: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformações do computador: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Número de série: %SERIALNUMBER% \\n- Janela de diálogo: %DIALOG_VERSION% \\n- Iniciado: %TIME_STAMP%",
+                  "Dacă aveți nevoie de ajutor, contactați serviciile de asistență: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformații despre computer: \\n\\n- Sistem de operare: %MACOSPRDICTVERSION% \\n- Număr de serie: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Pornit: %TIME_STAMP%",
+                  "Ak potrebujete pomoc, kontaktujte podporu: \\n- Telefón: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformácie o počítači: \\n\\n- Operačný systém: %MACOSPRDICTVERSION% \\n- Sériové číslo: %SERIALNUMBER% \\n- Dialóg: %DIALOG_VERSION% \\n- Spustené: %TIME_STAMP%",
+                  "Če potrebujete pomoč, se obrnite na podporo: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-pošta: %SUPPORT_EMAIL% \\n\\nPodatki o računalniku: \\n\\n- Operacijski sistem: %MACOSPRDICTVERSION% \\n- Serijska številka: %SERIALNUMBER% \\n- Pogovorno okno: %DIALOG_VERSION% \\n- Zagnano: %TIME_STAMP%",
+                  "Si necesitas ayuda, contacta con el soporte técnico: \\n- Teléfono: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformación del equipo: \\n\\n- Sistema operativo: %MACOSPRDICTVERSION% \\n- Número de serie: %SERIALNUMBER% \\n- Diálogo: %DIALOG_VERSION% \\n- Inicio: %TIME_STAMP%",
+                  "Om du behöver hjälp, kontakta supporten: \\n- Telefon: %SUPPORT_TELEFОН% \\n- E-post: %SUPPORT_EMAIL% \\n\\nDatorinformation: \\n\\n- Operativsystem: %MACOSPRDICTVERSION% \\n- Serienummer: %SERIALNUMBER% \\n- Dialog: %DIALOG_VERSION% \\n- Starttid: %TIME_STAMP%",
+                  "Ha segítségre van szükséged, kérjük, lépj kapcsolatba az ügyfélszolgálattal: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nSzámítógépes információk: \\n\\n- Operációs rendszer: %MACOSPRDICTVERSION% \\n- Sorozatszám: %SERIALNUMBER% \\n- Párbeszédpanel: %DIALOG_VERSION% \\n- Indítás időpontja: %TIME_STAMP%"
+                ]
+              }
+            }
+          ]
+        },
+        "Failure_Info_Title": {
+          "title": "General Failure Title",
+          "description": "Title displayed when a non-specific failure occurs during the update process. Placeholder %REAL_FIRSTNAME% is replaced with the user’s first name at runtime.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Entschuldige %REAL_FIRSTNAME%, da ist etwas schief gelaufen.",
+                "Sorry %REAL_FIRSTNAME%, something went wrong.",
+                "Извинявай, %REAL_FIRSTNAME%, нещо се обърка.",
+                "Oprosti, %REAL_FIRSTNAME%, nešto je pošlo po zlu.",
+                "Promiň, %REAL_FIRSTNAME%, něco se pokazilo.",
+                "Undskyld, %REAL_FIRSTNAME%, der gik noget galt.",
+                "Sorry %REAL_FIRSTNAME%, er is iets misgegaan.",
+                "Vabandust, %REAL_FIRSTNAME%, midagi läks valesti.",
+                "Anteeksi %REAL_FIRSTNAME%, jokin meni pieleen.",
+                "Désolé %REAL_FIRSTNAME%, quelque chose s’est mal passé.",
+                "Συγγνώμη %REAL_FIRSTNAME%, κάτι πήγε στραβά.",
+                "Tá brón orm %REAL_FIRSTNAME%, chuaigh rud éigin mícheart.",
+                "Scusa %REAL_FIRSTNAME%, qualcosa è andato storto.",
+                "Piedod, %REAL_FIRSTNAME%, kaut kas nogāja greizi.",
+                "Atsiprašau, %REAL_FIRSTNAME%, kažkas nutiko ne taip.",
+                "Skużani %REAL_FIRSTNAME%, xi ħaġa marret ħażin.",
+                "Przepraszam %REAL_FIRSTNAME%, coś poszło nie tak.",
+                "Desculpa %REAL_FIRSTNAME%, algo correu mal.",
+                "Ne pare rău, %REAL_FIRSTNAME%, ceva n-a mers bine.",
+                "Prepáč, %REAL_FIRSTNAME%, niečo sa pokazilo.",
+                "Oprosti, %REAL_FIRSTNAME%, nekaj je šlo narobe.",
+                "Lo siento %REAL_FIRSTNAME%, algo salió mal.",
+                "Förlåt %REAL_FIRSTNAME%, något gick fel.",
+                "Bocsánat %REAL_FIRSTNAME%, valami hiba történt."
+              ],
+              "default": "Sorry %REAL_FIRSTNAME%, something went wrong."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Entschuldige %REAL_FIRSTNAME%, da ist etwas schief gelaufen.",
+                  "Sorry %REAL_FIRSTNAME%, something went wrong.",
+                  "Извинявай, %REAL_FIRSTNAME%, нещо се обърка.",
+                  "Oprosti, %REAL_FIRSTNAME%, nešto je pošlo po zlu.",
+                  "Promiň, %REAL_FIRSTNAME%, něco se pokazilo.",
+                  "Undskyld, %REAL_FIRSTNAME%, der gik noget galt.",
+                  "Sorry %REAL_FIRSTNAME%, er is iets misgegaan.",
+                  "Vabandust, %REAL_FIRSTNAME%, midagi läks valesti.",
+                  "Anteeksi %REAL_FIRSTNAME%, jokin meni pieleen.",
+                  "Désolé %REAL_FIRSTNAME%, quelque chose s’est mal passé.",
+                  "Συγγνώμη %REAL_FIRSTNAME%, κάτι πήγε στραβά.",
+                  "Tá brón orm %REAL_FIRSTNAME%, chuaigh rud éigin mícheart.",
+                  "Scusa %REAL_FIRSTNAME%, qualcosa è andato storto.",
+                  "Piedod, %REAL_FIRSTNAME%, kaut kas nogāja greizi.",
+                  "Atsiprašau, %REAL_FIRSTNAME%, kažkas nutiko ne taip.",
+                  "Skużani %REAL_FIRSTNAME%, xi ħaġa marret ħażin.",
+                  "Przepraszam %REAL_FIRSTNAME%, coś poszło nie tak.",
+                  "Desculpa %REAL_FIRSTNAME%, algo correu mal.",
+                  "Ne pare rău, %REAL_FIRSTNAME%, ceva n-a mers bine.",
+                  "Prepáč, %REAL_FIRSTNAME%, niečo sa pokazilo.",
+                  "Oprosti, %REAL_FIRSTNAME%, nekaj je šlo narobe.",
+                  "Lo siento %REAL_FIRSTNAME%, algo salió mal.",
+                  "Förlåt %REAL_FIRSTNAME%, något gick fel.",
+                  "Bocsánat %REAL_FIRSTNAME%, valami hiba történt."
+                ]
+              }
+            }
+          ]
+        },
+        "Failure_Info_Progresstext": {
+          "title": "Failure Progress Text",
+          "description": "Message instructing the user to acknowledge the error and view further troubleshooting details.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Fehler entdeckt. Bitte klicke auf OK, um Informationen zur Fehlerbehebung zu erhalten.",
+                "Error detected. Please click OK to get troubleshooting information.",
+                "Открита е грешка. Моля, щракни върху OK, за да получиш информация за отстраняването ѝ.",
+                "Otkrivena je pogreška. Klikni na OK za informacije o otklanjanju pogreške.",
+                "Byla zjištěna chyba. Klikni na OK pro informace o jejím odstranění.",
+                "Fejl opdaget. Klik på OK for at få information om fejlfinding.",
+                "Fout ontdekt. Klik op OK om informatie over probleemoplossing te krijgen.",
+                "Viga tuvastatud. Klõpsa OK, et saada teavet vea kõrvaldamise kohta.",
+                "Virhe havaittu. Napsauta OK saadaksesi tietoa vianmäärityksestä.",
+                "Une erreur a été détectée. Clique sur OK pour obtenir des informations de dépannage.",
+                "Εντοπίστηκε σφάλμα. Κάνε κλικ στο OK για πληροφορίες επίλυσης προβλημάτων.",
+                "Aimsíodh earráid. Cliceáil OK chun eolas a fháil faoi réiteach fabhtanna.",
+                "Errore rilevato. Fai clic su OK per ottenere informazioni sulla risoluzione del problema.",
+                "Konstatēta kļūda. Noklikšķini uz OK, lai iegūtu informāciju par problēmas novēršanu.",
+                "Aptikta klaida. Spustelėk OK, kad gautum informacijos apie problemos sprendimą.",
+                "Instab żball. Ikklikkja OK biex tikseb aktar informazzjoni dwar is-soluzzjoni.",
+                "Wykryto błąd. Kliknij OK, aby uzyskać informacje o rozwiązaniu problemu.",
+                "Erro detetado. Clica em OK para obter informações sobre como resolver o problema.",
+                "A fost detectată o eroare. Apasă pe OK pentru informații despre rezolvare.",
+                "Bola zistená chyba. Klikni na OK pre informácie o jej odstránení.",
+                "Napaka zaznana. Klikni na OK za informacije o odpravi napake.",
+                "Se ha detectado un error. Haz clic en OK para obtener información sobre cómo solucionarlo.",
+                "Fel upptäckt. Klicka på OK för att få information om hur du löser det.",
+                "Hibát észleltünk. Kattints az OK gombra a hiba megoldásához szükséges információkért."
+              ],
+              "default": "Error detected. Please click OK to get troubleshooting information."
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Fehler entdeckt. Bitte klicke auf OK, um Informationen zur Fehlerbehebung zu erhalten.",
+                  "Error detected. Please click OK to get troubleshooting information.",
+                  "Открита е грешка. Моля, щракни върху OK, за да получиш информация за отстраняването ѝ.",
+                  "Otkrivena je pogreška. Klikni na OK za informacije o otklanjanju pogreške.",
+                  "Byla zjištěna chyba. Klikni na OK pro informace o jejím odstranění.",
+                  "Fejl opdaget. Klik på OK for at få information om fejlfinding.",
+                  "Fout ontdekt. Klik op OK om informatie over probleemoplossing te krijgen.",
+                  "Viga tuvastatud. Klõpsa OK, et saada teavet vea kõrvaldamise kohta.",
+                  "Virhe havaittu. Napsauta OK saadaksesi tietoa vianmäärityksestä.",
+                  "Une erreur a été détectée. Clique sur OK pour obtenir des informations de dépannage.",
+                  "Εντοπίστηκε σφάλμα. Κάνε κλικ στο OK για πληροφορίες επίλυσης προβλημάτων.",
+                  "Aimsíodh earráid. Cliceáil OK chun eolas a fháil faoi réiteach fabhtanna.",
+                  "Errore rilevato. Fai clic su OK per ottenere informazioni sulla risoluzione del problema.",
+                  "Konstatēta kļūda. Noklikšķini uz OK, lai iegūtu informāciju par problēmas novēršanu.",
+                  "Aptikta klaida. Spustelėk OK, kad gautum informacijos apie problemos sprendimą.",
+                  "Instab żball. Ikklikkja OK biex tikseb aktar informazzjoni dwar is-soluzzjoni.",
+                  "Wykryto błąd. Kliknij OK, aby uzyskać informacje o rozwiązaniu problemu.",
+                  "Erro detetado. Clica em OK para obter informações sobre como resolver o problema.",
+                  "A fost detectată o eroare. Apasă pe OK pentru informații despre rezolvare.",
+                  "Bola zistená chyba. Klikni na OK pre informácie o jej odstránení.",
+                  "Napaka zaznana. Klikni na OK za informacije o odpravi napake.",
+                  "Se ha detectado un error. Haz clic en OK para obtener información sobre cómo solucionarlo.",
+                  "Fel upptäckt. Klicka på OK för att få information om hur du löser det.",
+                  "Hibát észleltünk. Kattints az OK gombra a hiba megoldásához szükséges információkért."
+                ]
+              }
+            }
+          ]
+        },
+        "Failure_Info_Message": {
+          "title": "Error Message with Troubleshooting Steps",
+          "description": "Shows the user an error message indicating which policies have failed, as well as a possible solution and where the user can go to report this. Placeholders %REAL_FIRSTNAME%, %jamfProPolicyNameFailures%, and %SUPPORT_EMAIL% are replaced with actual values from the script.",
+          "oneOf": [
+            {
+              "title": "Default Text",
+              "type": "string",
+              "enum": [
+                "Es wurden Fehler entdeckt, %REAL_FIRSTNAME%. \\n\\nBitte führe die folgenden Schritte aus: \\n1. Starte deinen Mac neu und melde dich erneut an. \\n2. Öffne den Self Service. \\n3. Führe alle unten aufgeführten fehlgeschlagenen Richtlinien erneut aus. \\n\\nDie folgenden Applikationen sind fehlgeschlagen: \\n%jamfProPolicyNameFailures% \\n\\n\\nWenn du Hilfe benötigst, wende dich bitte an den Helpdesk: \\n%SUPPORT_EMAIL%",
+                "Errors were detected, %REAL_FIRSTNAME%. \\n\\nPlease follow these steps: \\n1. Restart your Mac and log in again. \\n2. Open Self Service. \\n3. Re-run all failed policies listed below. \\n\\nThe following applications failed: \\n%jamfProPolicyNameFailures% \\n\\n\\nIf you need help, please contact the Helpdesk: \\n%SUPPORT_EMAIL%",
+                "Des erreurs ont été détectées, %REAL_FIRSTNAME%. \\n\\nVeuillez suivre les étapes suivantes : \\n1. Redémarre ton Mac et reconnecte-toi. \\n2. Ouvre Self Service. \\n3. Relance toutes les politiques ayant échoué listées ci-dessous. \\n\\nLes applications suivantes ont échoué : \\n%jamfProPolicyNameFailures% \\n\\n\\nSi tu as besoin d’aide, contacte le Helpdesk : \\n%SUPPORT_EMAIL%",
+                "Se han detectado errores, %REAL_FIRSTNAME%. \\n\\nSigue estos pasos: \\n1. Reinicia tu Mac e inicia sesión de nuevo. \\n2. Abre Self Service. \\n3. Ejecuta nuevamente todas las políticas fallidas que aparecen abajo. \\n\\nLas siguientes aplicaciones han fallado: \\n%jamfProPolicyNameFailures% \\n\\n\\nSi necesitas ayuda, contacta con el Helpdesk: \\n%SUPPORT_EMAIL%",
+                "Sono stati rilevati degli errori, %REAL_FIRSTNAME%. \\n\\nSegui questi passaggi: \\n1. Riavvia il Mac e accedi di nuovo. \\n2. Apri Self Service. \\n3. Esegui nuovamente tutte le policy fallite elencate sotto. \\n\\nLe seguenti applicazioni non sono riuscite: \\n%jamfProPolicyNameFailures% \\n\\n\\nSe hai bisogno di aiuto, contatta il Helpdesk: \\n%SUPPORT_EMAIL%",
+                "Er zijn fouten ontdekt, %REAL_FIRSTNAME%. \\n\\nVolg deze stappen: \\n1. Herstart je Mac en log opnieuw in. \\n2. Open de Self Service. \\n3. Voer opnieuw alle mislukte beleidsregels hieronder uit. \\n\\nDe volgende applicaties zijn mislukt: \\n%jamfProPolicyNameFailures% \\n\\n\\nHeb je hulp nodig? Neem dan contact op met de helpdesk: \\n%SUPPORT_EMAIL%",
+                "Wykryto błędy, %REAL_FIRSTNAME%. \\n\\nWykonaj następujące kroki: \\n1. Uruchom ponownie Maca i zaloguj się. \\n2. Otwórz Self Service. \\n3. Uruchom ponownie wszystkie nieudane polityki wymienione poniżej. \\n\\nNiepowiodły się następujące aplikacje: \\n%jamfProPolicyNameFailures% \\n\\n\\nJeśli potrzebujesz pomocy, skontaktuj się z pomocą techniczną: \\n%SUPPORT_EMAIL%",
+                "Es wurden Fehler entdeckt, %REAL_FIRSTNAME%. \\n\\nBitte führe die folgenden Schritte aus: \\n1. Starte deinen Mac neu und melde dich erneut an. \\n2. Öffne den Self Service. \\n3. Führe alle unten aufgeführten fehlgeschlagenen Richtlinien erneut aus. \\n\\nDie folgenden Applikationen sind fehlgeschlagen: \\n%jamfProPolicyNameFailures% \\n\\n\\nWenn du Hilfe benötigst, wende dich bitte an den Helpdesk: \\n%SUPPORT_EMAIL%",
+                "Jeśli potrzebujesz pomocy, skontaktuj się z pomocą techniczną: \\n- Telefon: %SUPPORT_TELEFон% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformacje o komputerze: \\n\\n- System operacyjny: %MACOSPRDICTVERSION% \\n- Numer seryjny: %SERIALNUMBER% \\n- Okno dialogowe: %DIALOG_VERSION% \\n- Uruchomiono: %TIME_STAMP%"
+              ],
+              "default": "Errors were detected, %REAL_FIRSTNAME%. \\n\\nPlease follow these steps: \\n1. Restart your Mac and log in again. \\n2. Open Self Service. \\n3. Re-run all failed policies listed below. \\n\\nThe following applications failed: \\n%jamfProPolicyNameFailures% \\n\\n\\nIf you need help, please contact the Helpdesk: \\n%SUPPORT_EMAIL%"
+            },
+            {
+              "title": "Custom Text",
+              "type": "string",
+              "not": {
+                "enum": [
+                  "Es wurden Fehler entdeckt, %REAL_FIRSTNAME%. \\n\\nBitte führe die folgenden Schritte aus: \\n1. Starte deinen Mac neu und melde dich erneut an. \\n2. Öffne den Self Service. \\n3. Führe alle unten aufgeführten fehlgeschlagenen Richtlinien erneut aus. \\n\\nDie folgenden Applikationen sind fehlgeschlagen: \\n%jamfProPolicyNameFailures% \\n\\n\\nWenn du Hilfe benötigst, wende dich bitte an den Helpdesk: \\n%SUPPORT_EMAIL%",
+                  "Errors were detected, %REAL_FIRSTNAME%. \\n\\nPlease follow these steps: \\n1. Restart your Mac and log in again. \\n2. Open Self Service. \\n3. Re-run all failed policies listed below. \\n\\nThe following applications failed: \\n%jamfProPolicyNameFailures% \\n\\n\\nIf you need help, please contact the Helpdesk: \\n%SUPPORT_EMAIL%",
+                  "Des erreurs ont été détectées, %REAL_FIRSTNAME%. \\n\\nVeuillez suivre les étapes suivantes : \\n1. Redémarre ton Mac et reconnecte-toi. \\n2. Ouvre Self Service. \\n3. Relance toutes les politiques ayant échoué listées ci-dessous. \\n\\nLes applications suivantes ont échoué : \\n%jamfProPolicyNameFailures% \\n\\n\\nSi tu as besoin d’aide, contacte le Helpdesk : \\n%SUPPORT_EMAIL%",
+                  "Se han detectado errores, %REAL_FIRSTNAME%. \\n\\nSigue estos pasos: \\n1. Reinicia tu Mac e inicia sesión de nuevo. \\n2. Abre Self Service. \\n3. Ejecuta nuevamente todas las políticas fallidas que aparecen abajo. \\n\\nLas siguientes aplicaciones han fallado: \\n%jamfProPolicyNameFailures% \\n\\n\\nSi necesitas ayuda, contacta con el Helpdesk: \\n%SUPPORT_EMAIL%",
+                  "Sono stati rilevati degli errori, %REAL_FIRSTNAME%. \\n\\nSegui questi passaggi: \\n1. Riavvia il Mac e accedi di nuovo. \\n2. Apri Self Service. \\n3. Esegui nuovamente tutte le policy fallite elencate sotto. \\n\\nLe seguenti applicazioni non sono riuscite: \\n%jamfProPolicyNameFailures% \\n\\n\\nSe hai bisogno di aiuto, contatta il Helpdesk: \\n%SUPPORT_EMAIL%",
+                  "Er zijn fouten ontdekt, %REAL_FIRSTNAME%. \\n\\nVolg deze stappen: \\n1. Herstart je Mac en log opnieuw in. \\n2. Open de Self Service. \\n3. Voer opnieuw alle mislukte beleidsregels hieronder uit. \\n\\nDe volgende applicaties zijn mislukt: \\n%jamfProPolicyNameFailures% \\n\\n\\nHeb je hulp nodig? Neem dan contact op met de helpdesk: \\n%SUPPORT_EMAIL%",
+                  "Wykryto błędy, %REAL_FIRSTNAME%. \\n\\nWykonaj następujące kroki: \\n1. Uruchom ponownie Maca i zaloguj się. \\n2. Otwórz Self Service. \\n3. Uruchom ponownie wszystkie nieudane polityki wymienione poniżej. \\n\\nNiepowiodły się następujące aplikacje: \\n%jamfProPolicyNameFailures% \\n\\n\\nJeśli potrzebujesz pomocy, skontaktuj się z pomocą techniczną: \\n%SUPPORT_EMAIL%",
+                  "Es wurden Fehler entdeckt, %REAL_FIRSTNAME%. \\n\\nBitte führe die folgenden Schritte aus: \\n1. Starte deinen Mac neu und melde dich erneut an. \\n2. Öffne den Self Service. \\n3. Führe alle unten aufgeführten fehlgeschlagenen Richtlinien erneut aus. \\n\\nDie folgenden Applikationen sind fehlgeschlagen: \\n%jamfProPolicyNameFailures% \\n\\n\\nWenn du Hilfe benötigst, wende dich bitte an den Helpdesk: \\n%SUPPORT_EMAIL%",
+                  "Jeśli potrzebujesz pomocy, skontaktuj się z pomocą techniczną: \\n- Telefon: %SUPPORT_TELEFОН% \\n- Email: %SUPPORT_EMAIL% \\n\\nInformacje o komputerze: \\n\\n- System operacyjny: %MACOSPRDICTVERSION% \\n- Numer seryjny: %SERIALNUMBER% \\n- Okno dialogowe: %DIALOG_VERSION% \\n- Uruchomiono: %TIME_STAMP%"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
