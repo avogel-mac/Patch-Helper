@@ -3,23 +3,20 @@
   "title": "it.next.icon_Service",
   "type": "object",
   "properties": {
-    "Google Chrome": {
-      "description": "Name of the application.",
+    "Google_Chrome": {
+      "description": "Defenition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_94f8d7f60fe82fb234065e05cccf385b1a4f9763ea1b4a3d9737e6a980fd0eae",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Google Chrome.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -31,22 +28,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Microsoft Outlook": {
-      "description": "Name of the application.",
+      "description": "Defenition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_b96ae8bdcb09597bff8b2e82ec3b64d0a2d17f33414dbd7d9a48e5186de7fd93",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Microsoft Outlook.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -57,590 +51,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Microsoft OneDrive": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_2f43f68cfdaaf3170f7935b64d97243a763063e496e0a4aa2eed839674d0f31a",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/OneDrive.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.microsoft.OneDrive",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Citrix Workspace": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_63e45751504b2a9e65c44cec55ba25471243896de88d92116680a710f35c438e",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Citrix Workspace.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.citrix.receiver.icaviewer.mac",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "TextMate": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_4a87c9975d082a057489c341520453b615e54e5376ab1b55799e69af4d536968",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/TextMate.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.macromates.TextMate",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "WACOM Tablet Driver": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_16974d8b87b3b8c1b90f30184f02c72b76a3b446c483c05a27f56dc5f0b7386b",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Wacom Tablet.localized/Wacom Center.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.wacom.TabletDriver",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "CodeRunner": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_01f018a8d52b58571c9eeb69a42ff13dfd8d90d56544c277f0f98a2e39d9838e",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/CodeRunner.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.krill.CodeRunner",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Karabiner-Elements": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_3d7c482c5531874a4b25b523820e960aeb9107ad3c6e4be01320aa57de75d509",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Karabiner-Elements.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "org.pqrs.Karabiner-Elements",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "PPPC Utility": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_24a36c2688d4084c8b3f47023c4879f2cfc149931056898ef11c9b9fdeea7b83",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/PPPC Utility.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Whitebox Packages": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_3f98ba6b4ac2ed0d3f27b1cc69a21c6eabf671383241698f3625644532318ef3",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Packages.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.whitebox.packages",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "MySQLWorkbench": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_021207114150120a6a74ef7d7df9e58c89a5bf543255b7bc829b5a6714ed8e65",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/MySQLWorkbench.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.oracle.workbench.MySQLWorkbench",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Snagit2022": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_9c0a6d3cc9cabd93f7b2de316a668b76ff092948005129d5dc24900af08d9e7d",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Snagit 2022.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.techsmith.snagit2022",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Snagit2023": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_9c0a6d3cc9cabd93f7b2de316a668b76ff092948005129d5dc24900af08d9e7d",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Snagit 2023.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.techsmith.snagit2023",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Firefox Developer Edition": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_4358f2573be982631379c4ac66ddf3e6bca16526ec05f8d9646d36f1d8891313",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Firefox Developer Edition.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "org.mozilla.firefoxdeveloperedition",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "IBM Notifier": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_e3b24cce176f6b621383d7c13b95ef3acbad84aa1ecdf13aaa012f6c5ae9f708",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/IBM Notifier.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.ibm.notifier",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Python": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_fd955491c8370395fc6f3ed75fa29347d068dfe56c618afc9dcd866af9cbbe47",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Python 3.11/Python Launcher.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "org.python.python",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Splashtop Business": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_1c76d97542e13b983d070bb3856545cc612893606c09fd4237f76579e30818c7",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Splashtop Business.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.splashtop.stb.macosx",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Mist": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_9456da2d39adb6e446eb6fff7e509cbbc60088af189e894cd4742530221535b8",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Mist.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.mist.mist",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Xquartz": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_fd7029eff9d7c6c6fa95ae8fbabef15f39f429d1aef0528e826c30c59ef6f1d2",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Utilities/XQuartz.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "org.macosforge.xquartz.X11",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Fork": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_5a90e0753516712b0eb0dff11093854a9b75f2a1d9b983ca7249c674a7f31676",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Utilities/Fork.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.DanPristupov.Fork",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "IntelliJ Community Edition": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_a984d3871eaa51cb9cbb3256c566406a7db10825dba4d080e092e15c551e6293",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/IntelliJ IDEA CE.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.jetbrains.intellij",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Thunderbird": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_60479652befcf475a0c4feb6d90bc75a921e820a8b4b7f442f86d66d1617d564",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Thunderbird.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "org.mozilla.thunderbird",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
-    "Google Android Studio": {
-      "description": "Name of the application.",
-      "type": "object",
-      "properties": {
-        "icon": {
-          "title": "icon",
-          "default": "https://ics.services.jamfcloud.com/icon/hash_0b8db5953bbececc30f70cc5719cec5327de19baec8fcc1363386fd95c26921b",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
-          "type": "string"
-        },
-        "validation": {
-          "title": "validation",
-          "default": "/Applications/Android Studio.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
-          "type": "string"
-        },
-        "BundelID": {
-          "title": "BundelID",
-          "default": "com.google.android.studio",
-          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
-          "type": "string"
-        }
-      }
-    },
     "Slack": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_a1ecbe1a4418113177cc061def4996d20a01a1e9b9adf9517899fcca31f3c026",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Slack.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -652,22 +76,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Microsoft Company Portal": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_2af383e90f870e948ec2d03a5910af1b27fe2b32d7c757848db0fdecfea2ef71",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Company Portal.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -679,22 +100,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Firefox": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_b50bdee2e72b3f98cd7cfe8da06a3d5f405507ca0dca2f5f408978f4f24fee0c",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Firefox.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -706,22 +124,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "GitHub Desktop": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_e7790b367556baee89ffb70d7d545b4cf78698e84cf646777a7d9058762bf69d",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/GitHub Desktop.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -733,22 +148,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "iTerm2": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_85951b4b7b290fa90d8b3a4d7b652316acb5dac44ebce95e7a00a38879710cc6",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/iTerm.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -759,23 +171,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Microsoft Edge": {
-      "description": "Name of the application.",
+    "Microsoft_Edge": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_f1fa00c7d8b4cb4d3c58d98c0b0bdbe719a56be39f8b6445ed3df9c8219a126d",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Microsoft Edge.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -787,22 +196,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Microsoft Excel": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_721a7bf38cec7552ecd6ffaee9a0ed2ab21b2318639c23082250be12517fca1c",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Microsoft Excel.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -813,23 +219,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Microsoft OneNote": {
-      "description": "Name of the application.",
+    "Microsoft_OneNote": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_a10ac257accff5479d467cf0c8f148559b92eb0ccb7c78f80464901532c95bdb",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Microsoft OneNote.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -840,23 +243,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Microsoft PowerPoint": {
-      "description": "Name of the application.",
+    "Microsoft_PowerPoint": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_9f13ca0d3ab7939d3147fbdea116fbdd94f6716a27292505231a8e93f6307fd6",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Microsoft PowerPoint.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -867,23 +267,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Microsoft Remote Desktop": {
-      "description": "Name of the application.",
+    "Microsoft_Remote_Desktop": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_accfb8273af78d6e2f456a9e3ea882267f82e99c13f9e515d374ffd749aba082",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Microsoft Remote Desktop.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -894,23 +291,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Microsoft Teams": {
-      "description": "Name of the application.",
+    "Microsoft_Teams": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_623505d45ca9c2a1bd26f733306e30cd3fcc1cc0fd59ffc89ee0bfcbfbd0b37e",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Microsoft Teams.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -921,23 +315,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Microsoft Word": {
-      "description": "Name of the application.",
+    "Microsoft_Word": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_a4686ab0e2efa2b3c30c42289e3958e5925b60b227ecd688f986d199443cc7a7",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Microsoft Word.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -949,22 +340,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Postman": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_019df97f436478ca2b98e3f858eb95d4a527a353029df0384f5b8f18dbd0c61d",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Postman.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -975,23 +363,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Support App": {
-      "description": "Name of the application.",
+    "Support_App": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_6a2b5ed3a7762b7641b837fd5cc0a5541462f27ec43126db2d4e8dbdcc298f6d",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Support.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1003,22 +388,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "TeamViewer": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_ccbb12778c38f0e2c245a712e78d417930c5d599f44832be9bbee1705f69d3e4",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/TeamViewer.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1029,23 +411,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Visual Studio Code": {
-      "description": "Name of the application.",
+    "Visual_Studio_Code": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_011955c4065d9215a82905984bd200f224c8b3736e3fb947ba64b6fa28b0c02a",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Visual Studio Code.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1057,22 +436,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Zoom": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_92b8d3c448e7d773457532f0478a428a0662f694fbbfc6cb69e1fab5ff106d97",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/zoom.us.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1082,24 +458,21 @@ If the files are present, a green check mark is displayed, regardless of whether
           "type": "string"
         }
       }
-    },    
+    },
     "Zeplin": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_8d184c2fc82089ed7790429560eee153f79795076999a6d2eef2d9ebcfc9b8d9",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Zeplin.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1111,22 +484,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "VLC": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_2b428c169b78204f03cff3b040b2b5c428eac9288108e11d43aca994d5bd39f0",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/VLC.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1137,23 +507,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "The Unarchiver": {
-      "description": "Name of the application.",
+    "The_Unarchiver": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_5ef15847e6f8b29cedf4e97a468d0cb1b67ec1dcef668d4493bf6537467a02c2",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/The Unarchiver.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1165,22 +532,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Sketch": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_32f378b2490f45b03042fc8a388dbc433e7e2e4c2c68b697e3c9647fcd217e44",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Sketch.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1192,22 +556,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Miro": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_89d42f52cebdbb0862c2229254074da1b31dc334c984031a6ccfc5f46141a569",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Miro.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1218,23 +579,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Microsoft Skype for Busines": {
-      "description": "Name of the application.",
+    "Microsoft_Skype_for_Busines": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_a0bb8ab7d90a958892febf03aea84f3b090c2dc0ea9305f7d17f27d622bfbb9e",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Skype for Business.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1246,22 +604,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Keka": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_b2f82bb89f6e69834dec02b0f12ce6180fbdc1352494adf10d7e7a7aa65c85e6",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Keka.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1273,22 +628,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "ImageOptim": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_5dcd3a597ee4fd5b52e63ee0e5f86d97352d281398ee4e91d45abc75e292e086",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/ImageOptim.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1300,22 +652,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Filezilla": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_b2aa33567e5b48be41e5165c6f02eac485710e041367a685be5bbc97b265229b",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/FileZilla.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1327,22 +676,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "DropBox": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_e6361d9d6f2867bf1f939fb9fbe5b7f785413b17dd9d36331e02c3f42f1a3a07",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Dropbox.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1354,22 +700,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Figma": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_ad7d074540cf041f9d9857ecf6c0223e38fb8e582168484b97ae95bd7b5a53de",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Figma.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1381,22 +724,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "EasyFind": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_a7ad6e3e43ee50fcb73d3e26fd29146906681a6f048a3d305b4857f3165298f5",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/EasyFind.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1407,23 +747,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "DisplayLink Manager": {
-      "description": "Name of the application.",
+    "DisplayLink_Manager": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_ed6f88bfb07d71e245f6b3d69574467f7089ef39d9a98f5d5d770b314706b460",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/DisplayLink Manager.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1435,22 +772,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Cyberduck": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_d807ad9581dffc5e7317c5b301104a43b37ceca866b36799053412ef327264b8",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Cyberduck.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1462,22 +796,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Blender": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_d1420bec7e93fc1197c999f499ff1743764ac17789bee60f5466569e83fc7fab",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Blender.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1488,23 +819,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Balsamiq Wireframes": {
-      "description": "Name of the application.",
+    "Balsamiq_Wireframes": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_2aacaa75080df809d095065d9fd5ac25066d1bfe90eec277f1834e82d44a555a",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Balsamiq Wireframes.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1516,22 +844,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "AppCleaner": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_c304da7fe44e5ab4241d909a1051ae44e9af7d7694ed8dbc53f4d53e6dd0c1f6",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/AppCleaner.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1542,23 +867,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "1Password 8": {
-      "description": "Name of the application.",
+    "1Password_8": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_274cae31e3447da5b641ecd0dcd3ae6d27e7aa24e4aff112f54e9047f9711aa7",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/1Password.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1569,23 +891,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Adobe Acrobar Reader": {
-      "description": "Name of the application.",
+    "Adobe_Acrobar_Reader": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_d5f7f524284ff4ab5671cd5c92ef3938eea192ca4089e0c8b2692f49c5cfe47c",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Adobe Acrobat Reader.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1597,22 +916,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Anydesk": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_753118b231372bdecc36d637d85c1ebc65e306f341a6d18df4adef72a60aae8d",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/AnyDesk.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1624,22 +940,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Audacity": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_48856b6517bf045e425982abe4d4d036ba8d64ec4f83344cec88f19d3644053f",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Audacity.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1651,22 +964,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "balenaEtcher": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_c55e8e1eb9cdf4935385f77f2440784d28a111df750b9661c7cf20ec4806df3d",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/balenaEtcher.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1678,22 +988,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Clipy": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_69311ae3c55874b8c4a75698ea955d2be8169c132303b267de7c2610a5691946",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Clipy.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1705,22 +1012,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Drawio": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_fe1fe76b17903b7bdde014647234bc1afab379f375d61ef3844bfeca5f60cd74",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/draw.io.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1731,23 +1035,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Keeping you Awake": {
-      "description": "Name of the application.",
+    "Keeping_you_Awake": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_01bb3a85ce1165f3a6284dd032271778ca3b89380187ab1729188ad625e4d1ca",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/KeepingYouAwake.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1758,23 +1059,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Monitor Control": {
-      "description": "Name of the application.",
+    "Monitor_Control": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_09cfa66f17687de4177ec619924110cb0985da70c9ccfcba47944c59c65d4ea2",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/MonitorControl.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1785,23 +1083,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "OmniGraffle 7": {
-      "description": "Name of the application.",
+    "OmniGraffle_7": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_af797387cce835f0c01b4514c78b7a87e7889a272ad7ed5a100ec6f82661fe94",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/OmniGraffle.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1813,22 +1108,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Rectangle": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_656b155e64d443182726fe264ac2d7d31295ec7529b5f28afcd04eb1599c9253",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Rectangle.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1840,22 +1132,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Sourcetree": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_176409e6a4b5ca1bc4cf2b0b98e03a87701adf56a1cf64121284786e30e4721f",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Sourcetree.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1867,22 +1156,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Zulip": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_4ae4efbb4993900bbac7b3fc0e298e804b37730e0e83f1ccb1dbf4fd79bb1c8e",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Zulip.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1893,23 +1179,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Go to Meeting": {
-      "description": "Name of the application.",
+    "Go_to_Meeting": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_03e38ad91467fca7875becc5cec5141358ac013cb0ead27145653673324efb0a",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/GoToMeeting.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1921,22 +1204,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "GIMP": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_db1f5181e6c32c57e0d7e777fa392c870552172ac5c5316a0618f94b4ebd1a94",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/GIMP.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1947,23 +1227,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Apache Directory Studio": {
-      "description": "Name of the application.",
+    "Apache_Directory_Studio": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_5497c297450e6e5a60a1ed540e82759c1c41d9b8c3e0774f8805b8f8e78101fe",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/ApacheDirectoryStudio.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -1974,23 +1251,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Azure Data Studio": {
-      "description": "Name of the application.",
+    "Azure_Data_Studio": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_967faf08185090d670b1fbaeec5243431d5ccadd508abbae5f4cbd9279876a6c",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Azure Data Studio.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2002,22 +1276,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Docker": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_34da3317712f203f9d80ce968304d0a490900e68ab7986a79c4a290f4d63a9af",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Docker.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2029,22 +1300,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Meld": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_7635c2f1f8439aa3b129a9db0755dae6a0d76f141e1afa2252e0020f5214ee8e",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Meld.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2056,22 +1324,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "PyCharm": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_3f93975114b0199f0bd1baf116db1549f87f5b0165f03df5014edda3ff365f7a",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/PyCharm.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2083,22 +1348,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "SquidMan": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_a89c20c9145dfa733c425e7c121e503ed270348ffcce255f4837aca001949dab",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/SquidMan.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2109,49 +1371,44 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "TNEFs Enough": {
-      "description": "Name of the application.",
+    "TNEFs_Enough": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_302941a1fa63b8289b2bbabfdddb7056d67f83e8913d234c1833e15e3a012602",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/TNEF's Enough.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
           "title": "BundelID",
-          "default": "com.joshjacob.tnef",          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
+          "default": "com.joshjacob.tnef",
+          "description": "This serves to check whether the application is running. If the application should not be checked for execution, then set the value to None.",
           "type": "string"
         }
       }
     },
     "Wireshark": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_1f874fcf121ba5028ee8740a8478fda171fe85d778fda72b93212af78290f8f3",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Wireshark.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2162,23 +1419,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Jabra Direct": {
-      "description": "Name of the application.",
+    "Jabra_Direct": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_7207235148a8c306ac40e3248dfa7e74ccbb912562ab2b18d98d151a35e038c2",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Jabra Direct.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2189,23 +1443,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "SimpleMind Pro": {
-      "description": "Name of the application.",
+    "SimpleMind_Pro": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_d23a5a8752af9e4de9b960850118ef8f85cd5ae4c742ff7f839792f795153f04",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/SimpleMind Pro.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2217,22 +1468,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Tunnelblick": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_0ff661450177e85368cc22c97703c73d2e13b161e7289c440faeafcea0389bfd",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Tunnelblick.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2244,22 +1492,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "UTM": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_d51d14a3397054293dd5591df171a6f37825093f89dbe8f03191fd024e0c0ddc",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/UTM.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2271,22 +1516,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Bitwarden": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_4eb5da16820a8d37cc5918213323b5d2ae2bdb1cfed104d84535299123acab18",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Bitwarden.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2298,22 +1540,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Brave": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_d07ef04ebf5d9a509070858a26c39fd99feef114422de934973b6b19cb565a6c",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Brave Browser.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2324,23 +1563,20 @@ If the files are present, a green check mark is displayed, regardless of whether
         }
       }
     },
-    "Jamf Connect": {
-      "description": "Name of the application.",
+    "Jamf_Connect": {
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_c7473f7ba3d046e0937dc9ad2fa1bc1453661d1303cd17693e5973948bb4a167",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Jamf Connect.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2352,22 +1588,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "DeepL": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_2cb25dabd5847b8ca0109419483a8b93bb8c9c1eb89265e84b31be1c5936ca60",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/DeepL.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2379,22 +1612,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Webex": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://euc1.ics.services.jamfcloud.com/icon/hash_f8390435d5818f36bf57268fb934cc3f9f83497527e274fa1c27df7b0eb61c24",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Webex.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
@@ -2406,22 +1636,19 @@ If the files are present, a green check mark is displayed, regardless of whether
       }
     },
     "Spotify": {
-      "description": "Name of the application.",
+      "description": "Definition für die Applikation",
       "type": "object",
       "properties": {
         "icon": {
           "title": "icon",
           "default": "https://ics.services.jamfcloud.com/icon/hash_e742e1ff61d0ab003607ca9cfb46ebdc1628b2acc55361308664499b581caf7f",
-          "description": "Definition for the icon that will be displayed for the respective application.
-You can use the pre-filled path from the JSON or define your own.
-You can also use a pre-loaded icon that is stored on macOS.",
+          "description": "Definition for the icon that will be displayed for the respective application. You can use the pre-filled path from the JSON or define your own. You can also use a pre-loaded icon that is stored on macOS.",
           "type": "string"
         },
         "validation": {
           "title": "validation",
           "default": "/Applications/Spotify.app/Contents/Info.plist",
-          "description": "This serves to check whether the files are present after the update.
-If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
+          "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
         "BundelID": {
