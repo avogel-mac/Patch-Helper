@@ -1575,7 +1575,7 @@
         },
         "validation": {
           "title": "validation",
-          "default": "/Library/Application Support/JamfConnect/JCDaemon.app",
+          "default": "/Library/Application Support/JamfConnect/JCDaemon.app/Contents/Info.plist",
           "description": "This serves to check whether the files are present after the update. If the files are present, a green check mark is displayed, regardless of whether the version has changed after running through the policy.",
           "type": "string"
         },
