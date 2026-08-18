@@ -4,7 +4,7 @@
 # Edetiert durch  :   Andreas Vogel
 #######################################################################
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/jamf/bin/
-scriptVersion="1.0.0"
+scriptVersion="1.0.2"
 debugMode="${6:-"true"}"                                 # Parameter 4: Debug Mode [ true (default) | false | verbose ]
 completionActionOption="wait"                               # Completion Action [ wait | Close ]
 UserInformation="promtUserInfo"
@@ -15,6 +15,7 @@ serialNumber=$( system_profiler SPHardwareDataType | grep Serial |  awk '{print 
 timestamp="$( date '+%Y-%m-%d-%H%M%S' )"
 reconOptions=""
 exitCode="0"
+cleanupDeferralOnExit="false"
 
 BundleIDPlist="it.next.PatchHelper"
 IconBundelPlist="it.next.icon_Service"
@@ -212,7 +213,8 @@ function dialogCheck() {
                     osascript -e 'display dialog "Please advise your Support Representative of the following error:\r\r• Dialog Team ID verification failed\r\r" with title "Patch Helper: Error" buttons {"Close"} with icon caution'
                     completionActionOption="Quit"
                     exitCode="1"
-                    quitScript
+                    /bin/rm -Rf "$tempDirectory"
+                    exit 1
     
             fi
             /bin/rm -Rf "$tempDirectory"
@@ -238,13 +240,13 @@ setDeferralCount() {
     local DeferralPlist="$3"
     
     local DeferralCount
-    DeferralCount="$(/usr/libexec/PlistBuddy -c "print :${BundleIDDeferral}:count" "$DeferralPlist" 2>/dev/null)"
+    DeferralCount="$(/usr/libexec/PlistBuddy -c "print :${BundleID}:count" "$DeferralPlist" 2>/dev/null)"
     
     if [[ -n "$DeferralCount" ]] && [[ ! "$DeferralCount" =~ "File Doesn't Exist" ]]
         then
-            /usr/libexec/PlistBuddy -c "set :${BundleIDDeferral}:count $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
+            /usr/libexec/PlistBuddy -c "set :${BundleID}:count $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
         else
-            /usr/libexec/PlistBuddy -c "add :${BundleIDDeferral}:count integer $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
+            /usr/libexec/PlistBuddy -c "add :${BundleID}:count integer $UpdateDeferral_Value" "$DeferralPlist" 2>/dev/null
     fi
 }
 
@@ -264,63 +266,129 @@ echo "Current deferral count for ${BundleIDDeferral}: $CurrentDeferralValue"
 updateScriptLog "PRE-FLIGHT CHECK: Complete"
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# LaunchDaemon Check 
+# LaunchDaemon lifecycle
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 LaunchDaemonPlist="/Library/LaunchDaemons/$LaunchDaemonLabel.plist"
+LaunchDaemonService="system/$LaunchDaemonLabel"
+LaunchDaemonPlistExists="false"
+LaunchDaemonLoaded="false"
 LaunchDaemonisReady=0
 
-if [[ -f "$LaunchDaemonPlist" ]]
-    then
-        if launchctl list | grep -q "$LaunchDaemonLabel"
-            then
-                updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon '$LaunchDaemonLabel' is already loaded."
-                LaunchDaemonisReady=1
-            else
-                updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon-Plist available, but not loaded."
-                LaunchDaemonisReady=1
-        fi
-    else
-        updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon '$LaunchDaemonLabel' does not exist."
-        LaunchDaemonisReady=0
-fi
+function refreshLaunchDaemonState() {
+    LaunchDaemonPlistExists="false"
+    LaunchDaemonLoaded="false"
+    LaunchDaemonisReady=0
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Helper-Funktionen: Cleanup etc.
-function ClearUpLaunchDaemon() {
-    updateScriptLog "QUIT SCRIPT: Stopping LaunchDaemon via launchctl bootout system …"
-    launchctl bootout system/$LaunchDaemonLabel 2>/dev/null
-    if [ $? -ne 0 ]
-        then
-            updateScriptLog "QUIT SCRIPT: Error unloading LaunchDaemon"
-        else
-            updateScriptLog "QUIT SCRIPT: LaunchDaemon unloaded successfully"
+    if [[ -f "$LaunchDaemonPlist" ]]; then
+        LaunchDaemonPlistExists="true"
     fi
-    
-    updateScriptLog "QUIT SCRIPT: delete the LaunchDaemon"
-    rm -rf $LaunchDaemonPlist
+
+    if /bin/launchctl print "$LaunchDaemonService" >/dev/null 2>&1; then
+        LaunchDaemonLoaded="true"
+    fi
+
+    if [[ "$LaunchDaemonPlistExists" == "true" && "$LaunchDaemonLoaded" == "true" ]]; then
+        LaunchDaemonisReady=1
+    fi
 }
+
+refreshLaunchDaemonState
+updateScriptLog "LAUNCH-DAEMON FUNCTION: Initial state - plist=${LaunchDaemonPlistExists}, loaded=${LaunchDaemonLoaded}, ready=${LaunchDaemonisReady}."
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Helper functions: cleanup
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 function ClearUpPlist() {
-    updateScriptLog "QUIT SCRIPT: Set Deferral Count back to Default."
-     rm -rf "$DeferralPlist"
-}
-
-function ClearUpDeferral() {
-    if [[ "$LaunchDaemonisReady" -eq 1 ]]
-        then
-            updateScriptLog "QUIT SCRIPT: Clean up the daemon, updates were successfully installed …"
-            ClearUpPlist
-            ClearUpLaunchDaemon
+    if [[ -e "$DeferralPlist" ]]; then
+        updateScriptLog "QUIT SCRIPT: Removing deferral plist '$DeferralPlist'."
+        if /bin/rm -f "$DeferralPlist"; then
+            updateScriptLog "QUIT SCRIPT: Deferral plist removed successfully."
         else
-            updateScriptLog "QUIT SCRIPT: Daemon was not set up, user had not yet moved …"
-            ClearUpPlist
+            updateScriptLog "QUIT SCRIPT: ERROR: Could not remove deferral plist '$DeferralPlist'."
+            return 1
+        fi
+    else
+        updateScriptLog "QUIT SCRIPT: Deferral plist does not exist; nothing to remove."
     fi
+
+    return 0
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# LaunchDaemon anlegen und starten
+function ClearUpLaunchDaemon() {
+    local bootoutOutput=""
+    local bootoutResult=0
+
+    refreshLaunchDaemonState
+    updateScriptLog "QUIT SCRIPT: LaunchDaemon cleanup - plist=${LaunchDaemonPlistExists}, loaded=${LaunchDaemonLoaded}."
+
+    # Remove persistence first. This is intentional: this script may itself have
+    # been started by the LaunchDaemon. bootout is therefore performed last.
+    if [[ "$LaunchDaemonPlistExists" == "true" ]]; then
+        updateScriptLog "QUIT SCRIPT: Removing LaunchDaemon plist '$LaunchDaemonPlist'."
+
+        if ! /bin/rm -f "$LaunchDaemonPlist"; then
+            updateScriptLog "QUIT SCRIPT: ERROR: Could not remove LaunchDaemon plist '$LaunchDaemonPlist'."
+            return 1
+        fi
+
+        if [[ -e "$LaunchDaemonPlist" ]]; then
+            updateScriptLog "QUIT SCRIPT: ERROR: LaunchDaemon plist still exists after rm."
+            return 1
+        fi
+
+        LaunchDaemonPlistExists="false"
+        LaunchDaemonisReady=0
+        updateScriptLog "QUIT SCRIPT: LaunchDaemon plist removed successfully."
+    else
+        updateScriptLog "QUIT SCRIPT: LaunchDaemon plist does not exist; nothing to remove."
+    fi
+
+    if [[ "$LaunchDaemonLoaded" == "true" ]]; then
+        updateScriptLog "QUIT SCRIPT: Booting out '$LaunchDaemonService' as final LaunchDaemon cleanup action."
+
+        bootoutOutput=$(/bin/launchctl bootout "$LaunchDaemonService" 2>&1)
+        bootoutResult=$?
+
+        if [[ $bootoutResult -ne 0 ]]; then
+            updateScriptLog "QUIT SCRIPT: ERROR: bootout failed (${bootoutResult}): ${bootoutOutput}"
+            return 1
+        fi
+
+        # If this shell survives bootout, update the local state. When this script
+        # was launched by the daemon, launchd may terminate the process tree here.
+        LaunchDaemonLoaded="false"
+        LaunchDaemonisReady=0
+        updateScriptLog "QUIT SCRIPT: LaunchDaemon bootout command completed successfully."
+    else
+        updateScriptLog "QUIT SCRIPT: LaunchDaemon is not loaded; bootout not required."
+    fi
+
+    return 0
+}
+
+function CleanupDeferralState() {
+    local cleanupResult=0
+
+    updateScriptLog "QUIT SCRIPT: Cleaning deferral state and LaunchDaemon."
+
+    ClearUpPlist || cleanupResult=1
+    ClearUpLaunchDaemon || cleanupResult=1
+
+    return "$cleanupResult"
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Create and start LaunchDaemon
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 function createLaunchDaemon() {
-    /bin/cat <<EOC > "$LaunchDaemonPlist"
+    local tempLaunchDaemonPlist="${LaunchDaemonPlist}.tmp.$$"
+
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Creating LaunchDaemon plist '$LaunchDaemonPlist'."
+
+    /bin/cat <<EOC > "$tempLaunchDaemonPlist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
 "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -344,37 +412,126 @@ function createLaunchDaemon() {
 </dict>
 </plist>
 EOC
+
+    if [[ $? -ne 0 ]]; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: Could not write temporary LaunchDaemon plist."
+        /bin/rm -f "$tempLaunchDaemonPlist"
+        return 1
+    fi
+
+    if ! /usr/bin/plutil -lint "$tempLaunchDaemonPlist" >/dev/null 2>&1; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: Generated LaunchDaemon plist is invalid."
+        /bin/rm -f "$tempLaunchDaemonPlist"
+        return 1
+    fi
+
+    if ! /usr/sbin/chown root:wheel "$tempLaunchDaemonPlist"; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: chown failed for temporary LaunchDaemon plist."
+        /bin/rm -f "$tempLaunchDaemonPlist"
+        return 1
+    fi
+
+    if ! /bin/chmod 644 "$tempLaunchDaemonPlist"; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: chmod failed for temporary LaunchDaemon plist."
+        /bin/rm -f "$tempLaunchDaemonPlist"
+        return 1
+    fi
+
+    if ! /bin/mv -f "$tempLaunchDaemonPlist" "$LaunchDaemonPlist"; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: Could not move LaunchDaemon plist into place."
+        /bin/rm -f "$tempLaunchDaemonPlist"
+        return 1
+    fi
+
+    refreshLaunchDaemonState
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon plist created successfully."
+    return 0
 }
 
 function StartLaunchDaemon() {
-    updateScriptLog "LAUNCH-DAEMON FUNCTION: Start the process to change the LaunchDaemon settings."
-    updateScriptLog "LAUNCH-DAEMON FUNCTION: Change owner (root:wheel) for $LaunchDaemonPlist."
-    if /usr/sbin/chown root:wheel "$LaunchDaemonPlist"
-        then
-            updateScriptLog "LAUNCH-DAEMON FUNCTION: chown executed successfully."
-        else
-            updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: chown failed."
+    local bootstrapOutput=""
+    local bootstrapResult=0
+
+    refreshLaunchDaemonState
+
+    if [[ "$LaunchDaemonLoaded" == "true" ]]; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: '$LaunchDaemonLabel' is already loaded."
+        [[ "$LaunchDaemonPlistExists" == "true" ]] && LaunchDaemonisReady=1
+        return 0
     fi
-    
-    updateScriptLog "LAUNCH-DAEMON FUNCTION: Set access rights (644) for $LaunchDaemonPlist."
-    if /bin/chmod 644 "$LaunchDaemonPlist"
-        then
-            updateScriptLog "LAUNCH-DAEMON FUNCTION: chmod executed successfully."
-        else
-            updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: chmod failed."
+
+    if [[ "$LaunchDaemonPlistExists" != "true" ]]; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: LaunchDaemon plist is missing; bootstrap aborted."
+        return 1
     fi
-    
-    updateScriptLog "LAUNCH-DAEMON FUNCTION: Try to load LaunchDaemon."
-    if launchctl load "${LaunchDaemonPlist}" 2>/dev/null
-        then
-            updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon has been loaded successfully."
-        else
-            updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: LaunchDaemon could not be loaded."
+
+    if ! /usr/bin/plutil -lint "$LaunchDaemonPlist" >/dev/null 2>&1; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: LaunchDaemon plist is invalid; bootstrap aborted."
+        return 1
     fi
-    
-    updateScriptLog "LAUNCH-DAEMON FUNCTION: Process completed."
+
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Bootstrapping '$LaunchDaemonService'."
+    bootstrapOutput=$(/bin/launchctl bootstrap system "$LaunchDaemonPlist" 2>&1)
+    bootstrapResult=$?
+
+    # Always verify the actual state. A concurrent load can make bootstrap return
+    # non-zero even though the service is now available.
+    refreshLaunchDaemonState
+
+    if [[ "$LaunchDaemonLoaded" == "true" ]]; then
+        LaunchDaemonisReady=1
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon is loaded and ready."
+        return 0
+    fi
+
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: bootstrap failed (${bootstrapResult}): ${bootstrapOutput}"
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Removing unusable LaunchDaemon plist."
+    /bin/rm -f "$LaunchDaemonPlist"
+    refreshLaunchDaemonState
+    return 1
 }
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function EnsureLaunchDaemon() {
+    refreshLaunchDaemonState
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: Ensure state - plist=${LaunchDaemonPlistExists}, loaded=${LaunchDaemonLoaded}."
+
+    if [[ "$LaunchDaemonPlistExists" == "true" ]]; then
+        if ! /usr/bin/plutil -lint "$LaunchDaemonPlist" >/dev/null 2>&1; then
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: Existing plist is invalid; replacing it."
+            /bin/rm -f "$LaunchDaemonPlist"
+            LaunchDaemonPlistExists="false"
+            LaunchDaemonisReady=0
+        fi
+    fi
+
+    if [[ "$LaunchDaemonPlistExists" != "true" ]]; then
+        if ! createLaunchDaemon; then
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: Could not create LaunchDaemon."
+            return 1
+        fi
+    fi
+
+    refreshLaunchDaemonState
+
+    if [[ "$LaunchDaemonLoaded" != "true" ]]; then
+        if ! StartLaunchDaemon; then
+            updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: Could not load LaunchDaemon."
+            return 1
+        fi
+    fi
+
+    refreshLaunchDaemonState
+
+    if [[ "$LaunchDaemonisReady" -eq 1 ]]; then
+        updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon is ready."
+        return 0
+    fi
+
+    updateScriptLog "LAUNCH-DAEMON FUNCTION: ERROR: LaunchDaemon is not ready after ensure operation."
+    return 1
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Auth / Policies
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function get_api_token() {
@@ -405,8 +562,6 @@ function get_api_token() {
                     updateScriptLog "Function-GET API Token: Verify the --auth-jamf-client=ClientID and --auth-jamf-secret=ClientSecret are values."
                     
                     updateScriptLog "# * * * * * * * * * * * * * * * * * * * * * * * END WITH ERROR * * * * * * * * * * * * * * * * * * * * * * * #"
-                    killProcess "caffeinate"
-                    quitScript
                     exit 1
             fi
         else
@@ -432,8 +587,6 @@ function get_api_token() {
                 updateScriptLog "Function-GET API Token: Token could not be generated"
                 updateScriptLog "Function-GET API Token: Verify the --auth-jamf-client=ClientID and --auth-jamf-secret=ClientSecret are values."
                 updateScriptLog "# * * * * * * * * * * * * * * * * * * * * * * * END WITH ERROR * * * * * * * * * * * * * * * * * * * * * * * #"
-                killProcess "caffeinate"
-                quitScript
                 exit 1
         fi
     fi
@@ -548,24 +701,34 @@ else
 fi
     
 function invalidateToken() {
+    if [[ "$validToken" != "true" || -z "${api_token:-}" ]]; then
+        updateScriptLog "QUIT SCRIPT: No valid API token available; invalidation skipped."
+        return 0
+    fi
+
     responseCode=$(curl -w "%{http_code}" -H "Authorization: Bearer ${api_token}" "$jamfpro_url/api/v1/auth/invalidate-token" -X POST -s -o /dev/null)
     if [[ ${responseCode} == 204 ]]; then
         updateScriptLog "QUIT SCRIPT: Token successfully invalidated"
+        validToken="false"
+        api_token=""
     elif [[ ${responseCode} == 401 ]]; then
         updateScriptLog "QUIT SCRIPT: Token already invalid"
+        validToken="false"
+        api_token=""
     else
-        updateScriptLog "An unknown error occurred invalidating the token"
+        updateScriptLog "QUIT SCRIPT: An unknown error occurred invalidating the token (HTTP ${responseCode})"
+        return 1
     fi
+
+    return 0
 }
 
 
 if [[ "$initial_Update_Count" -eq 0 ]]; then
     updateScriptLog "CHECK-FOR-UPDATES FUNCTION: no patches found, exiting"
-    if [[ "$LaunchDaemonisReady" -eq 1 ]]; then
-        updateScriptLog "Entferne existierenden LaunchDaemon (da Updates erfolgreich)."
-        ClearUpPlist
-        ClearUpLaunchDaemon
-    fi
+    invalidateToken
+    updateScriptLog "CHECK-FOR-UPDATES FUNCTION: Removing deferral state because no updates remain."
+    CleanupDeferralState
     exit 0
 fi
 
@@ -712,14 +875,40 @@ function UpdateJSONConfiguration() {
             if [[ -z "$result" ]]; then
                 updateScriptLog "BACKGROUND-UPDATER: $PolicyName (trigger $PolicyID) is now executed."
                 /usr/local/bin/jamf policy -id "$PolicyID" -forceNoRecon
-                (( Update_Count-- ))
-                (( Update_Count_in_background++ ))
-                updatedApps+=( "$PolicyName" )
-                if [[ $Update_Count -eq 0 ]]; then
-                    updateScriptLog "BACKGROUND-UPDATER: All apps updated in the background. Inventory is sent."
-                    /usr/local/bin/jamf recon
-                    [[ "$LaunchDaemonisReady" -eq 1 ]] && { ClearUpPlist; ClearUpLaunchDaemon; }
-                    exit 0
+                backgroundPolicyExitCode=$?
+
+                if [[ $backgroundPolicyExitCode -eq 0 ]]; then
+                    updateScriptLog "BACKGROUND-UPDATER: $PolicyName completed successfully."
+                    (( Update_Count-- ))
+                    (( Update_Count_in_background++ ))
+                    updatedApps+=( "$PolicyName" )
+
+                    if [[ $Update_Count -eq 0 ]]; then
+                        updateScriptLog "BACKGROUND-UPDATER: All apps updated in the background. Inventory is sent."
+                        /usr/local/bin/jamf recon
+                        reconExitCode=$?
+
+                        if [[ $reconExitCode -eq 0 ]]; then
+                            invalidateToken
+                            CleanupDeferralState
+                            exit 0
+                        else
+                            updateScriptLog "BACKGROUND-UPDATER: ERROR: Inventory update failed with exit code ${reconExitCode}; preserving deferral state."
+                            invalidateToken
+                            exit 1
+                        fi
+                    fi
+                else
+                    updateScriptLog "BACKGROUND-UPDATER: ERROR: $PolicyName failed with exit code ${backgroundPolicyExitCode}; moving it to the user update workflow."
+                    (( addedObjects > 0 )) && policyJSON+=','
+                    policyJSON+='{
+                                        "listitem":"'"${PolicyName}"'",
+                                        "icon":"'"${icon}"'",
+                                        "progresstext":"Updating '"${PolicyName}"'",
+                                        "trigger_list":[{"trigger":"'"${PolicyID}"'","validation":"'"${validation}"'"}]
+                                }'
+                    (( addedObjects++ ))
+                    PolicyNameUserPrompt+=( "$PolicyName" )
                 fi
             else
                 (( addedObjects > 0 )) && policyJSON+=','
@@ -814,19 +1003,52 @@ case ${debugMode} in
     "true"      ) dialogBinary="${dialogBinary} --verbose" ;;
     "verbose"   ) dialogBinary="${dialogBinary} --verbose --resizable --debug red" ;;
 esac
-    
+
+# Build the item list for the first prompt window from policyJSON.
+# Each --listitem contains the policy/application name and its icon.
+function get_prompt_json_value() {
+    JSON="$1" /usr/bin/osascript -l JavaScript \
+        -e 'const env = $.NSProcessInfo.processInfo.environment.objectForKey("JSON").js' \
+        -e "JSON.parse(env).$2"
+}
+
+PromptListArguments=""
+PromptListLength="$(get_prompt_json_value "${policyJSON}" "steps.length" 2>/dev/null)"
+
+if [[ "${PromptListLength}" =~ ^[0-9]+$ ]] && (( PromptListLength > 0 )); then
+    for (( PromptListIndex=0; PromptListIndex<PromptListLength; PromptListIndex++ )); do
+        PromptListName="$(get_prompt_json_value "${policyJSON}" "steps[${PromptListIndex}].listitem" 2>/dev/null)"
+        PromptListIcon="$(get_prompt_json_value "${policyJSON}" "steps[${PromptListIndex}].icon" 2>/dev/null)"
+
+        [[ "${PromptListName}" == "undefined" || "${PromptListName}" == "null" ]] && PromptListName=""
+        [[ "${PromptListIcon}" == "undefined" || "${PromptListIcon}" == "null" ]] && PromptListIcon=""
+
+        if [[ -n "${PromptListName}" ]]; then
+            PromptListValue="${PromptListName}"
+            [[ -n "${PromptListIcon}" ]] && PromptListValue+=",icon=${PromptListIcon}"
+
+            # PromtUser is executed with eval later. %q ensures that spaces and
+            # shell metacharacters in policy names or icon URLs remain one argument.
+            printf -v PromptListQuoted '%q' "${PromptListValue}"
+            PromptListArguments+=" --listitem ${PromptListQuoted}"
+        fi
+    done
+else
+    updateScriptLog "PROMT USER DIALOG: policyJSON could not be parsed; prompt list will be omitted."
+fi
+
 if [[ "$CurrentDeferralValue" -gt 0 ]]
     then
-            # Reduce the timer by 1. The script will run again the next interval
-            let CurrTimer="$CurrentDeferralValue - 1"
-            setDeferralCount "$BundleIDDeferral" "$CurrTimer" "$DeferralPlist"
-            
+            # The deferral counter is reduced only after the user actually defers
+            # or the timer expires. Merely displaying the prompt must not consume it.
             PromtUser="$dialogBinary \
             --bannerimage \"$BannerImage\" \
             --title \"${UserInfoTitle}\" \
             --message \"${UserInfoMessage}\" \
             --icon \"${InfoboxIcon}\" \
             --iconsize 198 \
+            --liststyle compact \
+            ${PromptListArguments} \
             --button1text \"${Install_Button_Custom}\" \
             --button2text \"${Defer_Button_Custom}\" \
             --timer \"${TimePromtUser}\" \
@@ -844,6 +1066,8 @@ if [[ "$CurrentDeferralValue" -gt 0 ]]
             --message \"${UserEnforceMessage}\" \
             --icon \"${InfoboxIcon}\" \
             --iconsize 198 \
+            --liststyle compact \
+            ${PromptListArguments} \
             --button1text \"${Install_Button_Custom}\" \
             --infotext \"$scriptVersion\" \
             --ontop \
@@ -950,7 +1174,16 @@ function finalise(){
     # Output Line Number in `true` Debug Mode
     if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
     
+    # finalise() is reached only after the update workflow has completed.
+    # Therefore, always remove the deferral state and LaunchDaemon on exit,
+    # regardless of whether individual updates succeeded or failed.
+    # Deferrals and pre-update errors keep cleanupDeferralOnExit=false and
+    # therefore continue to preserve the LaunchDaemon.
+    cleanupDeferralOnExit="true"
+    updateScriptLog "FINALISE: Update workflow completed; deferral state and LaunchDaemon will be removed on exit."
+    
     if [[ "${jamfProPolicyTriggerFailure}" == "failed" ]]; then
+        updateScriptLog "FINALISE: Update failure detected; cleanup will still be performed after the failure dialog."
         
         Failure_Info_Title=$(/usr/libexec/PlistBuddy -c "Print :Messages:Failure_Info_Title" "$Managed_Preferences" 2>/dev/null)
         Failure_Info_Title="$(printf '%s\n' "$Failure_Info_Title" | /usr/bin/sed "s/%REAL_FIRSTNAME%/${loggedInUserFirstname}/" | /usr/bin/sed "s/%UPDATE_COUNT%/${Update_Count}/")"
@@ -1011,6 +1244,7 @@ function finalise(){
         quitScript "1"
         
     else
+        updateScriptLog "FINALISE: Updates completed successfully."
         
         PatchHelper "title: ${final_sucess_titel}"        
         PatchHelper "progresstext: ${final_sucess_progresstext}"
@@ -1056,6 +1290,8 @@ function get_json_value_UserInformation() {
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function run_jamf_trigger() {
 
+    lastJamfCommandExitCode=0
+
     # Output Line Number in `true` Debug Mode
     if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
@@ -1068,6 +1304,7 @@ function run_jamf_trigger() {
             updateScriptLog "Patch Helper DIALOG: DEBUG MODE: RECON: $jamfBinary recon ${reconOptions}"
         fi
         sleep 1
+        lastJamfCommandExitCode=0
 
     elif [[ "$trigger" == "recon" ]]; then
 
@@ -1076,7 +1313,9 @@ function run_jamf_trigger() {
         # eval "${jamfBinary} recon ${reconOptions}"
     else
         updateScriptLog "Patch Helper DIALOG: RUNNING: $jamfBinary policy -id $trigger -forceNoRecon"
-        eval "${jamfBinary} policy -id ${trigger}"                                     # Add comment for policy testing
+        eval "${jamfBinary} policy -id ${trigger} -forceNoRecon"                       # Add comment for policy testing
+        lastJamfCommandExitCode=$?
+        updateScriptLog "Patch Helper DIALOG: Jamf policy exit code: ${lastJamfCommandExitCode}"
         # eval "${jamfBinary} policy -id ${trigger} -true | tee -a ${scriptLog}"    # Remove comment for policy testing
     fi
 
@@ -1212,17 +1451,34 @@ function validatePolicyResult() {
         "None" )
             # Output Line Number in `true` Debug Mode
             if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-            updateScriptLog "Patch Helper DIALOG: Confirm Policy Execution: ${validation}"
-            PatchHelper "listitem: index: $i, status: success, statustext: Installed"
+            updateScriptLog "Patch Helper DIALOG: Validate Policy Result: ${validation}"
+
             if [[ "${trigger}" == "recon" ]]; then
                 PatchHelper "listitem: index: $i, status: wait, statustext: Updating …, "
                 updateScriptLog "Patch Helper DIALOG: Updating computer inventory with the following reconOptions: \"${reconOptions}\" …"
+
                 if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
                     updateScriptLog "Patch Helper DIALOG: DEBUG MODE: eval ${jamfBinary} recon ${reconOptions}"
+                    lastJamfCommandExitCode=0
                 else
                     eval "${jamfBinary} recon ${reconOptions}"
+                    lastJamfCommandExitCode=$?
+                    updateScriptLog "Patch Helper DIALOG: Jamf recon exit code: ${lastJamfCommandExitCode}"
                 fi
-                PatchHelper "listitem: index: $i, status: success, statustext: Updated"
+            fi
+
+            if [[ "${lastJamfCommandExitCode:-1}" -eq 0 ]]; then
+                if [[ "${trigger}" == "recon" ]]; then
+                    PatchHelper "listitem: index: $i, status: success, statustext: Updated"
+                else
+                    PatchHelper "listitem: index: $i, status: success, statustext: Installed"
+                fi
+            else
+                PatchHelper "listitem: index: $i, status: fail, statustext: Failed"
+                jamfProPolicyTriggerFailure="failed"
+                exitCode="1"
+                jamfProPolicyNameFailures+="• $listitem  \n"
+                updateScriptLog "Patch Helper DIALOG: ERROR: Jamf command failed with exit code ${lastJamfCommandExitCode}."
             fi
         ;;
         
@@ -1235,6 +1491,9 @@ function validatePolicyResult() {
             if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
             updateScriptLog "Patch Helper DIALOG: Validate Policy Results Catch-all: ${validation}"
             PatchHelper "listitem: index: $i, status: error, statustext: Error"
+            jamfProPolicyTriggerFailure="failed"
+            exitCode="1"
+            jamfProPolicyNameFailures+="• $listitem  \n"
         ;;
     esac
 }
@@ -1257,115 +1516,175 @@ function killProcess() {
 }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Completion Action (i.e., Wait, Sleep, Logout, Restart or Shutdown)
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Completion Action (i.e., Wait or Quit)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function completionAction() {
 
-    # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-
     if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
-
-        # If Debug Mode is enabled, ignore specified `completionActionOption`, display simple dialog box and exit
-        runAsUser osascript -e 'display dialog "Patch Helper is operating in Debug Mode.\r\r• completionActionOption == '"'${completionActionOption}'"'\r\r" with title "Patch Helper: Debug Mode" buttons {"Close"} with icon note'
-        exitCode="0"
-
-    else
-
-        shopt -s nocasematch
-
-        case ${completionActionOption} in
-
-            "Quit" )
-                updateScriptLog "Quitting script"
-                exitCode="0"
-                ;;
-
-            * )
-                updateScriptLog "Using the default of 'wait'"
-                wait
-                ;;
-
-        esac
-
-        shopt -u nocasematch
+        updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #"
+        runAsUser osascript -e 'display dialog "Patch Helper is operating in Debug Mode.\r\r• completionActionOption == '"'"'${completionActionOption}'"'"'\r\r" with title "Patch Helper: Debug Mode" buttons {"Close"} with icon note'
+        return 0
     fi
-    exit "${exitCode}"
+
+    shopt -s nocasematch
+
+    case ${completionActionOption} in
+        "Quit" )
+            updateScriptLog "QUIT SCRIPT: Completion action is Quit."
+            ;;
+        * )
+            updateScriptLog "QUIT SCRIPT: Completion action is wait."
+            wait
+            ;;
+    esac
+
+    shopt -u nocasematch
+    return 0
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Quit Script
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function quitScript() {
+    local requestedExitCode="${1:-${exitCode:-0}}"
+    local cleanupResult=0
 
-    # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
+        updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #"
+    fi
 
-    updateScriptLog "QUIT SCRIPT: Exiting …"
+    updateScriptLog "QUIT SCRIPT: Exiting with requested exit code ${requestedExitCode} …"
+
     updateScriptLog "QUIT SCRIPT: Revoke API Token"
-    invalidateToken
-    # Stop `caffeinate` process
+    invalidateToken || true
+
     updateScriptLog "QUIT SCRIPT: De-caffeinate …"
     killProcess "caffeinate"
 
-    # Remove overlayicon
-    if [[ -e ${overlayicon} ]]; then
+    if [[ -n "${overlayicon:-}" && -e "$overlayicon" ]]; then
         updateScriptLog "QUIT SCRIPT: Removing ${overlayicon} …"
-        rm "${overlayicon}"
+        /bin/rm -f "$overlayicon"
     fi
-    
-    # Remove CommandFile
-    if [[ -e ${CommandFile} ]]; then
+
+    if [[ -n "${CommandFile:-}" && -e "$CommandFile" ]]; then
         updateScriptLog "QUIT SCRIPT: Removing ${CommandFile} …"
-        rm "${CommandFile}"
+        /bin/rm -f "$CommandFile"
     fi
 
-    # Remove PatchHelperCommandFile
-    if [[ -e ${PatchHelperCommandFile} ]]; then
+    if [[ -n "${PatchHelperCommandFile:-}" && -e "$PatchHelperCommandFile" ]]; then
         updateScriptLog "QUIT SCRIPT: Removing ${PatchHelperCommandFile} …"
-        rm "${PatchHelperCommandFile}"
+        /bin/rm -f "$PatchHelperCommandFile"
     fi
 
-    # Remove failureCommandFile
-    if [[ -e ${failureCommandFile} ]]; then
+    if [[ -n "${failureCommandFile:-}" && -e "$failureCommandFile" ]]; then
         updateScriptLog "QUIT SCRIPT: Removing ${failureCommandFile} …"
-        rm "${failureCommandFile}"
+        /bin/rm -f "$failureCommandFile"
     fi
 
-    # Remove any default dialog file
     if [[ -e /var/tmp/dialog.log ]]; then
         updateScriptLog "QUIT SCRIPT: Removing /var/tmp/dialog.log"
-        rm /var/tmp/dialog.log
+        /bin/rm -f /var/tmp/dialog.log
     fi
 
-    # Remove tmp files
-    if [[ -e ${plistOutput} ]]; then
+    if [[ -n "${plistOutput:-}" && -e "$plistOutput" ]]; then
         updateScriptLog "QUIT SCRIPT: Removing ${plistOutput} …"
-        rm "${plistOutput}"
+        /bin/rm -f "$plistOutput"
     fi
-    
-    if [[ -e ${xmlupdates} ]]; then
+
+    if [[ -n "${xmlupdates:-}" && -e "$xmlupdates" ]]; then
         updateScriptLog "QUIT SCRIPT: Removing ${xmlupdates} …"
-        rm "${xmlupdates}"
+        /bin/rm -f "$xmlupdates"
     fi
-    
-    if [[ "$ClearUpDeferral" == "true" ]]; then
-        updateScriptLog "QUIT SCRIPT: Removing LaunchDaemon …"
-        ClearUpDeferral
-    fi
-    
-    # Check for user clicking "Quit" at PROMT USER DIALOG
-    if [[ "${PromtUser}" == "2" ]]; then
-        exitCode="0"
-        exit "${exitCode}"
+
+    # Perform all user-facing waiting before bootout. ClearUpLaunchDaemon may
+    # terminate this process tree when the current Jamf policy was started by it.
+    completionAction
+
+    if [[ "$cleanupDeferralOnExit" == "true" ]]; then
+        updateScriptLog "QUIT SCRIPT: Completed update workflow; removing deferral state and LaunchDaemon."
+        CleanupDeferralState || cleanupResult=1
     else
-        updateScriptLog "QUIT SCRIPT: Executing Completion Action Option: '${completionActionOption}' …"
-        completionAction "${completionActionOption}"
+        updateScriptLog "QUIT SCRIPT: Deferral state and LaunchDaemon are preserved."
+    fi
+
+    if [[ $cleanupResult -ne 0 ]]; then
+        requestedExitCode=1
+    fi
+
+    exit "$requestedExitCode"
+}
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Dialog helpers
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+function waitForDialog() {
+    local timeoutSeconds="${1:-30}"
+    local checks=0
+    local maxChecks=$(( timeoutSeconds * 2 ))
+
+    while ! /usr/bin/pgrep -q -x "Dialog"; do
+        if (( checks >= maxChecks )); then
+            return 1
+        fi
+
+        /bin/sleep 0.5
+        ((checks++))
+    done
+
+    return 0
+}
+
+function startPatchHelperDialog() {
+    updateScriptLog "PROMT USER DIALOG: Starting Patch Helper dialog."
+
+    eval "${runUpdates[*]}" &
+    PatchHelperProcessID=$!
+    /bin/sleep 0.3
+
+    if ! waitForDialog 30; then
+        updateScriptLog "PROMT USER DIALOG: ERROR: Patch Helper dialog did not appear within 30 seconds."
+        completionActionOption="Quit"
+        cleanupDeferralOnExit="false"
+        quitScript "1"
+    fi
+
+    updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
+    runAsUser osascript -e 'tell application "Dialog" to activate'
+}
+
+function deferAndQuit() {
+    local reason="$1"
+    local previousDeferralValue="$CurrentDeferralValue"
+    local nextDeferralValue=$(( CurrentDeferralValue - 1 ))
+
+    updateScriptLog "PROMT USER DIALOG: Deferral requested (${reason})."
+    updateScriptLog "PROMT USER DIALOG: Deferral counter ${previousDeferralValue} -> ${nextDeferralValue}."
+
+    if ! setDeferralCount "$BundleIDDeferral" "$nextDeferralValue" "$DeferralPlist"; then
+        updateScriptLog "PROMT USER DIALOG: ERROR: Could not update deferral counter."
+        completionActionOption="Quit"
+        cleanupDeferralOnExit="false"
+        quitScript "1"
+    fi
+
+    CurrentDeferralValue="$nextDeferralValue"
+
+    if EnsureLaunchDaemon; then
+        updateScriptLog "PROMT USER DIALOG: Deferral scheduled successfully."
+        completionActionOption="Quit"
+        cleanupDeferralOnExit="false"
+        quitScript "0"
+    else
+        updateScriptLog "PROMT USER DIALOG: ERROR: Deferral could not be scheduled because the LaunchDaemon is not ready. Restoring deferral counter."
+        setDeferralCount "$BundleIDDeferral" "$previousDeferralValue" "$DeferralPlist" || true
+        CurrentDeferralValue="$previousDeferralValue"
+        completionActionOption="Quit"
+        cleanupDeferralOnExit="false"
+        quitScript "1"
     fi
 }
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 # Program
 #
@@ -1379,120 +1698,65 @@ fi
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Display PROMT USER DIALOG
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 if [[ "${UserInformation}" == "promtUserInfo" ]]; then
 
-    # Output Line Number in `true` Debug Mode
-    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-
-    eval "${PromtUser}" & sleep 0.3
-    
-    pid=$!
-    wait $pid 2>/dev/null && result=$? || result=2
-    
-    if [ $result -eq 2 ]
-        then
-            PromtUser="2"
-            echo "User has moved the update."
-            
-        else
-            PromtUser="0"
-            echo "User has clicked on install."
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
+        updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #"
     fi
 
-    case "${PromtUser}" in
+    eval "${PromtUser}" &
+    pid=$!
+    /bin/sleep 0.3
 
-        0)  # Process exit code 0 scenario here
-            echo "Exit 0"
-                        
-            updateScriptLog "PROMT USER DIALOG: ${loggedInUser} has received the information and has clicked on Update "
+    wait "$pid" 2>/dev/null
+    promptExitCode=$?
+    PromtUser="$promptExitCode"
 
-            # Updates=$(get_json_value_UserInformation "$welcomeResults" "selectedValue")
+    updateScriptLog "PROMT USER DIALOG: swiftDialog exit code: ${promptExitCode}"
+
+    case "$promptExitCode" in
+
+        0)
+            updateScriptLog "PROMT USER DIALOG: ${loggedInUser} clicked Update."
             updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
-
-            eval "${runUpdates[*]}" & sleep 0.3
-            PatchHelperProcessID=$!
-            until pgrep -q -x "Dialog"; do
-                # Output Line Number in `true` Debug Mode
-                if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-                updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
-                counter=0
-                while true; do
-                    ((counter++))
-                    updateScriptLog "Current value of counter: $counter"
-                    if [ "$counter" -ge 60 ]; then
-                        updateScriptLog "Counter has reached the value of 60. Exiting script with exit code 1."
-                        exit 1
-                    fi
-                    sleep 1
-                done
-            done
-            updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
-            updateScriptLog "PROMT USER DIALOG: Check function ClearUpDeferral"
-            ClearUpDeferral="true"
-            runAsUser osascript -e 'tell application "Dialog" to activate'
+            startPatchHelperDialog
             ;;
 
-        2)  # Process exit code 2 scenario here
-            echo "exit 2"
-            if [[ "$CurrentDeferralValue" -gt 0 ]]
-            then
-                # If no LaunchDaemon is running yet, create and load it now
-                if [[ "$LaunchDaemonisReady" -eq 0 ]]
-                    then
-                        updateScriptLog "LAUNCH-DAEMON FUNCTION: No LaunchDaemon available. Create and load it now."
-                        createLaunchDaemon
-                        StartLaunchDaemon
-                    else
-                        updateScriptLog "LAUNCH-DAEMON FUNCTION: LaunchDaemon was already active; no need to create it again."
-                fi
-
-                updateScriptLog "PROMT USER DIALOG: ${loggedInUser} clicked Quit at PROMT USER DIALOG"
-                completionActionOption="Quit"
-                quitScript "1"
+        2)
+            if [[ "$CurrentDeferralValue" -gt 0 ]]; then
+                updateScriptLog "PROMT USER DIALOG: ${loggedInUser} deferred the update."
+                deferAndQuit "button2"
             else
-            updateScriptLog "PROMT USER DIALOG: ${loggedInUser} clicked Command Q at PROMT USER DIALOG"
-            
-            # Updates=$(get_json_value_UserInformation "$welcomeResults" "selectedValue")
-            updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
-            
-            eval "${runUpdates[*]}" & sleep 0.3
-            PatchHelperProcessID=$!
-            until pgrep -q -x "Dialog"; do
-                # Output Line Number in `true` Debug Mode
-                if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-                updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
-                counter=0
-                while true; do
-                    ((counter++))
-                    updateScriptLog "Current value of counter: $counter"
-                    if [ "$counter" -ge 60 ]; then
-                        updateScriptLog "Counter has reached the value of 60. Exiting script with exit code 1."
-                        exit 1
-                    fi
-                    sleep 1
-                done
-            done
-            updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
-            runAsUser osascript -e 'tell application "Dialog" to activate'
-            updateScriptLog "PROMT USER DIALOG: Check function ClearUpDeferral"
-            ClearUpDeferral="true"
+                updateScriptLog "PROMT USER DIALOG: Exit code 2 received but no deferrals remain; enforcing updates."
+                updateScriptLog "PROMT USER DIALOG: reconOptions: ${reconOptions}"
+                startPatchHelperDialog
             fi
             ;;
 
-        3)  # Process exit code 3 scenario here
-            updateScriptLog "PROMT USER DIALOG: ${loggedInUser} clicked infobutton"
+        3)
+            updateScriptLog "PROMT USER DIALOG: Info action closed the prompt; no update workflow started."
             osascript -e "set Volume 3"
             afplay /System/Library/Sounds/Glass.aiff
+            completionActionOption="Quit"
+            cleanupDeferralOnExit="false"
+            quitScript "0"
             ;;
 
-        4)  # Process exit code 4 scenario here
-            updateScriptLog "PROMT USER DIALOG: ${loggedInUser} allowed timer to expire"
-            quitScript "1"
+        4)
+            updateScriptLog "PROMT USER DIALOG: ${loggedInUser} allowed the timer to expire."
+            if [[ "$CurrentDeferralValue" -gt 0 ]]; then
+                deferAndQuit "timer"
+            else
+                updateScriptLog "PROMT USER DIALOG: Timer expired but no deferrals remain; enforcing updates."
+                startPatchHelperDialog
+            fi
             ;;
 
-        *)  # Catch all processing
-            updateScriptLog "PROMT USER DIALOG: Something else happened; Exit code: ${PromtUser}"
+        *)
+            updateScriptLog "PROMT USER DIALOG: Unexpected swiftDialog exit code: ${promptExitCode}"
+            completionActionOption="Quit"
+            cleanupDeferralOnExit="false"
             quitScript "1"
             ;;
 
@@ -1500,25 +1764,15 @@ if [[ "${UserInformation}" == "promtUserInfo" ]]; then
 
 else
 
-    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-    # Updates="Catch-all ('Welcome' dialog disabled)"
-    # UpdateJSONConfiguration
-    
-    
-    eval "${runUpdates[*]}" & sleep 0.3
-    PatchHelperProcessID=$!
-    until pgrep -q -x "Dialog"; do
-        # Output Line Number in `true` Debug Mode
-        if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
-        updateScriptLog "PROMT USER DIALOG: Waiting to display 'Patch Helper' dialog; pausing"
-        sleep 0.5
-    done
-    updateScriptLog "PROMT USER DIALOG: 'Patch Helper' dialog displayed; ensure it's the front-most app"
-    runAsUser osascript -e 'tell application "Dialog" to activate'
+    if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
+        updateScriptLog "PROMT USER DIALOG: # # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #"
+    fi
+
+    startPatchHelperDialog
 
 fi
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Iterate through policyJSON to construct the list for swiftDialog
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -1658,4 +1912,3 @@ done
 if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #" ; fi
 
 finalise
-quitScript
