@@ -4,9 +4,10 @@
 # Edetiert durch  :   Andreas Vogel
 #######################################################################
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/jamf/bin/
-scriptVersion="1.0.2"
-debugMode="${6:-"true"}"                                 # Parameter 4: Debug Mode [ true (default) | false | verbose ]
-completionActionOption="wait"                               # Completion Action [ wait | Close ]
+scriptVersion="1.0.3"
+debugMode="${6:-"true"}"                                 # Parameter 6: Debug Mode [ true (default) | false | verbose ]
+completionActionOption="wait"                            # Completion Action [ wait | Close ]
+completionTimeout="15"
 UserInformation="promtUserInfo"
 failureIcon="SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"
 macOSproductVersion="$( sw_vers -productVersion )"
@@ -1165,6 +1166,87 @@ function dialogUpdateFailure(){
     echo "$1" >> "$failureCommandFile"
 }
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Wait for dialog acknowledgment with timeout
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+function waitForDialogWithTimeout() {
+    
+    local dialogPID="$1"
+    local timeout="${2:-300}"
+    local dialogType="${3:-PatchHelper}"
+    local elapsed=0
+    
+    # Validate PID
+    if [[ -z "${dialogPID}" ]] || [[ ! "${dialogPID}" =~ ^[0-9]+$ ]]; then
+        updateScriptLog "FINALISE: ERROR: Invalid dialog PID '${dialogPID}'. Skipping wait."
+        return 1
+    fi
+    
+    # Dialog may already have been closed by the user
+    if ! /bin/kill -0 "${dialogPID}" 2>/dev/null; then
+        updateScriptLog "FINALISE: ${dialogType} dialog already closed by user."
+        return 0
+    fi
+    
+    updateScriptLog "FINALISE: Waiting up to ${timeout} seconds for user acknowledgment (${dialogType}, PID ${dialogPID})."
+    
+    while /bin/kill -0 "${dialogPID}" 2>/dev/null; do
+        
+        if [[ "${elapsed}" -ge "${timeout}" ]]; then
+            
+            updateScriptLog "FINALISE: Timeout after ${timeout} seconds reached for ${dialogType}. Closing dialog automatically."
+            
+            case "${dialogType}" in
+                
+                "PatchHelper")
+                    PatchHelper "quit:"
+                ;;
+                
+                "Failure")
+                    dialogUpdateFailure "quit:"
+                ;;
+                
+                *)
+                    updateScriptLog "FINALISE: WARNING: Unknown dialog type '${dialogType}'."
+                ;;
+                
+            esac
+            
+            # Give swiftDialog time to process the quit command
+            /bin/sleep 1
+            
+            # Fallback: terminate process if command file did not close it
+            if /bin/kill -0 "${dialogPID}" 2>/dev/null; then
+                updateScriptLog "FINALISE: Dialog PID ${dialogPID} still running. Terminating process."
+                /bin/kill "${dialogPID}" 2>/dev/null
+                /bin/sleep 1
+            fi
+            
+            # Final fallback
+            if /bin/kill -0 "${dialogPID}" 2>/dev/null; then
+                updateScriptLog "FINALISE: Dialog PID ${dialogPID} still running. Force terminating."
+                /bin/kill -9 "${dialogPID}" 2>/dev/null
+            fi
+            
+            break
+        fi
+        
+        /bin/sleep 1
+        ((elapsed++))
+        
+    done
+    
+    # Reap child process if it still belongs to this shell
+    wait "${dialogPID}" 2>/dev/null
+    
+    if [[ "${elapsed}" -lt "${timeout}" ]]; then
+        updateScriptLog "FINALISE: ${dialogType} dialog acknowledged/closed after ${elapsed} seconds."
+    fi
+    
+    return 0
+}
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # Finalise User Experience
 function finalise(){
@@ -1206,8 +1288,10 @@ function finalise(){
         PatchHelper "progress: reset"
         
         
-        # Wait for user-acknowledgment due to detected failure
-        wait
+        # Wait for user acknowledgment, but automatically continue after timeout
+        if [[ "${completionActionOption}" == "wait" ]]; then
+            waitForDialogWithTimeout "${PatchHelperProcessID}" "${completionTimeout}" "PatchHelper"
+        fi
         
         dialogFailureCMD="$dialogBinary \
         --moveable \
@@ -1226,7 +1310,12 @@ function finalise(){
         --commandfile \"$failureCommandFile\" "
         
         PatchHelper "quit:"
-        eval "${dialogFailureCMD}" & sleep 0.3
+        eval "${dialogFailureCMD}" &
+        failureDialogProcessID=$!
+        
+        /bin/sleep 0.3
+        
+        updateScriptLog "FINALISE: Failure dialog started with PID ${failureDialogProcessID}."
         
         updateScriptLog "\n\n# # #\n# FAILURE DIALOG\n# # #\n"
         updateScriptLog "Jamf Pro Policy Name Failures:"
@@ -1237,8 +1326,10 @@ function finalise(){
         dialogUpdateFailure "icon: SF=xmark.circle.fill,weight=bold,colour1=#BB1717,colour2=#F31F1F"
         dialogUpdateFailure "button1text: ${button1textCompletionActionOption}"
         
-        # Wait for user-acknowledgment due to detected failure
-        wait
+        # Wait for failure dialog acknowledgment, but automatically close after timeout
+        if [[ "${completionActionOption}" == "wait" ]]; then
+            waitForDialogWithTimeout "${failureDialogProcessID}" "${completionTimeout}" "Failure"
+        fi
         
         dialogUpdateFailure "quit:"
         quitScript "1"
@@ -1255,10 +1346,10 @@ function finalise(){
         PatchHelper "button1: enable"
         
         
-        # If either "wait" or "sleep" has been specified for `completionActionOption`, honor that behavior
-        if [[ "${completionActionOption}" == "wait" ]] || [[ "${completionActionOption}" == "[Ss]leep"* ]]; then
-            updateScriptLog "Honoring ${completionActionOption} behavior …"
-            eval "${completionActionOption}" "${PatchHelperProcessID}"
+        
+        # Wait for user acknowledgment, but automatically close after timeout
+        if [[ "${completionActionOption}" == "wait" ]]; then
+            waitForDialogWithTimeout "${PatchHelperProcessID}" "${completionTimeout}" "PatchHelper"
         fi
         
         quitScript "0"
@@ -1519,26 +1610,12 @@ function killProcess() {
 # Completion Action (i.e., Wait or Quit)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 function completionAction() {
-
     if [[ "${debugMode}" == "true" ]] || [[ "${debugMode}" == "verbose" ]]; then
         updateScriptLog "# # # Patch Helper true DEBUG MODE: Line No. ${LINENO} # # #"
-        runAsUser osascript -e 'display dialog "Patch Helper is operating in Debug Mode.\r\r• completionActionOption == '"'"'${completionActionOption}'"'"'\r\r" with title "Patch Helper: Debug Mode" buttons {"Close"} with icon note'
         return 0
     fi
-
-    shopt -s nocasematch
-
-    case ${completionActionOption} in
-        "Quit" )
-            updateScriptLog "QUIT SCRIPT: Completion action is Quit."
-            ;;
-        * )
-            updateScriptLog "QUIT SCRIPT: Completion action is wait."
-            wait
-            ;;
-    esac
-
-    shopt -u nocasematch
+    
+    updateScriptLog "QUIT SCRIPT: Completion action finished."
     return 0
 }
 
